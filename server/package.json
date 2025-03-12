@@ -1,7 +1,7 @@
 {
-  "name": "tweeter_minh",
+  "name": "webmed-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "WebMed Healthcare Services Backend",
   "main": "index.ts",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.688.0",
