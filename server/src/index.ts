@@ -6,21 +6,18 @@ import cors, { CorsOptions } from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
-import { envConfig, isProduction } from './constants/config'
-import { initFolderImage } from './utils/file'
 import initSocket from './utils/socket'
 
 // Routes
-import authRouter from './routes/auth.routes'
-import userRouter from './routes/user.routes'
+
 import restaurantRouter from './routes/restaurant.routes'
 import menuRouter from './routes/menu.routes'
 import orderRouter from './routes/order.routes'
 import paymentRouter from './routes/payment.routes'
-import staticRouter from './routes/static.routes'
 
 // Import utils
 import './utils/s3'
+import { envConfig, isProduction } from './constants/config'
 
 config()
 
@@ -76,7 +73,6 @@ app.use('/restaurants', restaurantRouter)
 app.use('/menu', menuRouter)
 app.use('/orders', orderRouter)
 app.use('/payments', paymentRouter)
-app.use('/static', staticRouter)
 
 // Error handler
 app.use(defaultErrorHandler)
@@ -88,3 +84,6 @@ export const io = initSocket(httpServer)
 httpServer.listen(port, () => {
   console.log(`Server listening on port ${port}`)
 })
+function initFolderImage() {
+  throw new Error('Function not implemented.')
+}

@@ -15,6 +15,10 @@ import {
   batchUpdateMenuItemsController,
   getPopularMenuItemsController
 } from '../controllers/menu.controller'
+import { menuItemValidator } from '~/middlewares/validation.middlewares'
+import { UserRole } from '~/models/schemas/Users.schema'
+import { wrapAsync } from '~/middlewares/error.middlewares'
+import { checkUserRole } from '~/middlewares/common.middlewares'
 
 const menuRouter = express.Router()
 
@@ -95,25 +99,3 @@ menuRouter.delete(
 )
 
 export default menuRouter
-function wrapAsync(
-  getRestaurantMenuController: (req: express.Request, res: express.Response) => Promise<void>
-): import('express-serve-static-core').RequestHandler<
-  { restaurantId: string },
-  any,
-  any,
-  import('qs').ParsedQs,
-  Record<string, any>
-> {
-  throw new Error('Function not implemented.')
-}
-function checkUserRole(
-  arg0: any[]
-): import('express-serve-static-core').RequestHandler<
-  { restaurantId: string },
-  any,
-  any,
-  import('qs').ParsedQs,
-  Record<string, any>
-> {
-  throw new Error('Function not implemented.')
-}

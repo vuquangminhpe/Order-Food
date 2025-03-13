@@ -7,6 +7,7 @@ import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import User from '~/models/schemas/Users.schema'
 import { envConfig } from '~/constants/config'
 import Rating from '~/models/schemas/Rating.schema'
+import Refund from '~/models/schemas/Refund.schema'
 
 const uri =
   'mongodb+srv://minhvqhe176726:minhvqhe176726@management-employee.31yis.mongodb.net/?retryWrites=true&w=majority&appName=management-employee'
@@ -58,10 +59,12 @@ class DatabaseService {
   get deliveryTracking(): Collection<DeliveryTracking> {
     return this.db.collection(envConfig.deliveryTrackingCollection)
   }
-  get ratingOrder(): Collection<Rating> {
+  get ratings(): Collection<Rating> {
     return this.db.collection(envConfig.ratingCollection)
   }
-
+  get refunds(): Collection<Refund> {
+    return this.db.collection(envConfig.refundCollection)
+  }
   async indexUsers() {
     await this.users.createIndex({ email: 1 }, { unique: true })
     await this.users.createIndex({ phone: 1 }, { unique: true })

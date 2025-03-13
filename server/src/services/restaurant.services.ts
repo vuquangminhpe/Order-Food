@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb'
 import { InsertOneResult, UpdateResult, DeleteResult } from 'mongodb'
 import Restaurant, { RestaurantStatus } from '../models/schemas/Restaurant.schema'
 import databaseService from './database.services'
-import { RestaurantReqBody, UpdateRestaurantReqBody } from '../models/requests/restaurant.requests'
+import { RestaurantReqBody, UpdateRestaurantReqBody } from '~/models/requests/auth.requests'
 
 class RestaurantService {
   // Create a new restaurant
@@ -128,7 +128,7 @@ class RestaurantService {
       .toArray()
 
     // Filter results by actual distance
-    const nearbyRestaurants = restaurants.filter((restaurant) => {
+    const nearbyRestaurants = restaurants.filter((restaurant: any) => {
       const distance = this.calculateDistance(lat, lng, restaurant.location.lat, restaurant.location.lng)
 
       // Attach distance to restaurant object
@@ -138,7 +138,7 @@ class RestaurantService {
     })
 
     // Sort by distance
-    nearbyRestaurants.sort((a, b) => a.distance - b.distance)
+    nearbyRestaurants.sort((a: any, b: any) => a.distance - b.distance)
 
     return nearbyRestaurants
   }

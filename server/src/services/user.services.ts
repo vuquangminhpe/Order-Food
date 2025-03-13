@@ -280,7 +280,7 @@ class UserService {
       .toArray()
 
     // Filter results by actual distance
-    const nearbyPersonnel = deliveryPersonnel.filter((person) => {
+    const nearbyPersonnel = deliveryPersonnel.filter((person: any) => {
       const distance = this.calculateDistance(
         restaurantLat,
         restaurantLng,

@@ -1,7 +1,6 @@
 import express from 'express'
 import { authMiddleware } from '../middlewares/auth.middlewares'
 import { paymentValidator, refundValidator } from '../middlewares/validation.middlewares'
-import { wrapAsync } from '../utils/handlers'
 import {
   createPaymentUrlController,
   vnpayIpnController,
@@ -10,8 +9,9 @@ import {
   refundPaymentController,
   getPaymentHistoryController
 } from '../controllers/payment.controller'
-import { checkUserRole } from '../middlewares/role.middlewares'
-import { UserRole } from '../models/schemas/User.schema'
+import { wrapAsync } from '~/middlewares/error.middlewares'
+import { checkUserRole } from '~/middlewares/common.middlewares'
+import { UserRole } from '~/models/schemas/Users.schema'
 
 const paymentRouter = express.Router()
 

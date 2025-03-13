@@ -1,11 +1,11 @@
 import crypto from 'crypto'
 import querystring from 'querystring'
-import moment from 'moment'
 import { ObjectId } from 'mongodb'
-import { PaymentReqBody } from '../models/requests/payment.requests'
 import databaseService from './database.services'
 import { OrderStatus, PaymentStatus } from '../models/schemas/Order.schema'
 import { envConfig } from '../constants/config'
+import moment from 'moment'
+import { RefundMethod, RefundStatus } from '~/models/schemas/Refund.schema'
 
 class PaymentService {
   private vnp_TmnCode: string
@@ -84,13 +84,13 @@ class PaymentService {
     const sortedParams = this.sortObject(vnpParams)
 
     // Create signature
-    const signData = querystring.stringify(sortedParams, { encode: false })
+    const signData = querystring.stringify(sortedParams)
     const hmac = crypto.createHmac('sha512', this.vnp_HashSecret)
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex')
     sortedParams['vnp_SecureHash'] = signed
 
     // Create full payment URL
-    const paymentUrl = `${this.vnp_Url}?${querystring.stringify(sortedParams, { encode: false })}`
+    const paymentUrl = `${this.vnp_Url}?${querystring.stringify(sortedParams)}`
 
     return paymentUrl
   }
@@ -116,7 +116,7 @@ class PaymentService {
     const sortedParams = this.sortObject(vnpParams)
 
     // Check signature
-    const signData = querystring.stringify(sortedParams, { encode: false })
+    const signData = querystring.stringify(sortedParams)
     const hmac = crypto.createHmac('sha512', this.vnp_HashSecret)
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex')
 
@@ -206,7 +206,7 @@ class PaymentService {
     const sortedParams = this.sortObject(vnpParams)
 
     // Check signature
-    const signData = querystring.stringify(sortedParams, { encode: false })
+    const signData = querystring.stringify(sortedParams)
     const hmac = crypto.createHmac('sha512', this.vnp_HashSecret)
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex')
 
@@ -334,7 +334,6 @@ class PaymentService {
     // In a real implementation, this would involve calling VNPay's refund API
     // For this example, we'll just update our database
 
-    // Update order payment status
     await databaseService.orders.updateOne(
       { _id: order._id },
       {
@@ -346,15 +345,20 @@ class PaymentService {
       }
     )
 
-    // Create refund record in database
     await databaseService.refunds.insertOne({
       orderId: order._id,
       amount,
       reason,
-      status: 'completed',
+      status: RefundStatus.Completed,
       transactionRef,
       originalTransactionRef: order.paymentId,
-      created_at: new Date()
+      created_at: new Date(),
+      updated_at: new Date(),
+      userId: new ObjectId(),
+      paymentId: '',
+      rejectionReason: '',
+      notes: '',
+      method: RefundMethod.Original
     })
 
     return {

@@ -25,6 +25,7 @@ export const envConfig = {
   ratingCollection: process.env.DB_RATING_COLLECTION as string,
   deliveryTrackingCollection: process.env.DB_DELIVERY_TRACKING_COLLECTION as string,
   menuCategoryCollection: process.env.DB_MENU_CATEGORY_COLLECTION as string,
+  refundCollection: process.env.DB_REFUND_COLLECTION as string,
   region: process.env.AWS_REGION,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -42,5 +43,10 @@ export const envConfig = {
   client_id: process.env.GOOGLE_CLIENT_ID,
   client_secret: process.env.GOOGLE_CLIENT_SECRET,
   redirect_uri: process.env.GOOGLE_REDIRECT_URI,
-  client_url: process.env.CLIENT_URL
+  client_url: process.env.CLIENT_URL,
+  vnpay_tmn_code: process.env.VN_PAY_TMN_CODE,
+  vnpay_hash_secret: process.env.VN_PAY_HASH_SECRET,
+  vnpay_url: process.env.VN_PAY_URL,
+  vnpay_payment_url: process.env.VN_PAY_PAYMENT_URL,
+  vnpay_return_url: process.env.VN_PAY_RETURN_URL
 }
