@@ -2,20 +2,31 @@ import { ObjectId } from 'mongodb'
 
 interface RefreshTokenType {
   _id?: ObjectId
+  user_id: ObjectId
   token: string
   created_at?: Date
-  user_id: ObjectId
+  updated_at?: Date
+  exp?: Date
 }
+
 export default class RefreshToken {
   _id?: ObjectId
+  user_id: ObjectId
   token: string
   created_at: Date
-  user_id: ObjectId
-  constructor({ _id, token, created_at, user_id }: RefreshTokenType) {
-    this._id = _id
-    this.token = token
+  updated_at: Date
+  exp: Date
 
-    this.created_at = created_at || new Date()
-    this.user_id = user_id
+  constructor(refreshToken: RefreshTokenType) {
+    const date = new Date()
+    const expDate = new Date(date)
+    expDate.setDate(expDate.getDate() + 7)
+
+    this._id = refreshToken._id
+    this.user_id = refreshToken.user_id
+    this.token = refreshToken.token
+    this.created_at = refreshToken.created_at || date
+    this.updated_at = refreshToken.updated_at || date
+    this.exp = refreshToken.exp || expDate
   }
 }

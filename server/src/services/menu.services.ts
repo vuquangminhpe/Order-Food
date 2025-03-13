@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb'
 import { InsertOneResult, UpdateResult, DeleteResult } from 'mongodb'
 import MenuItem, { MenuCategory } from '../models/schemas/Menu.schema'
 import databaseService from './database.services'
-import { MenuItemReqBody, MenuCategoryReqBody } from '../models/requests/menu.requests'
+import { MenuCategoryReqBody, MenuItemReqBody } from '~/models/requests/auth.requests'
 
 class MenuService {
   // Create a new menu item

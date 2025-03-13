@@ -22,7 +22,7 @@ class OrderService {
   }
 
   // Get order by ID
-  async getOrderById(id: string): Promise<Order | null> {
+  async getOrderById(id: string) {
     return databaseService.orders.findOne({ _id: new ObjectId(id) })
   }
 

@@ -1,9 +1,9 @@
 import { Server as HttpServer } from 'http'
-import { Server, Socket } from 'socket.io'
-import { verifyAccessToken } from './jwt'
+import { Server } from 'socket.io'
 import databaseService from '../services/database.services'
 import { OrderStatus } from '../models/schemas/Order.schema'
 import { ObjectId } from 'mongodb'
+import { verifyAccessToken } from './jwt'
 
 interface LocationUpdate {
   orderId: string

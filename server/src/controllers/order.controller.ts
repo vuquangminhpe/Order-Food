@@ -1,15 +1,14 @@
 import { Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { OrderReqBody, UpdateOrderStatusReqBody } from '../models/requests/order.requests'
 import { ORDER_MESSAGES } from '../constants/messages'
 import orderService from '../services/order.services'
 import restaurantService from '../services/restaurant.services'
 import databaseService from '../services/database.services'
 import { OrderStatus, PaymentMethod, PaymentStatus } from '../models/schemas/Order.schema'
 import { getIO } from '../utils/socket'
-import Order from '../models/schemas/Order.schema'
 import DeliveryTracking from '../models/schemas/DeliveryTracking.schema'
+import { OrderReqBody, UpdateOrderStatusReqBody } from '~/models/requests/auth.requests'
 
 // Create a new order
 export const createOrderController = async (req: Request<ParamsDictionary, any, OrderReqBody>, res: Response) => {
@@ -17,7 +16,7 @@ export const createOrderController = async (req: Request<ParamsDictionary, any, 
   const orderData = req.body
 
   // Validate restaurant existence
-  const restaurant = await restaurantService.getRestaurantById(orderData.restaurantId)
+  const restaurant = await restaurantService.getRestaurantById(orderData.restaurantId as string)
   if (!restaurant) {
     return res.status(404).json({
       message: ORDER_MESSAGES.RESTAURANT_NOT_FOUND
@@ -30,8 +29,8 @@ export const createOrderController = async (req: Request<ParamsDictionary, any, 
 
   for (const item of orderData.items) {
     const menuItem = await databaseService.menuItems.findOne({
-      _id: new ObjectId(item.menuItemId),
-      restaurantId: new ObjectId(orderData.restaurantId)
+      _id: new ObjectId(item.menuItemId as string),
+      restaurantId: new ObjectId(orderData.restaurantId as string)
     })
 
     if (!menuItem) {
@@ -115,7 +114,7 @@ export const createOrderController = async (req: Request<ParamsDictionary, any, 
   // Create order with calculated values
   const orderPayload = {
     userId: new ObjectId(user_id),
-    restaurantId: new ObjectId(orderData.restaurantId),
+    restaurantId: new ObjectId(orderData.restaurantId as string),
     items: processedItems,
     deliveryAddress: orderData.deliveryAddress,
     subtotal,
@@ -354,13 +353,10 @@ export const rateOrderController = async (req: Request, res: Response) => {
     created_at: new Date()
   }
 
-  // Save rating in database
   const result = await databaseService.ratings.insertOne(ratingData)
-
-  // Update restaurant rating
   const allRatings = await databaseService.ratings.find({ restaurantId: order.restaurantId }).toArray()
 
-  const avgRating = allRatings.reduce((sum, r) => sum + r.rating, 0) / allRatings.length
+  const avgRating = allRatings.reduce((sum: any, r: any) => sum + r.rating, 0) / allRatings.length
 
   await databaseService.restaurants.updateOne(
     { _id: order.restaurantId },

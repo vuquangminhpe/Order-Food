@@ -1,15 +1,15 @@
 import { Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { RestaurantReqBody, UpdateRestaurantReqBody } from '../models/requests/restaurant.requests'
 import { RESTAURANT_MESSAGES } from '../constants/messages'
-import restaurantService from '../services/restaurant.services'
-import { uploadFileS3, deleteFileFromS3 } from '../utils/s3'
 import path from 'path'
 import fs from 'fs'
 import { RestaurantStatus } from '../models/schemas/Restaurant.schema'
 import { OrderStatus, PaymentStatus } from '../models/schemas/Order.schema'
 import databaseService from '../services/database.services'
+import { RestaurantReqBody, UpdateRestaurantReqBody } from '~/models/requests/auth.requests'
+import restaurantService from '~/services/restaurant.services'
+import { deleteFileFromS3, uploadFileS3 } from '~/utils/s3'
 
 // Create a new restaurant
 export const createRestaurantController = async (
@@ -53,7 +53,6 @@ export const getRestaurantByIdController = async (req: Request, res: Response) =
   })
 }
 
-// Update a restaurant
 export const updateRestaurantController = async (
   req: Request<ParamsDictionary & { id: string }, any, UpdateRestaurantReqBody>,
   res: Response
@@ -62,7 +61,6 @@ export const updateRestaurantController = async (
   const { user_id } = req.decoded_authorization as { user_id: string }
   const updateData = req.body
 
-  // Check if user owns the restaurant
   const restaurant = await restaurantService.getRestaurantById(id)
 
   if (!restaurant) {
@@ -85,12 +83,10 @@ export const updateRestaurantController = async (
   })
 }
 
-// Delete a restaurant
 export const deleteRestaurantController = async (req: Request, res: Response) => {
   const { id } = req.params
   const { user_id } = req.decoded_authorization as { user_id: string }
 
-  // Check if user owns the restaurant
   const restaurant = await restaurantService.getRestaurantById(id)
 
   if (!restaurant) {
@@ -105,7 +101,6 @@ export const deleteRestaurantController = async (req: Request, res: Response) =>
     })
   }
 
-  // Delete associated images from S3
   if (restaurant.coverImage) {
     await deleteFileFromS3(restaurant.coverImage)
   }
@@ -120,10 +115,8 @@ export const deleteRestaurantController = async (req: Request, res: Response) =>
     }
   }
 
-  // Delete restaurant from database
   const result = await restaurantService.deleteRestaurant(id)
 
-  // Update user to remove restaurant reference
   await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, { $unset: { restaurantId: '' } })
 
   res.status(200).json({
@@ -132,7 +125,6 @@ export const deleteRestaurantController = async (req: Request, res: Response) =>
   })
 }
 
-// Get all restaurants with pagination and filtering
 export const getAllRestaurantsController = async (req: Request, res: Response) => {
   const { page = 1, limit = 10, sortBy = 'rating', sortOrder = 'desc', minRating, search } = req.query
 
@@ -151,9 +143,8 @@ export const getAllRestaurantsController = async (req: Request, res: Response) =
   })
 }
 
-// Get restaurants near a specific location
 export const getNearbyRestaurantsController = async (req: Request, res: Response) => {
-  const { lat, lng, radius = 5 } = req.query // radius in kilometers
+  const { lat, lng, radius = 5 } = req.query
 
   if (!lat || !lng) {
     return res.status(400).json({
@@ -173,7 +164,6 @@ export const getNearbyRestaurantsController = async (req: Request, res: Response
   })
 }
 
-// Get restaurants by category
 export const getRestaurantsByCategoryController = async (req: Request, res: Response) => {
   const { category } = req.params
   const { page = 1, limit = 10 } = req.query
@@ -189,7 +179,6 @@ export const getRestaurantsByCategoryController = async (req: Request, res: Resp
   })
 }
 
-// Get restaurant menu
 export const getRestaurantMenuController = async (req: Request, res: Response) => {
   const { id } = req.params
 
@@ -201,11 +190,10 @@ export const getRestaurantMenuController = async (req: Request, res: Response) =
   })
 }
 
-// Upload restaurant images
 export const uploadRestaurantImagesController = async (req: Request, res: Response) => {
   const { id } = req.params
-  const { imageType } = req.body // 'logo', 'cover', or 'gallery'
-  const files = req.files as Express.Multer.File[]
+  const { imageType } = req.body
+  const files = (req as any).files
 
   if (!files || files.length === 0) {
     return res.status(400).json({
@@ -216,7 +204,6 @@ export const uploadRestaurantImagesController = async (req: Request, res: Respon
   try {
     const uploadedUrls: string[] = []
 
-    // Upload files to S3
     for (const file of files) {
       const filename = `restaurants/${id}/${imageType}/${Date.now()}-${path.basename(file.path)}`
 
@@ -226,15 +213,12 @@ export const uploadRestaurantImagesController = async (req: Request, res: Respon
         contentType: file.mimetype
       })
 
-      // Construct S3 URL
       const fileUrl = `https://${process.env.Bucket_Name}.s3.${process.env.region}.amazonaws.com/${filename}`
       uploadedUrls.push(fileUrl)
 
-      // Remove temp file
       fs.unlinkSync(file.path)
     }
 
-    // Update restaurant with image URLs
     let updateData: any = {}
 
     if (imageType === 'logo' && uploadedUrls.length > 0) {
@@ -254,7 +238,6 @@ export const uploadRestaurantImagesController = async (req: Request, res: Respon
       }
     })
   } catch (error) {
-    // Clean up temp files if there was an error
     for (const file of files) {
       if (fs.existsSync(file.path)) {
         fs.unlinkSync(file.path)
@@ -265,7 +248,6 @@ export const uploadRestaurantImagesController = async (req: Request, res: Respon
   }
 }
 
-// Get restaurant ratings and reviews
 export const getRestaurantRatingsController = async (req: Request, res: Response) => {
   const { id } = req.params
   const { page = 1, limit = 10 } = req.query
@@ -281,14 +263,12 @@ export const getRestaurantRatingsController = async (req: Request, res: Response
   })
 }
 
-// Get restaurant orders (for restaurant owners)
 export const getRestaurantOrdersController = async (req: Request, res: Response) => {
   const { id } = req.params
   const { page = 1, limit = 10, status, startDate, endDate } = req.query
 
   const { user_id } = req.decoded_authorization as { user_id: string }
 
-  // Check if user owns the restaurant
   const restaurant = await restaurantService.getRestaurantById(id)
 
   if (!restaurant) {
@@ -317,14 +297,12 @@ export const getRestaurantOrdersController = async (req: Request, res: Response)
   })
 }
 
-// Get restaurant revenue statistics
 export const getRestaurantRevenueController = async (req: Request, res: Response) => {
   const { id } = req.params
   const { period = 'monthly', year, month } = req.query
 
   const { user_id } = req.decoded_authorization as { user_id: string }
 
-  // Check if user owns the restaurant
   const restaurant = await restaurantService.getRestaurantById(id)
 
   if (!restaurant) {
@@ -339,14 +317,12 @@ export const getRestaurantRevenueController = async (req: Request, res: Response
     })
   }
 
-  // Get all completed orders for the restaurant with payments completed
   const match: any = {
     restaurantId: new ObjectId(id),
     orderStatus: { $in: [OrderStatus.Delivered] },
     paymentStatus: PaymentStatus.Completed
   }
 
-  // Add date filters based on period
   if (period === 'daily' && year && month) {
     const startDate = new Date(Number(year), Number(month) - 1, 1)
     const endDate = new Date(Number(year), Number(month), 0)
@@ -364,7 +340,6 @@ export const getRestaurantRevenueController = async (req: Request, res: Response
       $lte: endDate
     }
   } else if (period === 'yearly') {
-    // Last 5 years
     const currentYear = new Date().getFullYear()
     const startDate = new Date(currentYear - 5, 0, 1)
 
@@ -373,7 +348,6 @@ export const getRestaurantRevenueController = async (req: Request, res: Response
     }
   }
 
-  // Aggregate revenue data
   const revenueData = await databaseService.orders
     .aggregate([
       { $match: match },

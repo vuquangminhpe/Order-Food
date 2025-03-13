@@ -1,8 +1,6 @@
-import { TokenPayload } from '~/models/request/User.request'
 import { Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { MenuItemReqBody, MenuCategoryReqBody } from '../models/requests/menu.requests'
 import { MENU_MESSAGES } from '../constants/messages'
 import databaseService from '../services/database.services'
 import MenuItem, { MenuCategory } from '../models/schemas/Menu.schema'
@@ -11,6 +9,8 @@ import fs from 'fs'
 import restaurantService from '~/services/restaurant.services'
 import menuService from '~/services/menu.services'
 import { deleteFileFromS3, uploadFileS3 } from '~/utils/s3'
+import { TokenPayload } from '~/constants/enums'
+import { MenuCategoryReqBody, MenuItemReqBody } from '~/models/requests/auth.requests'
 
 // Create a new menu item
 export const createMenuItemController = async (req: Request<ParamsDictionary, any, MenuItemReqBody>, res: Response) => {
@@ -18,7 +18,7 @@ export const createMenuItemController = async (req: Request<ParamsDictionary, an
   const menuItemData = req.body
 
   // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(menuItemData.restaurantId)
+  const restaurant = await restaurantService.getRestaurantById(menuItemData.restaurantId as string)
 
   if (!restaurant) {
     return res.status(404).json({
@@ -171,11 +171,10 @@ export const deleteMenuItemController = async (req: Request, res: Response) => {
   })
 }
 
-// Upload menu item image
 export const uploadMenuItemImageController = async (req: Request, res: Response) => {
   const { id } = req.params
   const { user_id } = req.decode_authorization as { user_id: string }
-  const file = req.file
+  const file = (req as any).file
 
   if (!file) {
     return res.status(400).json({
@@ -265,7 +264,7 @@ export const createMenuCategoryController = async (
   const categoryData = req.body
 
   // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(categoryData.restaurantId)
+  const restaurant = await restaurantService.getRestaurantById(categoryData.restaurantId as string)
 
   if (!restaurant) {
     return res.status(404).json({

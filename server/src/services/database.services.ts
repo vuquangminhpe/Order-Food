@@ -3,9 +3,10 @@ import Restaurant from '../models/schemas/Restaurant.schema'
 import MenuItem, { MenuCategory } from '../models/schemas/Menu.schema'
 import Order from '../models/schemas/Order.schema'
 import DeliveryTracking from '../models/schemas/DeliveryTracking.schema'
-import { envConfig } from '../constants/config'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import User from '~/models/schemas/Users.schema'
+import { envConfig } from '~/constants/config'
+import Rating from '~/models/schemas/Rating.schema'
 
 const uri =
   'mongodb+srv://minhvqhe176726:minhvqhe176726@management-employee.31yis.mongodb.net/?retryWrites=true&w=majority&appName=management-employee'
@@ -31,11 +32,11 @@ class DatabaseService {
   }
 
   get users(): Collection<User> {
-    return this.db.collection(envConfig.userCollection)
+    return this.db.collection(envConfig.usersCollection)
   }
 
   get refreshTokens(): Collection<RefreshToken> {
-    return this.db.collection(envConfig.refreshTokenCollection)
+    return this.db.collection(envConfig.refreshCollection)
   }
 
   get restaurants(): Collection<Restaurant> {
@@ -43,7 +44,7 @@ class DatabaseService {
   }
 
   get menuItems(): Collection<MenuItem> {
-    return this.db.collection(envConfig.menuItemCollection)
+    return this.db.collection(envConfig.menuCollection)
   }
 
   get menuCategories(): Collection<MenuCategory> {
@@ -57,8 +58,10 @@ class DatabaseService {
   get deliveryTracking(): Collection<DeliveryTracking> {
     return this.db.collection(envConfig.deliveryTrackingCollection)
   }
+  get ratingOrder(): Collection<Rating> {
+    return this.db.collection(envConfig.ratingCollection)
+  }
 
-  // Create indexes for better query performance
   async indexUsers() {
     await this.users.createIndex({ email: 1 }, { unique: true })
     await this.users.createIndex({ phone: 1 }, { unique: true })

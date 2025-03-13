@@ -1,11 +1,11 @@
 import { ObjectId } from 'mongodb'
+import crypto from 'crypto'
 import databaseService from './database.services'
 import { signToken, verifyToken } from '../utils/jwt'
-import { TokenPayload } from '../types/auth.types'
-import RefreshToken from '../models/schemas/RefreshToken.schema'
-import { UserVerifyStatus } from '../models/schemas/User.schema'
-import crypto from 'crypto'
-import { envConfig } from '../constants/config'
+import { envConfig } from '~/constants/config'
+import { UserVerifyStatus } from '~/models/schemas/Users.schema'
+import { TokenPayload } from '~/constants/enums'
+import RefreshToken from '~/models/schemas/RefreshToken.schema'
 
 class AuthService {
   private accessTokenExpiresIn: string
@@ -14,13 +14,12 @@ class AuthService {
   private forgotPasswordTokenExpiresIn: string
 
   constructor() {
-    this.accessTokenExpiresIn = envConfig.access_token_expires_in || '15m'
-    this.refreshTokenExpiresIn = envConfig.refresh_token_expires_in || '7d'
-    this.emailVerifyTokenExpiresIn = envConfig.email_verify_token_expires_in || '7d'
-    this.forgotPasswordTokenExpiresIn = envConfig.forgot_password_token_expires_in || '15m'
+    this.accessTokenExpiresIn = envConfig.expiresIn_access_token || '15m'
+    this.refreshTokenExpiresIn = envConfig.expiresIn_refresh_token || '7d'
+    this.emailVerifyTokenExpiresIn = envConfig.expiresIn_email_token || '7d'
+    this.forgotPasswordTokenExpiresIn = envConfig.expiresIn_forgot_token || '15m'
   }
 
-  // Sign access and refresh tokens
   async signAccessAndRefreshToken({
     user_id,
     verify,
@@ -30,13 +29,11 @@ class AuthService {
     verify: UserVerifyStatus
     role?: number
   }): Promise<[string, string]> {
-    // Get user role if not provided
     if (role === undefined) {
       const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
       role = user?.role
     }
 
-    // Create token payload
     const payload: TokenPayload = {
       user_id,
       token_type: 'access',
@@ -47,7 +44,7 @@ class AuthService {
     // Sign tokens
     const accessToken = await signToken({
       payload,
-      privateKey: envConfig.jwt_secret_key as string,
+      privateKey: envConfig.secretAccessKey as string,
       options: { expiresIn: this.accessTokenExpiresIn }
     })
 
@@ -56,14 +53,13 @@ class AuthService {
         ...payload,
         token_type: 'refresh'
       },
-      privateKey: envConfig.jwt_secret_key as string,
+      privateKey: envConfig.secretAccessKey as string,
       options: { expiresIn: this.refreshTokenExpiresIn }
     })
 
     return [accessToken, refreshToken]
   }
 
-  // Login
   async login({ user_id, verify, role }: { user_id: string; verify: UserVerifyStatus; role?: number }) {
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
       user_id,
@@ -71,7 +67,6 @@ class AuthService {
       role
     })
 
-    // Store refresh token in database
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({
         user_id: new ObjectId(user_id),
@@ -85,13 +80,11 @@ class AuthService {
     }
   }
 
-  // Logout
   async logout(refresh_token: string) {
     await databaseService.refreshTokens.deleteOne({ token: refresh_token })
     return { success: true }
   }
 
-  // Refresh token
   async refreshToken({
     user_id,
     verify,
@@ -103,7 +96,6 @@ class AuthService {
     refresh_token: string
     role?: number
   }) {
-    // Get new tokens
     const [access_token, new_refresh_token] = await this.signAccessAndRefreshToken({
       user_id,
       verify,
@@ -149,7 +141,7 @@ class AuthService {
         token,
         token_type: 'email_verify'
       },
-      privateKey: envConfig.jwt_secret_key as string,
+      privateKey: envConfig.secretOnPublicKey_Email as string,
       options: { expiresIn: this.emailVerifyTokenExpiresIn }
     })
 
@@ -178,7 +170,7 @@ class AuthService {
         token,
         token_type: 'forgot_password'
       },
-      privateKey: envConfig.jwt_secret_key as string,
+      privateKey: envConfig.secretOnPublicKey_Forgot as string,
       options: { expiresIn: this.forgotPasswordTokenExpiresIn }
     })
 
@@ -191,7 +183,7 @@ class AuthService {
       // Verify JWT
       const decoded = await verifyToken({
         token,
-        secretOrPublicKey: envConfig.jwt_secret_key as string
+        secretOrPublicKey: envConfig.secretOnPublicKey_Email as string
       })
 
       if (decoded.token_type !== 'email_verify' || !decoded.user_id || !decoded.token) {
@@ -216,7 +208,7 @@ class AuthService {
       // Verify JWT
       const decoded = await verifyToken({
         token,
-        secretOrPublicKey: envConfig.jwt_secret_key as string
+        secretOrPublicKey: envConfig.secretOnPublicKey_Forgot as string
       })
 
       if (decoded.token_type !== 'forgot_password' || !decoded.user_id || !decoded.token) {
@@ -241,7 +233,7 @@ class AuthService {
       // Verify JWT
       const decoded = await verifyToken({
         token: refresh_token,
-        secretOrPublicKey: envConfig.jwt_secret_key as string
+        secretOrPublicKey: envConfig.secretOnPublicKey_Refresh as string
       })
 
       if (decoded.token_type !== 'refresh' || !decoded.user_id) {

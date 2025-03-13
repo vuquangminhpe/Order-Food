@@ -16,7 +16,6 @@ export interface DeliveryHistoryFilterOptions {
   endDate?: Date
 }
 
-// Order Item Types
 export interface OrderItemOption {
   title: string
   items: {

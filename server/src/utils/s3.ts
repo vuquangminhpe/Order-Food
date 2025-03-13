@@ -4,8 +4,8 @@ import { Upload } from '@aws-sdk/lib-storage'
 import fs from 'fs'
 import { Response } from 'express'
 import HTTP_STATUS from '~/constants/httpStatus'
+import { S3Client, DeleteObjectsCommand } from '@aws-sdk/client-s3'
 import { envConfig } from '~/constants/config'
-import { S3Client, ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3'
 config()
 const s3s = new S3Client({
   region: envConfig.region,

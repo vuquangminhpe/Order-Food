@@ -1,11 +1,11 @@
 import { ObjectId } from 'mongodb'
 import { InsertOneResult, UpdateResult } from 'mongodb'
-import User, { UserRole, UserVerifyStatus } from '../models/schemas/User.schema'
 import databaseService from './database.services'
 import { RegisterReqBody, UpdateProfileReqBody } from '../models/requests/auth.requests'
 import { uploadFileS3, deleteFileFromS3 } from '../utils/s3'
 import fs from 'fs'
 import path from 'path'
+import User, { UserRole, UserVerifyStatus } from '~/models/schemas/Users.schema'
 
 class UserService {
   // Register a new user
@@ -92,7 +92,7 @@ class UserService {
   }
 
   // Upload avatar
-  async uploadAvatar(user_id: string, file: Express.Multer.File): Promise<string> {
+  async uploadAvatar(user_id: string, file: any): Promise<string> {
     try {
       // Get user to check if they have an existing avatar
       const user = await this.getUserById(user_id)
@@ -295,7 +295,7 @@ class UserService {
     })
 
     // Sort by distance
-    nearbyPersonnel.sort((a, b) => a.distance - b.distance)
+    nearbyPersonnel.sort((a: any, b: any) => a.distance - b.distance)
 
     return nearbyPersonnel
   }
