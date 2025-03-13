@@ -13,7 +13,7 @@ import DeliveryTracking from '../models/schemas/DeliveryTracking.schema'
 
 // Create a new order
 export const createOrderController = async (req: Request<ParamsDictionary, any, OrderReqBody>, res: Response) => {
-  const { user_id } = req.decoded_authorization as { user_id: string }
+  const { user_id } = req.decode_authorization as { user_id: string }
   const orderData = req.body
 
   // Validate restaurant existence
@@ -132,7 +132,6 @@ export const createOrderController = async (req: Request<ParamsDictionary, any, 
 
   const result = await orderService.createOrder(orderPayload)
 
-  // Notify restaurant about new order via socket
   const io = getIO()
   io.to(`restaurant:${orderData.restaurantId}`).emit('order:new', {
     orderId: result.insertedId.toString(),
@@ -152,7 +151,7 @@ export const createOrderController = async (req: Request<ParamsDictionary, any, 
 // Get order by ID
 export const getOrderByIdController = async (req: Request, res: Response) => {
   const { id } = req.params
-  const { user_id, role } = req.decoded_authorization as { user_id: string; role: number }
+  const { user_id, role } = req.decode_authorization as { user_id: string; role: number }
 
   const order = await orderService.getOrderById(id)
 
@@ -162,13 +161,11 @@ export const getOrderByIdController = async (req: Request, res: Response) => {
     })
   }
 
-  // Check permission (owner, restaurant owner, delivery person, or admin)
   if (
     order.userId.toString() !== user_id &&
     (!order.deliveryPersonId || order.deliveryPersonId.toString() !== user_id) &&
-    role !== 3 // Admin
+    role !== 3
   ) {
-    // Check if user is restaurant owner
     const restaurant = await restaurantService.getRestaurantById(order.restaurantId.toString())
     if (!restaurant || restaurant.ownerId.toString() !== user_id) {
       return res.status(403).json({
@@ -183,9 +180,8 @@ export const getOrderByIdController = async (req: Request, res: Response) => {
   })
 }
 
-// Get all orders for a user
 export const getAllUserOrdersController = async (req: Request, res: Response) => {
-  const { user_id } = req.decoded_authorization as { user_id: string }
+  const { user_id } = req.decode_authorization as { user_id: string }
   const { page = 1, limit = 10, status, sortBy = 'created_at', sortOrder = 'desc' } = req.query
 
   const result = await orderService.getUserOrders(user_id, {
@@ -202,16 +198,14 @@ export const getAllUserOrdersController = async (req: Request, res: Response) =>
   })
 }
 
-// Update order status (for restaurant owners)
 export const updateOrderStatusController = async (
   req: Request<ParamsDictionary & { id: string }, any, UpdateOrderStatusReqBody>,
   res: Response
 ) => {
   const { id } = req.params
-  const { user_id, role } = req.decoded_authorization as { user_id: string; role: number }
+  const { user_id, role } = req.decode_authorization as { user_id: string; role: number }
   const { status, reason } = req.body
 
-  // Get the order
   const order = await orderService.getOrderById(id)
 
   if (!order) {
@@ -220,7 +214,6 @@ export const updateOrderStatusController = async (
     })
   }
 
-  // Check permission (restaurant owner or admin)
   if (role !== 3) {
     // Not admin
     const restaurant = await restaurantService.getRestaurantById(order.restaurantId.toString())
@@ -231,7 +224,6 @@ export const updateOrderStatusController = async (
     }
   }
 
-  // Validate status transition
   const validTransitions: Record<OrderStatus, OrderStatus[]> = {
     [OrderStatus.Pending]: [OrderStatus.Confirmed, OrderStatus.Rejected],
     [OrderStatus.Confirmed]: [OrderStatus.Preparing, OrderStatus.Cancelled],
@@ -271,7 +263,7 @@ export const updateOrderStatusController = async (
 // Cancel order (for customers)
 export const cancelOrderController = async (req: Request, res: Response) => {
   const { id } = req.params
-  const { user_id } = req.decoded_authorization as { user_id: string }
+  const { user_id } = req.decode_authorization as { user_id: string }
   const { reason } = req.body
 
   // Get the order
@@ -317,7 +309,7 @@ export const cancelOrderController = async (req: Request, res: Response) => {
 // Rate order and restaurant (for customers)
 export const rateOrderController = async (req: Request, res: Response) => {
   const { id } = req.params
-  const { user_id } = req.decoded_authorization as { user_id: string }
+  const { user_id } = req.decode_authorization as { user_id: string }
   const { rating, review, foodRating, deliveryRating } = req.body
 
   // Validate rating
@@ -391,7 +383,7 @@ export const rateOrderController = async (req: Request, res: Response) => {
 // Assign delivery person to order
 export const assignDeliveryPersonController = async (req: Request, res: Response) => {
   const { id } = req.params
-  const { user_id, role } = req.decoded_authorization as { user_id: string; role: number }
+  const { user_id, role } = req.decode_authorization as { user_id: string; role: number }
   const { deliveryPersonId } = req.body
 
   // Get the order
@@ -476,7 +468,7 @@ export const assignDeliveryPersonController = async (req: Request, res: Response
 // Get order tracking information
 export const getOrderTrackingController = async (req: Request, res: Response) => {
   const { id } = req.params
-  const { user_id, role } = req.decoded_authorization as { user_id: string; role: number }
+  const { user_id, role } = req.decode_authorization as { user_id: string; role: number }
 
   // Get the order
   const order = await orderService.getOrderById(id)
@@ -530,7 +522,7 @@ export const getOrderTrackingController = async (req: Request, res: Response) =>
 // Update delivery location (for delivery persons)
 export const updateDeliveryLocationController = async (req: Request, res: Response) => {
   const { id } = req.params
-  const { user_id } = req.decoded_authorization as { user_id: string }
+  const { user_id } = req.decode_authorization as { user_id: string }
   const { lat, lng } = req.body
 
   // Validate coordinates
@@ -617,7 +609,7 @@ export const updateDeliveryLocationController = async (req: Request, res: Respon
 
 // Get active delivery orders (for delivery persons)
 export const getActiveDeliveryOrdersController = async (req: Request, res: Response) => {
-  const { user_id } = req.decoded_authorization as { user_id: string }
+  const { user_id } = req.decode_authorization as { user_id: string }
 
   // Get all active orders assigned to this delivery person
   const orders = await databaseService.orders
@@ -635,7 +627,7 @@ export const getActiveDeliveryOrdersController = async (req: Request, res: Respo
 
 // Get delivery history (for delivery persons)
 export const getDeliveryHistoryController = async (req: Request, res: Response) => {
-  const { user_id } = req.decoded_authorization as { user_id: string }
+  const { user_id } = req.decode_authorization as { user_id: string }
   const { page = 1, limit = 10, startDate, endDate, sortBy = 'created_at', sortOrder = 'desc' } = req.query
 
   // Build query
