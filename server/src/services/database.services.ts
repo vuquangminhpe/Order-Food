@@ -65,6 +65,7 @@ class DatabaseService {
   get refunds(): Collection<Refund> {
     return this.db.collection(envConfig.refundCollection)
   }
+
   async indexUsers() {
     await this.users.createIndex({ email: 1 }, { unique: true })
     await this.users.createIndex({ phone: 1 }, { unique: true })
