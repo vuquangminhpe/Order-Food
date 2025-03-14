@@ -16,8 +16,8 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { launchImageLibrary } from "react-native-image-picker";
-import { useTheme } from "../../contexts/ThemeContext";
-import { menuService } from "../../api/menuService";
+import { useTheme } from "../contexts/ThemeContext";
+import { menuService } from "../api/menuService";
 
 const AddEditMenuItemScreen = ({ route, navigation }) => {
   const { item, categories } = route.params || {};

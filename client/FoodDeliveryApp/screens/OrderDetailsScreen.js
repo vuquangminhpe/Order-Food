@@ -10,14 +10,14 @@ import {
   SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../../contexts/ThemeContext";
-import { orderService, OrderStatus } from "../../api/orderService";
+import { useTheme } from "../contexts/ThemeContext";
+import { orderService, OrderStatus } from "../api/orderService";
 import {
   getStatusName,
   getStatusIcon,
   getStatusColor,
   formatOrderDate,
-} from "../../utils/orderUtils";
+} from "../utils/orderUtils";
 
 const OrderDetailsScreen = ({ route, navigation }) => {
   const { orderId } = route.params;

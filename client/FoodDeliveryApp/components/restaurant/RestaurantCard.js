@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useTheme } from "../contexts/ThemeContext";
 import RatingStars from "../general/RatingStars";
 
 const { width } = Dimensions.get("window");
