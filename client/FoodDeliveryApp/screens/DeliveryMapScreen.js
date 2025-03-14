@@ -12,9 +12,9 @@ import {
 } from "react-native";
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../../contexts/ThemeContext";
-import { useLocation } from "../../contexts/LocationContext";
-import { orderService, OrderStatus } from "../../api/orderService";
+import { useTheme } from "../contexts/ThemeContext";
+import { useLocation } from "../contexts/LocationContext";
+import { orderService, OrderStatus } from "../api/orderService";
 
 const { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;

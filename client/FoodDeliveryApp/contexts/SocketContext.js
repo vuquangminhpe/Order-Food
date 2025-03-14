@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import io from "socket.io-client";
-import { SOCKET_URL } from "../config";
 import { useAuth } from "./AuthContext";
 import { useLocation } from "./LocationContext";
 
@@ -9,6 +8,7 @@ export const SocketContext = createContext();
 export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
+ let SOCKET_URL = 'http://localhost:5000'
   const { user, accessToken, USER_ROLES, hasRole } = useAuth();
   const { currentLocation } = useLocation();
   const [socket, setSocket] = useState(null);

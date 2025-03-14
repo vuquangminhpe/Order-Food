@@ -136,7 +136,7 @@ const LoginScreen = ({ navigation, route }) => {
           {/* Logo and Welcome Text */}
           <View style={styles.headerContainer}>
             <Image
-              source={require("../assets/images/logo.png")}
+              source={require("../assets/images/logo.webp")}
               style={styles.logo}
               resizeMode="contain"
             />

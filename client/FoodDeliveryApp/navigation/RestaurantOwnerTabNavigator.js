@@ -6,14 +6,14 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useTheme } from "../contexts/ThemeContext";
 
 // Import restaurant owner screens
-import DashboardScreen from "../screens/restaurantOwner/DashboardScreen";
-import MenuManagementScreen from "../screens/restaurantOwner/MenuManagementScreen";
-import AddEditMenuItemScreen from "../screens/restaurantOwner/AddEditMenuItemScreen";
-import OrdersScreen from "../screens/restaurantOwner/OrdersScreen";
-import OrderDetailsScreen from "../screens/restaurantOwner/OrderDetailsScreen";
-import AnalyticsScreen from "../screens/restaurantOwner/AnalyticsScreen";
-import RestaurantProfileScreen from "../screens/restaurantOwner/RestaurantProfileScreen";
-import EditRestaurantProfileScreen from "../screens/restaurantOwner/EditRestaurantProfileScreen";
+import DashboardScreen from "../screens/DashboardScreen";
+import MenuManagementScreen from "../screens/MenuManagementScreen";
+import AddEditMenuItemScreen from "../screens/AddEditMenuItemScreen";
+import OrdersScreen from "../screens/OrdersScreen";
+import OrderDetailsScreen from "../screens/OrderDetailsScreen";
+import AnalyticsScreen from "../screens/AnalyticsScreen";
+import RestaurantProfileScreen from "../screens/RestaurantProfileScreen";
+import EditRestaurantProfileScreen from "../screens/EditRestaurantProfileScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
 

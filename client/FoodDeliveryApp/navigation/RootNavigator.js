@@ -1,20 +1,20 @@
 import React, { useEffect } from "react";
 import { StatusBar } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { useAuth } from "./contexts/AuthContext";
-import { useTheme } from "./contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 
 // Auth Screens
 import AuthNavigator from "./AuthNavigator";
 
 // Customer Screens
-import CustomerTabNavigator from "./customer/CustomerTabNavigator";
+import CustomerTabNavigator from "./CustomerTabNavigator";
 
 // Restaurant Owner Screens
-import RestaurantOwnerTabNavigator from "./restaurantOwner/RestaurantOwnerTabNavigator";
+import RestaurantOwnerTabNavigator from "./RestaurantOwnerTabNavigator";
 
 // Delivery Person Screens
-import DeliveryPersonTabNavigator from "./deliveryPerson/DeliveryPersonTabNavigator";
+import DeliveryPersonTabNavigator from "./DeliveryPersonTabNavigator";
 
 // Onboarding Screen
 import OnboardingScreen from "../screens/OnboardingScreen";

@@ -6,12 +6,12 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useTheme } from "../contexts/ThemeContext";
 
 // Import delivery person screens
-import DeliveryHomeScreen from "../screens/deliveryPerson/DeliveryHomeScreen";
-import DeliveryMapScreen from "../screens/deliveryPerson/DeliveryMapScreen";
-import DeliveryOrderDetailsScreen from "../screens/deliveryPerson/DeliveryOrderDetailsScreen";
-import DeliveryHistoryScreen from "../screens/deliveryPerson/DeliveryHistoryScreen";
-import DeliveryEarningsScreen from "../screens/deliveryPerson/DeliveryEarningsScreen";
-import DeliveryProfileScreen from "../screens/deliveryPerson/DeliveryProfileScreen";
+import DeliveryHomeScreen from "../screens/DeliveryHomeScreen";
+import DeliveryMapScreen from "../screens/DeliveryMapScreen";
+import DeliveryOrderDetailsScreen from "../screens/DeliveryOrderDetailsScreen";
+import DeliveryHistoryScreen from "../screens/DeliveryHistoryScreen";
+import DeliveryEarningsScreen from "../screens/DeliveryEarningsScreen";
+import DeliveryProfileScreen from "../screens/DeliveryProfileScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 

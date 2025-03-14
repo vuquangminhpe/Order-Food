@@ -12,10 +12,10 @@ import {
   Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../../contexts/ThemeContext";
-import { useAuth } from "../../contexts/AuthContext";
-import { orderService, OrderStatus } from "../../api/orderService";
-import FilterChip from "../../components/general/FilterChip";
+import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import { orderService, OrderStatus } from "../api/orderService";
+import FilterChip from "../components/general/FilterChip";
 import { useFocusEffect } from "@react-navigation/native";
 
 // Tab categories for filtering orders

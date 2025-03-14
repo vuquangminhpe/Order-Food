@@ -52,7 +52,7 @@ const SplashScreen = () => {
 
       <View style={styles.contentContainer}>
         <Animated.Image
-          source={require("../assets/images/logo.png")}
+          source={require("../assets/images/logo.webp")}
           style={[
             styles.logo,
             {

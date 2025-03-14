@@ -23,7 +23,7 @@ const slides = [
     title: "Discover Restaurants",
     description:
       "Find the best restaurants near you with a wide variety of cuisines to choose from.",
-    image: require("../assets/images/onboarding1.png"),
+    image: require("../assets/images/onboarding1.webp"),
     icon: "map-search",
   },
   {
@@ -31,7 +31,7 @@ const slides = [
     title: "Easy Ordering",
     description:
       "Order your favorite food with just a few taps. Customize your order exactly how you like it.",
-    image: require("../assets/images/onboarding2.png"),
+    image: require("../assets/images/onboarding1.webp"),
     icon: "food",
   },
   {
@@ -39,7 +39,7 @@ const slides = [
     title: "Fast Delivery",
     description:
       "Track your delivery in real time. Get your food delivered to your doorstep quickly.",
-    image: require("../assets/images/onboarding3.png"),
+    image: require("../assets/images/onboarding1.webp"),
     icon: "bike-fast",
   },
 ];

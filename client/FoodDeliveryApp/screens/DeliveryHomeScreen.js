@@ -12,10 +12,10 @@ import {
   Switch,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../../contexts/ThemeContext";
-import { useAuth } from "../../contexts/AuthContext";
-import { useLocation } from "../../contexts/LocationContext";
-import { orderService, OrderStatus } from "../../api/orderService";
+import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import { useLocation } from "../contexts/LocationContext";
+import { orderService, OrderStatus } from "../api/orderService";
 import { useFocusEffect } from "@react-navigation/native";
 
 const DeliveryHomeScreen = ({ navigation }) => {
