@@ -8,9 +8,9 @@ import User from '~/models/schemas/Users.schema'
 import { envConfig } from '~/constants/config'
 import Rating from '~/models/schemas/Rating.schema'
 import Refund from '~/models/schemas/Refund.schema'
-
-const uri =
-  'mongodb+srv://minhvqhe176726:minhvqhe176726@management-employee.31yis.mongodb.net/?retryWrites=true&w=majority&appName=management-employee'
+import { config } from 'dotenv'
+config()
+const uri = process.env.MONGO_URI || ''
 
 class DatabaseService {
   private client: MongoClient
