@@ -14,9 +14,9 @@ import {
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../../contexts/ThemeContext";
-import { useLocation } from "../../contexts/LocationContext";
-import { userService } from "../../api/userService";
+import { useTheme } from "../contexts/ThemeContext";
+import { useLocation } from "../contexts/LocationContext";
+import { userService } from "../api/userService";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";

@@ -11,11 +11,11 @@ import {
   RefreshControl,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../../contexts/ThemeContext";
-import { useAuth } from "../../contexts/AuthContext";
-import { restaurantService } from "../../api/restaurantService";
-import RestaurantListItem from "../../components/restaurant/RestaurantListItem";
-import EmptyState from "../../components/general/EmptyState";
+import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import { restaurantService } from "../api/restaurantService";
+import RestaurantListItem from "../components/restaurant/RestaurantListItem";
+import EmptyState from "../components/general/EmptyState";
 import { useFocusEffect } from "@react-navigation/native";
 
 // Mock API service for favorites since the server doesn't have direct endpoints

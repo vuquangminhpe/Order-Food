@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { StatusBar } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { useAuth } from "../contexts/AuthContext";
-import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "./contexts/AuthContext";
+import { useTheme } from "./contexts/ThemeContext";
 
 // Auth Screens
 import AuthNavigator from "./AuthNavigator";

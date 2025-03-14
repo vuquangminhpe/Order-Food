@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useTheme } from "../contexts/ThemeContext";
 
 const MenuItem = ({ item, onPress, onAddToCart }) => {
   const { theme } = useTheme();
@@ -9,7 +9,7 @@ const MenuItem = ({ item, onPress, onAddToCart }) => {
   // Default image if none provided
   const imageSource = item.image
     ? { uri: item.image }
-    : require("../../assets/images/food-placeholder.jpg");
+    : require("../assets/images/food-placeholder.jpg");
 
   // Check if item is on discount
   const isDiscounted =

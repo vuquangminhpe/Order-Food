@@ -15,12 +15,12 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { launchImageLibrary } from "react-native-image-picker";
-import { useTheme } from "../../contexts/ThemeContext";
-import { useAuth } from "../../contexts/AuthContext";
-import { userService } from "../../api/userService";
-import FormInput from "../../components/general/FormInput";
-import Button from "../../components/general/Button";
-import DatePicker from "../../components/general/DatePicker";
+import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import { userService } from "../api/userService";
+import FormInput from "../components/general/FormInput";
+import Button from "../components/general/Button";
+import DatePicker from "../components/general/DatePicker";
 
 const EditProfileScreen = ({ navigation }) => {
   const { theme } = useTheme();

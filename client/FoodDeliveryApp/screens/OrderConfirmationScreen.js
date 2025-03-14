@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import LottieView from "lottie-react-native";
-import { useTheme } from "../../contexts/ThemeContext";
-import { orderService } from "../../api/orderService";
+import { useTheme } from "../contexts/ThemeContext";
+import { orderService } from "../api/orderService";
 
 const OrderConfirmationScreen = ({ route, navigation }) => {
   const { orderId, total } = route.params;
@@ -122,7 +122,7 @@ const OrderConfirmationScreen = ({ route, navigation }) => {
         {/* Success animation */}
         <View style={styles.animationContainer}>
           <LottieView
-            source={require("../../assets/animations/order-success.json")}
+            source={require("../assets/animations/order-success.json")}
             autoPlay
             loop={false}
             style={styles.successAnimation}

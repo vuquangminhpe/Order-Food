@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useTheme } from "../contexts/ThemeContext";
 import RatingStars from "../general/RatingStars";
 
 const { width } = Dimensions.get("window");
@@ -21,7 +21,7 @@ const RestaurantCard = ({ restaurant, onPress, horizontal = true }) => {
   const imageSource =
     restaurant.coverImage || restaurant.logoImage
       ? { uri: restaurant.coverImage || restaurant.logoImage }
-      : require("../../assets/images/restaurant-placeholder.jpg");
+      : require("../assets/images/restaurant-placeholder.jpg");
 
   return (
     <TouchableOpacity

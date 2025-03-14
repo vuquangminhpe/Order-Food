@@ -11,11 +11,11 @@ import {
   SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../../contexts/ThemeContext";
-import { restaurantService } from "../../api/restaurantService";
-import { menuService } from "../../api/menuService";
-import RestaurantCard from "../../components/restaurant/RestaurantCard";
-import MenuItem from "../../components/restaurant/MenuItem";
+import { useTheme } from "../contexts/ThemeContext";
+import { restaurantService } from "../api/restaurantService";
+import { menuService } from "../api/menuService";
+import RestaurantCard from "../components/restaurant/RestaurantCard";
+import MenuItem from "../components/restaurant/MenuItem";
 import { debounce } from "lodash";
 
 const SearchScreen = ({ navigation }) => {

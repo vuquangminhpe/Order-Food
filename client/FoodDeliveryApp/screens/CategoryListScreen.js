@@ -9,10 +9,10 @@ import {
   SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../../contexts/ThemeContext";
-import { restaurantService } from "../../api/restaurantService";
-import RestaurantCard from "../../components/restaurant/RestaurantCard";
-import EmptyState from "../../components/general/EmptyState";
+import { useTheme } from "../contexts/ThemeContext";
+import { restaurantService } from "../api/restaurantService";
+import RestaurantCard from "../components/restaurant/RestaurantCard";
+import EmptyState from "../components/general/EmptyState";
 
 const CategoryListScreen = ({ route, navigation }) => {
   const { category } = route.params;
