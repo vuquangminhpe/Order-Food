@@ -8,18 +8,16 @@ import {
   ActivityIndicator,
   Alert,
   SafeAreaView,
-  Share,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../contexts/ThemeContext";
-import { orderService, OrderStatus } from "../api/orderService";
+import { useTheme } from "../../contexts/ThemeContext";
+import { orderService, OrderStatus } from "../../api/orderService";
 import {
   getStatusName,
   getStatusIcon,
   getStatusColor,
-} from "../utils/orderUtils";
-import PriceBreakdown from "../components/cart/PriceBreakdown";
-import OrderStatusBadge from "../components/order/OrderStatusBadge";
+  formatOrderDate,
+} from "../../utils/orderUtils";
 
 const OrderDetailsScreen = ({ route, navigation }) => {
   const { orderId } = route.params;
@@ -29,8 +27,9 @@ const OrderDetailsScreen = ({ route, navigation }) => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [processing, setProcessing] = useState(false);
 
-  // Load order data
+  // Fetch order details
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
@@ -50,532 +49,114 @@ const OrderDetailsScreen = ({ route, navigation }) => {
     fetchOrderDetails();
   }, [orderId]);
 
-  // Reorder the same items
-  const handleReorder = () => {
-    if (!order) return;
+  // Handle status update
+  const handleUpdateStatus = (newStatus) => {
+    let statusName;
+    let confirmationMessage;
 
-    // TODO: Add to cart logic would go here
+    switch (newStatus) {
+      case OrderStatus.Confirmed:
+        statusName = "Confirm";
+        confirmationMessage = "confirm this order";
+        break;
+      case OrderStatus.Preparing:
+        statusName = "Start Preparing";
+        confirmationMessage = "start preparing this order";
+        break;
+      case OrderStatus.ReadyForPickup:
+        statusName = "Mark as Ready";
+        confirmationMessage = "mark this order as ready for pickup";
+        break;
+      case OrderStatus.Rejected:
+        statusName = "Reject";
+        confirmationMessage = "reject this order";
+        break;
+      default:
+        statusName = "Update";
+        confirmationMessage = "update the status of this order";
+    }
+
     Alert.alert(
-      "Reorder Items",
-      "Would you like to add these items to your cart?",
+      `${statusName} Order`,
+      `Are you sure you want to ${confirmationMessage}?`,
       [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Add to Cart",
-          onPress: () => {
-            // Logic to add items to cart
-            navigation.navigate("Cart");
+          text: statusName,
+          style: newStatus === OrderStatus.Rejected ? "destructive" : "default",
+          onPress: async () => {
+            try {
+              setProcessing(true);
+
+              // Update order status
+              await orderService.updateOrderStatus(orderId, newStatus);
+
+              // Update local state
+              setOrder((prevOrder) => ({
+                ...prevOrder,
+                status: newStatus,
+                statusUpdatedAt: new Date().toISOString(),
+              }));
+
+              Alert.alert(
+                "Success",
+                `Order status updated to ${getStatusName(newStatus)}`
+              );
+            } catch (error) {
+              console.error("Update status error:", error);
+              Alert.alert("Error", "Failed to update order status");
+            } finally {
+              setProcessing(false);
+            }
           },
         },
       ]
     );
   };
 
-  // Track order
-  const handleTrackOrder = () => {
-    navigation.navigate("OrderTracking", { orderId });
-  };
-
-  // Cancel order
-  const handleCancelOrder = async () => {
-    if (!order) return;
-
-    // Only allow cancelling pending or confirmed orders
-    if (order.orderStatus > OrderStatus.Confirmed) {
-      Alert.alert(
-        "Cannot Cancel",
-        "This order can no longer be cancelled as it is already being prepared or out for delivery."
-      );
-      return;
-    }
-
-    Alert.alert("Cancel Order", "Are you sure you want to cancel this order?", [
-      { text: "No", style: "cancel" },
-      {
-        text: "Yes, Cancel",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            setLoading(true);
-            await orderService.cancelOrder(
-              orderId,
-              "Customer requested cancellation"
-            );
-
-            // Refresh order data
-            const updatedOrder = await orderService.getOrderById(orderId);
-            setOrder(updatedOrder);
-
-            Alert.alert(
-              "Order Cancelled",
-              "Your order has been successfully cancelled."
-            );
-          } catch (err) {
-            console.error("Failed to cancel order:", err);
-            Alert.alert("Error", "Failed to cancel order. Please try again.");
-          } finally {
-            setLoading(false);
-          }
-        },
-      },
-    ]);
-  };
-
-  // Rate order
-  const handleRateOrder = () => {
-    if (!order) return;
-
-    // Only allow rating delivered orders
-    if (order.orderStatus !== OrderStatus.Delivered) {
-      Alert.alert(
-        "Cannot Rate Yet",
-        "You can rate this order once it has been delivered."
-      );
-      return;
-    }
-
-    navigation.navigate("RateOrder", { orderId });
-  };
-
-  // Request refund
-  const handleRequestRefund = () => {
-    if (!order) return;
-
-    // Only allow refunds for delivered/cancelled/rejected orders
-    if (
-      ![
-        OrderStatus.Delivered,
-        OrderStatus.Cancelled,
-        OrderStatus.Rejected,
-      ].includes(order.orderStatus)
-    ) {
-      Alert.alert(
-        "Cannot Request Refund",
-        "Refunds can only be requested for delivered, cancelled, or rejected orders."
-      );
-      return;
-    }
-
-    // In a real app, would navigate to refund request form
+  // Handle assign delivery person
+  const handleAssignDelivery = () => {
+    // In a real app, you would navigate to a screen to select a delivery person
+    // or show a modal to pick from available delivery persons
     Alert.alert(
-      "Request Refund",
-      "Please contact our customer support to request a refund for this order."
+      "Assign Delivery Person",
+      "This would open a screen to select a delivery person.",
+      [{ text: "OK" }]
     );
   };
 
-  // Share order details
-  const handleShareOrder = async () => {
-    if (!order) return;
-
-    try {
-      await Share.share({
-        message: `I ordered from ${
-          order.restaurant?.name || "a restaurant"
-        } on Food Delivery App!\nOrder #: ${
-          order.orderNumber
-        }\nStatus: ${getStatusName(
-          order.orderStatus
-        )}\nTotal: $${order.total.toFixed(2)}`,
-      });
-    } catch (err) {
-      console.error("Error sharing order:", err);
-    }
-  };
-
-  // Format date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  // Render order details
-  const renderOrderDetails = () => {
+  // Get next action for order
+  const getNextAction = (order) => {
     if (!order) return null;
 
-    return (
-      <View style={styles.orderDetailsContainer}>
-        <View style={styles.orderHeader}>
-          <View>
-            <Text
-              style={[
-                styles.orderNumberLabel,
-                { color: theme.colors.darkGray },
-              ]}
-            >
-              Order Number
-            </Text>
-            <Text style={[styles.orderNumber, { color: theme.colors.text }]}>
-              #{order.orderNumber}
-            </Text>
-          </View>
+    switch (order.status) {
+      case OrderStatus.Pending:
+        return {
+          title: "Confirm Order",
+          status: OrderStatus.Confirmed,
+          color: theme.colors.info,
+        };
+      case OrderStatus.Confirmed:
+        return {
+          title: "Start Preparing",
+          status: OrderStatus.Preparing,
+          color: theme.colors.secondary,
+        };
+      case OrderStatus.Preparing:
+        return {
+          title: "Ready for Pickup",
+          status: OrderStatus.ReadyForPickup,
+          color: theme.colors.accent,
+        };
+      default:
+        return null;
+    }
+  };
 
-          <OrderStatusBadge status={order.orderStatus} />
-        </View>
-
-        <View style={styles.dateContainer}>
-          <Icon name="calendar" size={16} color={theme.colors.darkGray} />
-          <Text style={[styles.dateText, { color: theme.colors.text }]}>
-            Placed on {formatDate(order.created_at)}
-          </Text>
-        </View>
-
-        {/* Restaurant Info */}
-        <View
-          style={[
-            styles.restaurantContainer,
-            { borderColor: theme.colors.border },
-          ]}
-        >
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-            Restaurant
-          </Text>
-          <Text style={[styles.restaurantName, { color: theme.colors.text }]}>
-            {order.restaurant?.name || "Restaurant Name"}
-          </Text>
-
-          <TouchableOpacity
-            style={styles.viewRestaurantButton}
-            onPress={() => {
-              // Navigate to restaurant details
-              if (order.restaurantId) {
-                navigation.navigate("Restaurant", {
-                  id: order.restaurantId.toString(),
-                  name: order.restaurant?.name,
-                });
-              }
-            }}
-          >
-            <Text
-              style={[
-                styles.viewRestaurantText,
-                { color: theme.colors.primary },
-              ]}
-            >
-              View Restaurant
-            </Text>
-            <Icon name="chevron-right" size={16} color={theme.colors.primary} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Order Items */}
-        <View style={styles.itemsContainer}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-            Order Items
-          </Text>
-
-          {order.items.map((item, index) => (
-            <View key={index} style={styles.orderItem}>
-              <View style={styles.itemDetails}>
-                <Text
-                  style={[styles.itemQuantity, { color: theme.colors.primary }]}
-                >
-                  {item.quantity}x
-                </Text>
-                <View style={styles.itemNameContainer}>
-                  <Text style={[styles.itemName, { color: theme.colors.text }]}>
-                    {item.name}
-                  </Text>
-
-                  {/* Item options if any */}
-                  {item.options && item.options.length > 0 && (
-                    <Text
-                      style={[
-                        styles.itemOptions,
-                        { color: theme.colors.darkGray },
-                      ]}
-                    >
-                      {item.options
-                        .map(
-                          (option) =>
-                            `${option.title}: ${option.items
-                              .map((i) => i.name)
-                              .join(", ")}`
-                        )
-                        .join(" | ")}
-                    </Text>
-                  )}
-                </View>
-              </View>
-
-              <Text style={[styles.itemPrice, { color: theme.colors.text }]}>
-                ${item.totalPrice.toFixed(2)}
-              </Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Price Breakdown */}
-        <View style={styles.priceContainer}>
-          <PriceBreakdown
-            subtotal={order.subtotal}
-            deliveryFee={order.deliveryFee}
-            serviceCharge={order.serviceCharge}
-            discount={order.discount}
-            total={order.total}
-          />
-        </View>
-
-        {/* Delivery Info */}
-        <View
-          style={[
-            styles.deliveryContainer,
-            { borderColor: theme.colors.border },
-          ]}
-        >
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-            Delivery Information
-          </Text>
-
-          <View style={styles.deliveryRow}>
-            <Icon name="map-marker" size={16} color={theme.colors.darkGray} />
-            <Text
-              style={[styles.deliveryAddress, { color: theme.colors.text }]}
-            >
-              {order.deliveryAddress.address}
-            </Text>
-          </View>
-
-          {order.deliveryPersonId && (
-            <View style={styles.deliveryRow}>
-              <Icon name="account" size={16} color={theme.colors.darkGray} />
-              <Text
-                style={[styles.deliveryPerson, { color: theme.colors.text }]}
-              >
-                Delivered by {order.deliveryPerson?.name || "Delivery Person"}
-              </Text>
-            </View>
-          )}
-
-          {order.scheduledFor && (
-            <View style={styles.deliveryRow}>
-              <Icon name="clock" size={16} color={theme.colors.darkGray} />
-              <Text
-                style={[styles.scheduledTime, { color: theme.colors.text }]}
-              >
-                Scheduled for {formatDate(order.scheduledFor)}
-              </Text>
-            </View>
-          )}
-        </View>
-
-        {/* Payment Info */}
-        <View style={styles.paymentContainer}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-            Payment Information
-          </Text>
-
-          <View style={styles.paymentRow}>
-            <Icon
-              name={order.paymentMethod === 0 ? "cash" : "credit-card"}
-              size={16}
-              color={theme.colors.darkGray}
-            />
-            <Text style={[styles.paymentMethod, { color: theme.colors.text }]}>
-              {order.paymentMethod === 0
-                ? "Cash on Delivery"
-                : "Online Payment"}
-            </Text>
-          </View>
-
-          <View style={styles.paymentRow}>
-            <Icon
-              name={
-                order.paymentStatus === 0
-                  ? "clock-outline"
-                  : order.paymentStatus === 1
-                  ? "check-circle"
-                  : "alert-circle"
-              }
-              size={16}
-              color={
-                order.paymentStatus === 0
-                  ? theme.colors.warning
-                  : order.paymentStatus === 1
-                  ? theme.colors.success
-                  : theme.colors.error
-              }
-            />
-            <Text
-              style={[
-                styles.paymentStatus,
-                {
-                  color:
-                    order.paymentStatus === 0
-                      ? theme.colors.warning
-                      : order.paymentStatus === 1
-                      ? theme.colors.success
-                      : theme.colors.error,
-                },
-              ]}
-            >
-              {order.paymentStatus === 0
-                ? "Payment Pending"
-                : order.paymentStatus === 1
-                ? "Payment Completed"
-                : "Payment Failed"}
-            </Text>
-          </View>
-        </View>
-
-        {/* Notes */}
-        {order.notes && (
-          <View style={styles.notesContainer}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-              Order Notes
-            </Text>
-            <Text style={[styles.notesText, { color: theme.colors.text }]}>
-              {order.notes}
-            </Text>
-          </View>
-        )}
-
-        {/* Actions */}
-        <View style={styles.actionsContainer}>
-          {/* Track Order Button (for in-progress orders) */}
-          {order.orderStatus > OrderStatus.Confirmed &&
-            order.orderStatus < OrderStatus.Delivered && (
-              <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  { backgroundColor: theme.colors.primary },
-                ]}
-                onPress={handleTrackOrder}
-              >
-                <Icon name="map-marker-path" size={20} color="#FFF" />
-                <Text style={[styles.actionButtonText, { color: "#FFF" }]}>
-                  Track Order
-                </Text>
-              </TouchableOpacity>
-            )}
-
-          {/* Cancel Order Button (for pending/confirmed orders) */}
-          {order.orderStatus <= OrderStatus.Confirmed && (
-            <TouchableOpacity
-              style={[styles.actionButton, { borderColor: theme.colors.error }]}
-              onPress={handleCancelOrder}
-            >
-              <Icon name="close-circle" size={20} color={theme.colors.error} />
-              <Text
-                style={[styles.actionButtonText, { color: theme.colors.error }]}
-              >
-                Cancel Order
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          {/* Rate Order Button (for delivered orders) */}
-          {order.orderStatus === OrderStatus.Delivered && (
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                { backgroundColor: theme.colors.secondary },
-              ]}
-              onPress={handleRateOrder}
-            >
-              <Icon name="star" size={20} color="#FFF" />
-              <Text style={[styles.actionButtonText, { color: "#FFF" }]}>
-                Rate Order
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          {/* Request Refund Button (for applicable orders) */}
-          {[
-            OrderStatus.Delivered,
-            OrderStatus.Cancelled,
-            OrderStatus.Rejected,
-          ].includes(order.orderStatus) && (
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                { borderColor: theme.colors.primary },
-              ]}
-              onPress={handleRequestRefund}
-            >
-              <Icon name="cash-refund" size={20} color={theme.colors.primary} />
-              <Text
-                style={[
-                  styles.actionButtonText,
-                  { color: theme.colors.primary },
-                ]}
-              >
-                Request Refund
-              </Text>
-            </TouchableOpacity>
-          )}
-
-          {/* Reorder Button */}
-          <TouchableOpacity
-            style={[
-              styles.actionButton,
-              {
-                backgroundColor:
-                  order.orderStatus === OrderStatus.Delivered
-                    ? theme.colors.primary
-                    : theme.colors.gray,
-              },
-            ]}
-            onPress={handleReorder}
-            disabled={order.orderStatus !== OrderStatus.Delivered}
-          >
-            <Icon
-              name="refresh"
-              size={20}
-              color={
-                order.orderStatus === OrderStatus.Delivered
-                  ? "#FFF"
-                  : theme.colors.darkGray
-              }
-            />
-            <Text
-              style={[
-                styles.actionButtonText,
-                {
-                  color:
-                    order.orderStatus === OrderStatus.Delivered
-                      ? "#FFF"
-                      : theme.colors.darkGray,
-                },
-              ]}
-            >
-              Reorder
-            </Text>
-          </TouchableOpacity>
-
-          {/* Share Button */}
-          <TouchableOpacity
-            style={[
-              styles.actionButton,
-              { borderColor: theme.colors.darkGray },
-            ]}
-            onPress={handleShareOrder}
-          >
-            <Icon
-              name="share-variant"
-              size={20}
-              color={theme.colors.darkGray}
-            />
-            <Text
-              style={[
-                styles.actionButtonText,
-                { color: theme.colors.darkGray },
-              ]}
-            >
-              Share Order
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Spacer at bottom */}
-        <View style={{ height: 20 }} />
-      </View>
-    );
+  // Calculate total items
+  const calculateTotalItems = (items) => {
+    if (!items || !items.length) return 0;
+    return items.reduce((total, item) => total + item.quantity, 0);
   };
 
   // Render loading state
@@ -623,15 +204,616 @@ const OrderDetailsScreen = ({ route, navigation }) => {
     );
   }
 
+  // Next action for the order
+  const nextAction = getNextAction(order);
+
   return (
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView
         style={[styles.container, { backgroundColor: theme.colors.background }]}
-        showsVerticalScrollIndicator={false}
       >
-        {renderOrderDetails()}
+        {/* Order Status */}
+        <View style={styles.statusSection}>
+          <View
+            style={[
+              styles.statusContainer,
+              {
+                backgroundColor:
+                  theme.colors[getStatusColor(order?.status)] + "20",
+              },
+            ]}
+          >
+            <Icon
+              name={getStatusIcon(order?.status)}
+              size={24}
+              color={theme.colors[getStatusColor(order?.status)]}
+            />
+            <Text
+              style={[
+                styles.statusText,
+                { color: theme.colors[getStatusColor(order?.status)] },
+              ]}
+            >
+              {getStatusName(order?.status)}
+            </Text>
+          </View>
+
+          <Text style={[styles.orderNumber, { color: theme.colors.text }]}>
+            Order #{order?.orderNumber}
+          </Text>
+
+          <Text style={[styles.orderTime, { color: theme.colors.darkGray }]}>
+            Placed on {formatOrderDate(order?.created_at)}
+          </Text>
+        </View>
+
+        {/* Customer Information */}
+        <View style={[styles.section, { backgroundColor: theme.colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            Customer Information
+          </Text>
+
+          <View style={styles.infoRow}>
+            <Icon name="account" size={20} color={theme.colors.darkGray} />
+            <Text style={[styles.infoLabel, { color: theme.colors.darkGray }]}>
+              Name:
+            </Text>
+            <Text style={[styles.infoValue, { color: theme.colors.text }]}>
+              {order?.customer?.name || "Customer"}
+            </Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Icon name="phone" size={20} color={theme.colors.darkGray} />
+            <Text style={[styles.infoLabel, { color: theme.colors.darkGray }]}>
+              Phone:
+            </Text>
+            <Text style={[styles.infoValue, { color: theme.colors.text }]}>
+              {order?.customer?.phone || "Not provided"}
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={[
+              styles.callButton,
+              { backgroundColor: theme.colors.primary },
+            ]}
+          >
+            <Icon name="phone" size={16} color={theme.colors.white} />
+            <Text
+              style={[styles.callButtonText, { color: theme.colors.white }]}
+            >
+              Call Customer
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Delivery Address */}
+        <View style={[styles.section, { backgroundColor: theme.colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            Delivery Address
+          </Text>
+
+          <View style={styles.infoRow}>
+            <Icon name="map-marker" size={20} color={theme.colors.darkGray} />
+            <Text style={[styles.addressText, { color: theme.colors.text }]}>
+              {order?.deliveryAddress?.address || "No address provided"}
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.mapButton, { borderColor: theme.colors.primary }]}
+          >
+            <Icon name="map" size={16} color={theme.colors.primary} />
+            <Text
+              style={[styles.mapButtonText, { color: theme.colors.primary }]}
+            >
+              View on Map
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Order Items */}
+        <View style={[styles.section, { backgroundColor: theme.colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            Order Items ({calculateTotalItems(order?.items)})
+          </Text>
+
+          {order?.items.map((item, index) => (
+            <View key={index} style={styles.orderItem}>
+              <View style={styles.itemDetails}>
+                <Text
+                  style={[styles.itemQuantity, { color: theme.colors.primary }]}
+                >
+                  {item.quantity}x
+                </Text>
+                <View style={styles.itemInfo}>
+                  <Text style={[styles.itemName, { color: theme.colors.text }]}>
+                    {item.name}
+                  </Text>
+                  {item.options && item.options.length > 0 && (
+                    <Text
+                      style={[
+                        styles.itemOptions,
+                        { color: theme.colors.darkGray },
+                      ]}
+                    >
+                      {item.options
+                        .map(
+                          (option) =>
+                            `${option.title}: ${option.items
+                              .map((i) => i.name)
+                              .join(", ")}`
+                        )
+                        .join(" | ")}
+                    </Text>
+                  )}
+                </View>
+                <Text style={[styles.itemPrice, { color: theme.colors.text }]}>
+                  ${item.totalPrice?.toFixed(2)}
+                </Text>
+              </View>
+            </View>
+          ))}
+
+          <View
+            style={[styles.divider, { backgroundColor: theme.colors.border }]}
+          />
+
+          {/* Order Summary */}
+          <View style={styles.orderSummary}>
+            <View style={styles.summaryRow}>
+              <Text
+                style={[styles.summaryLabel, { color: theme.colors.darkGray }]}
+              >
+                Subtotal
+              </Text>
+              <Text style={[styles.summaryValue, { color: theme.colors.text }]}>
+                ${order?.subtotal?.toFixed(2)}
+              </Text>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <Text
+                style={[styles.summaryLabel, { color: theme.colors.darkGray }]}
+              >
+                Delivery Fee
+              </Text>
+              <Text style={[styles.summaryValue, { color: theme.colors.text }]}>
+                ${order?.deliveryFee?.toFixed(2)}
+              </Text>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <Text
+                style={[styles.summaryLabel, { color: theme.colors.darkGray }]}
+              >
+                Service Charge
+              </Text>
+              <Text style={[styles.summaryValue, { color: theme.colors.text }]}>
+                ${order?.serviceCharge?.toFixed(2)}
+              </Text>
+            </View>
+
+            {order?.discount > 0 && (
+              <View style={styles.summaryRow}>
+                <Text
+                  style={[
+                    styles.summaryLabel,
+                    { color: theme.colors.darkGray },
+                  ]}
+                >
+                  Discount
+                </Text>
+                <Text
+                  style={[
+                    styles.discountValue,
+                    { color: theme.colors.success },
+                  ]}
+                >
+                  -${order.discount.toFixed(2)}
+                </Text>
+              </View>
+            )}
+
+            <View style={styles.totalRow}>
+              <Text style={[styles.totalLabel, { color: theme.colors.text }]}>
+                Total
+              </Text>
+              <Text
+                style={[styles.totalValue, { color: theme.colors.primary }]}
+              >
+                ${order?.total?.toFixed(2)}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Payment Information */}
+        <View style={[styles.section, { backgroundColor: theme.colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            Payment Information
+          </Text>
+
+          <View style={styles.infoRow}>
+            <Icon
+              name={order?.paymentMethod === 0 ? "cash" : "credit-card"}
+              size={20}
+              color={theme.colors.darkGray}
+            />
+            <Text style={[styles.infoLabel, { color: theme.colors.darkGray }]}>
+              Method:
+            </Text>
+            <Text style={[styles.infoValue, { color: theme.colors.text }]}>
+              {order?.paymentMethod === 0
+                ? "Cash on Delivery"
+                : "Online Payment"}
+            </Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Icon
+              name={
+                order?.paymentStatus === 0
+                  ? "clock-outline"
+                  : order?.paymentStatus === 1
+                  ? "check-circle"
+                  : "alert-circle"
+              }
+              size={20}
+              color={
+                order?.paymentStatus === 0
+                  ? theme.colors.warning
+                  : order?.paymentStatus === 1
+                  ? theme.colors.success
+                  : theme.colors.error
+              }
+            />
+            <Text style={[styles.infoLabel, { color: theme.colors.darkGray }]}>
+              Status:
+            </Text>
+            <Text
+              style={[
+                styles.infoValue,
+                {
+                  color:
+                    order?.paymentStatus === 0
+                      ? theme.colors.warning
+                      : order?.paymentStatus === 1
+                      ? theme.colors.success
+                      : theme.colors.error,
+                },
+              ]}
+            >
+              {order?.paymentStatus === 0
+                ? "Pending"
+                : order?.paymentStatus === 1
+                ? "Completed"
+                : "Failed"}
+            </Text>
+          </View>
+        </View>
+
+        {/* Notes */}
+        {order?.notes && (
+          <View
+            style={[styles.section, { backgroundColor: theme.colors.card }]}
+          >
+            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+              Customer Notes
+            </Text>
+            <Text style={[styles.notesText, { color: theme.colors.text }]}>
+              {order.notes}
+            </Text>
+          </View>
+        )}
+
+        {/* Order Timeline */}
+        <View style={[styles.section, { backgroundColor: theme.colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            Order Timeline
+          </Text>
+
+          <View style={styles.timeline}>
+            <View style={styles.timelineItem}>
+              <View
+                style={[
+                  styles.timelineDot,
+                  { backgroundColor: theme.colors.primary },
+                ]}
+              />
+              <View style={styles.timelineContent}>
+                <Text
+                  style={[styles.timelineTitle, { color: theme.colors.text }]}
+                >
+                  Order Received
+                </Text>
+                <Text
+                  style={[
+                    styles.timelineTime,
+                    { color: theme.colors.darkGray },
+                  ]}
+                >
+                  {formatOrderDate(order?.created_at)}
+                </Text>
+              </View>
+            </View>
+
+            {order?.status >= OrderStatus.Confirmed && (
+              <View style={styles.timelineItem}>
+                <View
+                  style={[
+                    styles.timelineDot,
+                    { backgroundColor: theme.colors.info },
+                  ]}
+                />
+                <View style={styles.timelineContent}>
+                  <Text
+                    style={[styles.timelineTitle, { color: theme.colors.text }]}
+                  >
+                    Order Confirmed
+                  </Text>
+                  <Text
+                    style={[
+                      styles.timelineTime,
+                      { color: theme.colors.darkGray },
+                    ]}
+                  >
+                    {formatOrderDate(
+                      order?.confirmedAt || order?.statusUpdatedAt
+                    )}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {order?.status >= OrderStatus.Preparing && (
+              <View style={styles.timelineItem}>
+                <View
+                  style={[
+                    styles.timelineDot,
+                    { backgroundColor: theme.colors.secondary },
+                  ]}
+                />
+                <View style={styles.timelineContent}>
+                  <Text
+                    style={[styles.timelineTitle, { color: theme.colors.text }]}
+                  >
+                    Preparing
+                  </Text>
+                  <Text
+                    style={[
+                      styles.timelineTime,
+                      { color: theme.colors.darkGray },
+                    ]}
+                  >
+                    {formatOrderDate(
+                      order?.preparingAt || order?.statusUpdatedAt
+                    )}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {order?.status >= OrderStatus.ReadyForPickup && (
+              <View style={styles.timelineItem}>
+                <View
+                  style={[
+                    styles.timelineDot,
+                    { backgroundColor: theme.colors.accent },
+                  ]}
+                />
+                <View style={styles.timelineContent}>
+                  <Text
+                    style={[styles.timelineTitle, { color: theme.colors.text }]}
+                  >
+                    Ready for Pickup
+                  </Text>
+                  <Text
+                    style={[
+                      styles.timelineTime,
+                      { color: theme.colors.darkGray },
+                    ]}
+                  >
+                    {formatOrderDate(order?.readyAt || order?.statusUpdatedAt)}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {order?.status >= OrderStatus.OutForDelivery && (
+              <View style={styles.timelineItem}>
+                <View
+                  style={[
+                    styles.timelineDot,
+                    { backgroundColor: theme.colors.primary },
+                  ]}
+                />
+                <View style={styles.timelineContent}>
+                  <Text
+                    style={[styles.timelineTitle, { color: theme.colors.text }]}
+                  >
+                    Out for Delivery
+                  </Text>
+                  <Text
+                    style={[
+                      styles.timelineTime,
+                      { color: theme.colors.darkGray },
+                    ]}
+                  >
+                    {formatOrderDate(
+                      order?.outForDeliveryAt || order?.statusUpdatedAt
+                    )}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {order?.status === OrderStatus.Delivered && (
+              <View style={styles.timelineItem}>
+                <View
+                  style={[
+                    styles.timelineDot,
+                    { backgroundColor: theme.colors.success },
+                  ]}
+                />
+                <View style={styles.timelineContent}>
+                  <Text
+                    style={[styles.timelineTitle, { color: theme.colors.text }]}
+                  >
+                    Delivered
+                  </Text>
+                  <Text
+                    style={[
+                      styles.timelineTime,
+                      { color: theme.colors.darkGray },
+                    ]}
+                  >
+                    {formatOrderDate(
+                      order?.deliveredAt || order?.statusUpdatedAt
+                    )}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {order?.status === OrderStatus.Cancelled && (
+              <View style={styles.timelineItem}>
+                <View
+                  style={[
+                    styles.timelineDot,
+                    { backgroundColor: theme.colors.error },
+                  ]}
+                />
+                <View style={styles.timelineContent}>
+                  <Text
+                    style={[styles.timelineTitle, { color: theme.colors.text }]}
+                  >
+                    Cancelled
+                  </Text>
+                  <Text
+                    style={[
+                      styles.timelineTime,
+                      { color: theme.colors.darkGray },
+                    ]}
+                  >
+                    {formatOrderDate(
+                      order?.cancelledAt || order?.statusUpdatedAt
+                    )}
+                  </Text>
+                  {order?.cancelReason && (
+                    <Text
+                      style={[
+                        styles.cancellationReason,
+                        { color: theme.colors.error },
+                      ]}
+                    >
+                      Reason: {order.cancelReason}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            )}
+
+            {order?.status === OrderStatus.Rejected && (
+              <View style={styles.timelineItem}>
+                <View
+                  style={[
+                    styles.timelineDot,
+                    { backgroundColor: theme.colors.error },
+                  ]}
+                />
+                <View style={styles.timelineContent}>
+                  <Text
+                    style={[styles.timelineTitle, { color: theme.colors.text }]}
+                  >
+                    Rejected
+                  </Text>
+                  <Text
+                    style={[
+                      styles.timelineTime,
+                      { color: theme.colors.darkGray },
+                    ]}
+                  >
+                    {formatOrderDate(
+                      order?.rejectedAt || order?.statusUpdatedAt
+                    )}
+                  </Text>
+                  {order?.rejectReason && (
+                    <Text
+                      style={[
+                        styles.cancellationReason,
+                        { color: theme.colors.error },
+                      ]}
+                    >
+                      Reason: {order.rejectReason}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Action buttons */}
+        <View style={styles.actionsContainer}>
+          {order?.status === OrderStatus.Pending && (
+            <TouchableOpacity
+              style={[styles.rejectButton, { borderColor: theme.colors.error }]}
+              onPress={() => handleUpdateStatus(OrderStatus.Rejected)}
+              disabled={processing}
+            >
+              <Text
+                style={[styles.rejectButtonText, { color: theme.colors.error }]}
+              >
+                Reject Order
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {nextAction && (
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                { backgroundColor: nextAction.color },
+              ]}
+              onPress={() => handleUpdateStatus(nextAction.status)}
+              disabled={processing}
+            >
+              {processing ? (
+                <ActivityIndicator size="small" color={theme.colors.white} />
+              ) : (
+                <Text
+                  style={[
+                    styles.actionButtonText,
+                    { color: theme.colors.white },
+                  ]}
+                >
+                  {nextAction.title}
+                </Text>
+              )}
+            </TouchableOpacity>
+          )}
+
+          {order?.status === OrderStatus.ReadyForPickup && (
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                { backgroundColor: theme.colors.primary },
+              ]}
+              onPress={handleAssignDelivery}
+              disabled={processing}
+            >
+              <Text
+                style={[styles.actionButtonText, { color: theme.colors.white }]}
+              >
+                Assign Delivery Person
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -675,158 +857,222 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-  orderDetailsContainer: {
+  statusSection: {
     padding: 16,
-  },
-  orderHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0,0,0,0.05)",
+  },
+  statusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
     marginBottom: 12,
   },
-  orderNumberLabel: {
-    fontSize: 12,
-  },
-  orderNumber: {
+  statusText: {
     fontSize: 16,
     fontWeight: "bold",
-  },
-  dateContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  dateText: {
-    fontSize: 14,
     marginLeft: 8,
   },
-  restaurantContainer: {
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    paddingBottom: 16,
+  orderNumber: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  orderTime: {
+    fontSize: 14,
+  },
+  section: {
+    margin: 16,
+    marginTop: 0,
+    borderRadius: 12,
+    padding: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 12,
+    marginBottom: 16,
   },
-  restaurantName: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginBottom: 8,
-  },
-  viewRestaurantButton: {
+  infoRow: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 12,
   },
-  viewRestaurantText: {
+  infoLabel: {
+    fontSize: 14,
+    marginLeft: 8,
+    marginRight: 4,
+    width: 60,
+  },
+  infoValue: {
     fontSize: 14,
     fontWeight: "500",
-    marginRight: 4,
+    flex: 1,
   },
-  itemsContainer: {
-    marginBottom: 20,
+  callButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  callButtonText: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginLeft: 8,
+  },
+  addressText: {
+    fontSize: 14,
+    marginLeft: 8,
+    flex: 1,
+  },
+  mapButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 8,
+    borderWidth: 1,
+  },
+  mapButtonText: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginLeft: 8,
   },
   orderItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.05)",
+    marginBottom: 16,
   },
   itemDetails: {
     flexDirection: "row",
-    flex: 1,
+    alignItems: "flex-start",
   },
   itemQuantity: {
     fontSize: 14,
     fontWeight: "500",
     marginRight: 8,
-    width: 28,
+    width: 25,
   },
-  itemNameContainer: {
+  itemInfo: {
     flex: 1,
   },
   itemName: {
     fontSize: 14,
     fontWeight: "500",
+    marginBottom: 2,
   },
   itemOptions: {
     fontSize: 12,
-    marginTop: 2,
   },
   itemPrice: {
     fontSize: 14,
     fontWeight: "500",
   },
-  priceContainer: {
-    marginBottom: 20,
+  divider: {
+    height: 1,
+    marginVertical: 16,
   },
-  deliveryContainer: {
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    paddingBottom: 16,
+  orderSummary: {
+    marginTop: 8,
   },
-  deliveryRow: {
+  summaryRow: {
     flexDirection: "row",
-    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 8,
   },
-  deliveryAddress: {
+  summaryLabel: {
     fontSize: 14,
-    marginLeft: 8,
-    flex: 1,
   },
-  deliveryPerson: {
+  summaryValue: {
     fontSize: 14,
-    marginLeft: 8,
   },
-  scheduledTime: {
+  discountValue: {
     fontSize: 14,
-    marginLeft: 8,
-  },
-  paymentContainer: {
-    marginBottom: 20,
-  },
-  paymentRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  paymentMethod: {
-    fontSize: 14,
-    marginLeft: 8,
-  },
-  paymentStatus: {
-    fontSize: 14,
-    marginLeft: 8,
     fontWeight: "500",
   },
-  notesContainer: {
-    marginBottom: 20,
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0,0,0,0.05)",
+  },
+  totalLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  totalValue: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
   notesText: {
     fontSize: 14,
     lineHeight: 20,
   },
-  actionsContainer: {
+  timeline: {
     marginTop: 8,
   },
-  actionButton: {
+  timelineItem: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    marginBottom: 16,
+  },
+  timelineDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginTop: 4,
+    marginRight: 8,
+  },
+  timelineContent: {
+    flex: 1,
+  },
+  timelineTitle: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 2,
+  },
+  timelineTime: {
+    fontSize: 12,
+  },
+  cancellationReason: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  actionsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    margin: 16,
+    marginTop: 0,
+  },
+  rejectButton: {
+    flex: 1,
     height: 48,
     borderRadius: 8,
-    marginBottom: 12,
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: "transparent",
+    marginRight: 8,
+  },
+  rejectButtonText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  actionButton: {
+    flex: 2,
+    height: 48,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
   actionButtonText: {
     fontSize: 14,
     fontWeight: "500",
-    marginLeft: 8,
   },
 });
 

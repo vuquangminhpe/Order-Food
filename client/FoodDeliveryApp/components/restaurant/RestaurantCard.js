@@ -3,56 +3,90 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
+  Image,
   Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../contexts/ThemeContext";
+import { useTheme } from "../../contexts/ThemeContext";
 import RatingStars from "../general/RatingStars";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width * 0.7;
 
-const RestaurantCard = ({ restaurant, onPress, horizontal = true }) => {
+const RestaurantCard = ({
+  restaurant,
+  onPress,
+  onFavoritePress,
+  isFavorite,
+}) => {
   const { theme } = useTheme();
 
-  // Default image if none provided
-  const imageSource =
-    restaurant.coverImage || restaurant.logoImage
-      ? { uri: restaurant.coverImage || restaurant.logoImage }
-      : require("../assets/images/restaurant-placeholder.jpg");
+  const handleFavoritePress = (e) => {
+    e.stopPropagation();
+    if (onFavoritePress) {
+      onFavoritePress(restaurant._id);
+    }
+  };
 
   return (
     <TouchableOpacity
-      style={[
-        styles.container,
-        horizontal ? styles.horizontalCard : styles.verticalCard,
-        {
-          backgroundColor: theme.colors.background,
-          ...theme.shadow.md,
-        },
-      ]}
-      onPress={onPress}
+      style={[styles.container, { backgroundColor: theme.colors.card }]}
+      onPress={() => onPress(restaurant)}
       activeOpacity={0.8}
     >
-      <Image source={imageSource} style={styles.image} resizeMode="cover" />
+      {/* Cover Image */}
+      <View style={styles.imageContainer}>
+        <Image
+          source={{
+            uri: restaurant.coverImage || "https://via.placeholder.com/400x200",
+          }}
+          style={styles.image}
+          resizeMode="cover"
+        />
 
-      {/* Delivery time badge */}
-      <View
-        style={[
-          styles.deliveryBadge,
-          { backgroundColor: theme.colors.primary },
-        ]}
-      >
-        <Icon name="clock-outline" size={12} color={theme.colors.white} />
-        <Text style={[styles.deliveryText, { color: theme.colors.white }]}>
-          {restaurant.estimatedDeliveryTime || 30} min
-        </Text>
+        {/* Favorite Button */}
+        {onFavoritePress && (
+          <TouchableOpacity
+            style={[
+              styles.favoriteButton,
+              { backgroundColor: theme.colors.white },
+            ]}
+            onPress={handleFavoritePress}
+          >
+            <Icon
+              name={isFavorite ? "heart" : "heart-outline"}
+              size={18}
+              color={isFavorite ? theme.colors.primary : theme.colors.darkGray}
+            />
+          </TouchableOpacity>
+        )}
+
+        {/* Delivery Time Pill */}
+        {restaurant.estimatedDeliveryTime && (
+          <View
+            style={[
+              styles.deliveryTimePill,
+              { backgroundColor: theme.colors.white },
+            ]}
+          >
+            <Icon
+              name="clock-outline"
+              size={12}
+              color={theme.colors.darkGray}
+            />
+            <Text
+              style={[styles.deliveryTimeText, { color: theme.colors.text }]}
+            >
+              {restaurant.estimatedDeliveryTime}-
+              {restaurant.estimatedDeliveryTime + 10} min
+            </Text>
+          </View>
+        )}
       </View>
 
-      {/* Restaurant Info */}
-      <View style={styles.infoContainer}>
+      {/* Content */}
+      <View style={styles.contentContainer}>
         <Text
           style={[styles.name, { color: theme.colors.text }]}
           numberOfLines={1}
@@ -60,6 +94,7 @@ const RestaurantCard = ({ restaurant, onPress, horizontal = true }) => {
           {restaurant.name}
         </Text>
 
+        {/* Rating */}
         <View style={styles.ratingContainer}>
           <RatingStars rating={restaurant.rating || 0} size={14} />
           <Text style={[styles.ratingText, { color: theme.colors.darkGray }]}>
@@ -67,41 +102,45 @@ const RestaurantCard = ({ restaurant, onPress, horizontal = true }) => {
           </Text>
         </View>
 
-        <View style={styles.categoryContainer}>
-          {restaurant.categories &&
-            restaurant.categories.slice(0, 2).map((category, index) => (
-              <React.Fragment key={index}>
-                {index > 0 && (
-                  <Text style={[styles.dot, { color: theme.colors.darkGray }]}>
-                    •
-                  </Text>
-                )}
-                <Text
-                  style={[styles.category, { color: theme.colors.darkGray }]}
-                >
-                  {category}
-                </Text>
-              </React.Fragment>
-            ))}
-        </View>
+        {/* Categories */}
+        {restaurant.categories && restaurant.categories.length > 0 && (
+          <Text
+            style={[styles.categories, { color: theme.colors.darkGray }]}
+            numberOfLines={1}
+          >
+            {restaurant.categories.join(" • ")}
+          </Text>
+        )}
 
+        {/* Delivery Info */}
         <View style={styles.deliveryInfoContainer}>
-          <View style={styles.deliveryInfo}>
-            <Icon name="bike-fast" size={14} color={theme.colors.darkGray} />
-            <Text
-              style={[styles.deliveryFee, { color: theme.colors.darkGray }]}
-            >
-              ${restaurant.deliveryFee?.toFixed(2) || "0.00"} delivery
-            </Text>
-          </View>
+          {restaurant.deliveryFee !== undefined && (
+            <View style={styles.deliveryInfoItem}>
+              <Icon name="cash" size={14} color={theme.colors.darkGray} />
+              <Text
+                style={[
+                  styles.deliveryInfoText,
+                  { color: theme.colors.darkGray },
+                ]}
+              >
+                ${restaurant.deliveryFee.toFixed(2)} delivery
+              </Text>
+            </View>
+          )}
 
-          <View style={styles.minOrder}>
-            <Text
-              style={[styles.minOrderText, { color: theme.colors.darkGray }]}
-            >
-              ${restaurant.minOrderAmount?.toFixed(2) || "0.00"} min
-            </Text>
-          </View>
+          {restaurant.distance !== undefined && (
+            <View style={styles.deliveryInfoItem}>
+              <Icon name="map-marker" size={14} color={theme.colors.darkGray} />
+              <Text
+                style={[
+                  styles.deliveryInfoText,
+                  { color: theme.colors.darkGray },
+                ]}
+              >
+                {restaurant.distance.toFixed(1)} km
+              </Text>
+            </View>
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -110,37 +149,68 @@ const RestaurantCard = ({ restaurant, onPress, horizontal = true }) => {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 12,
-    overflow: "hidden",
-    marginRight: 16,
-    marginBottom: 16,
-  },
-  horizontalCard: {
     width: CARD_WIDTH,
+    borderRadius: 12,
+    marginRight: 16,
+    marginBottom: 8,
+    overflow: "hidden",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
-  verticalCard: {
-    width: "100%",
+  imageContainer: {
+    height: 150,
+    position: "relative",
   },
   image: {
     width: "100%",
-    height: 140,
+    height: "100%",
   },
-  deliveryBadge: {
+  favoriteButton: {
     position: "absolute",
-    top: 10,
-    right: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    top: 8,
+    right: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  deliveryTimePill: {
+    position: "absolute",
+    bottom: 8,
+    left: 8,
     flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
   },
-  deliveryText: {
+  deliveryTimeText: {
     fontSize: 10,
-    fontWeight: "bold",
+    fontWeight: "500",
     marginLeft: 4,
   },
-  infoContainer: {
+  contentContainer: {
     padding: 12,
   },
   name: {
@@ -157,34 +227,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginLeft: 4,
   },
-  categoryContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+  categories: {
+    fontSize: 12,
     marginBottom: 8,
-  },
-  category: {
-    fontSize: 12,
-  },
-  dot: {
-    fontSize: 12,
-    marginHorizontal: 4,
   },
   deliveryInfoContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
   },
-  deliveryInfo: {
+  deliveryInfoItem: {
     flexDirection: "row",
     alignItems: "center",
   },
-  deliveryFee: {
+  deliveryInfoText: {
     fontSize: 12,
     marginLeft: 4,
-  },
-  minOrder: {},
-  minOrderText: {
-    fontSize: 12,
   },
 });
 

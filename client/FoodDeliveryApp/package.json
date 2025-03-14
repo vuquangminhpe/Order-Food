@@ -40,6 +40,7 @@
     "react-dom": "18.3.1",
     "react-hook-form": "^7.54.2",
     "react-native": "0.76.7",
+    "react-native-chart-kit": "^6.12.0",
     "react-native-elements": "^3.4.3",
     "react-native-flash-message": "^0.4.2",
     "react-native-geolocation-service": "^5.3.1",
