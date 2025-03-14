@@ -2,7 +2,6 @@ import express from 'express'
 import { authMiddleware } from '../middlewares/auth.middlewares'
 import { restaurantValidator, updateRestaurantValidator } from '../middlewares/validation.middlewares'
 import { uploadImageMiddleware } from '../middlewares/upload.middlewares'
-import { wrapAsync } from '../utils/handlers'
 import {
   createRestaurantController,
   getRestaurantByIdController,
@@ -19,6 +18,7 @@ import {
 } from '../controllers/restaurant.controller'
 import { UserRole } from '~/models/schemas/Users.schema'
 import { checkUserRole } from '~/middlewares/common.middlewares'
+import { wrapAsync } from '~/middlewares/error.middlewares'
 
 const restaurantRouter = express.Router()
 

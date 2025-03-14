@@ -348,6 +348,105 @@ class UserService {
   private degToRad(degrees: number): number {
     return degrees * (Math.PI / 180)
   }
+  /**
+   * Get users by role
+   * @param role User role
+   * @param page Page number
+   * @param limit Items per page
+   * @returns Paginated users
+   */
+  async getUsersByRole(role: UserRole, page: number = 1, limit: number = 10) {
+    const query = { role }
+
+    // Count total matching users
+    const total = await databaseService.users.countDocuments(query)
+
+    // Get paginated results
+    const skip = (page - 1) * limit
+
+    const users = await databaseService.users.find(query).sort({ created_at: -1 }).skip(skip).limit(limit).toArray()
+
+    // Remove sensitive information
+    const safeUsers = users.map((user) => {
+      const { password, email_verify_token, forgot_password_token, ...safeData } = user
+      return safeData
+    })
+
+    return {
+      users: safeUsers,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    }
+  }
+  /**
+   * Get users with pagination and filtering
+   * @param options Query options
+   * @returns Paginated users
+   */
+  async getUsers({
+    page = 1,
+    limit = 10,
+    filters = {},
+    sortBy = 'created_at',
+    sortOrder = 'desc'
+  }: {
+    page: number
+    limit: number
+    filters: any
+    sortBy: string
+    sortOrder: 'asc' | 'desc'
+  }) {
+    const query: any = {}
+
+    // Apply filters
+    if (filters.role !== undefined) {
+      query.role = filters.role
+    }
+
+    if (filters.verify !== undefined) {
+      query.verify = filters.verify
+    }
+
+    // Apply search
+    if (filters.search) {
+      query.$or = [
+        { name: { $regex: filters.search, $options: 'i' } },
+        { email: { $regex: filters.search, $options: 'i' } },
+        { phone: { $regex: filters.search, $options: 'i' } }
+      ]
+    }
+
+    // Count total matching users
+    const total = await databaseService.users.countDocuments(query)
+
+    // Get paginated results
+    const skip = (page - 1) * limit
+
+    const sort: any = {}
+    sort[sortBy] = sortOrder === 'asc' ? 1 : -1
+
+    const users = await databaseService.users.find(query).sort(sort).skip(skip).limit(limit).toArray()
+
+    // Remove sensitive information
+    const safeUsers = users.map((user) => {
+      const { password, email_verify_token, forgot_password_token, ...safeData } = user
+      return safeData
+    })
+
+    return {
+      users: safeUsers,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    }
+  }
 }
 
 const userService = new UserService()

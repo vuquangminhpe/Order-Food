@@ -18,6 +18,8 @@ import paymentRouter from './routes/payment.routes'
 // Import utils
 import './utils/s3'
 import { envConfig, isProduction } from './constants/config'
+import userRouter from './routes/user.routes'
+import authRouter from './routes/auth.routes'
 
 config()
 

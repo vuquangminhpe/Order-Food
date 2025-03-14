@@ -1,5 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
-import { verifyToken, getTokenFromHeader } from '../utils/jwt'
+import { verifyToken } from '../utils/jwt'
 import { envConfig } from '../constants/config'
 import HTTP_STATUS from '../constants/httpStatus'
 import { USERS_MESSAGES } from '../constants/messages'
@@ -53,95 +52,98 @@ export const authMiddleware = validate(
   )
 )
 
-export const refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { refresh_token } = req.body
+export const refreshTokenMiddleware = validate(
+  checkSchema({
+    refresh_token: {
+      notEmpty: {
+        errorMessage: new ErrorWithStatus({
+          message: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED,
+          status: HTTP_STATUS.UNAUTHORIZED
+        })
+      },
+      custom: {
+        options: async (value: string, { req }) => {
+          const decoded = await verifyToken({
+            token: value,
+            secretOrPublicKey: envConfig.secretAccessKey as string
+          })
 
-    if (!refresh_token) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: USERS_MESSAGES.TOKEN_IS_REQUIRED
-      })
+          if (decoded.token_type !== TokenType.RefreshToken) {
+            return new ErrorWithStatus({
+              message: USERS_MESSAGES.TOKEN_IS_INVALID,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+
+          req.decode_refresh_token = decoded
+
+          return true
+        }
+      }
     }
+  })
+)
 
-    const decoded = await verifyToken({
-      token: refresh_token,
-      secretOrPublicKey: envConfig.secretOnPublicKey_Refresh as string
-    })
+export const verifyEmailTokenMiddleware = validate(
+  checkSchema({
+    verify_email_token: {
+      notEmpty: {
+        errorMessage: new ErrorWithStatus({
+          message: USERS_MESSAGES.TOKEN_IS_REQUIRED,
+          status: HTTP_STATUS.UNAUTHORIZED
+        })
+      },
+      custom: {
+        options: async (value: string, { req }) => {
+          const decoded = await verifyToken({
+            token: value,
+            secretOrPublicKey: envConfig.secretAccessKey as string
+          })
 
-    if (decoded.token_type !== TokenType.RefreshToken) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: USERS_MESSAGES.TOKEN_IS_INVALID
-      })
+          if (decoded.token_type !== TokenType.VerifyEmailToken) {
+            return new ErrorWithStatus({
+              message: USERS_MESSAGES.TOKEN_IS_INVALID,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+
+          req.decode_verify_email_token = decoded
+
+          return true
+        }
+      }
     }
+  })
+)
 
-    req.decoded_refresh_token = decoded
+export const forgotPasswordTokenMiddleware = validate(
+  checkSchema({
+    forgot_password_token: {
+      notEmpty: {
+        errorMessage: new ErrorWithStatus({
+          message: USERS_MESSAGES.TOKEN_IS_REQUIRED,
+          status: HTTP_STATUS.UNAUTHORIZED
+        })
+      },
+      custom: {
+        options: async (value: string, { req }) => {
+          const decoded = await verifyToken({
+            token: value,
+            secretOrPublicKey: envConfig.secretAccessKey as string
+          })
 
-    next()
-  } catch (error) {
-    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-      message: USERS_MESSAGES.TOKEN_IS_INVALID
-    })
-  }
-}
+          if (decoded.token_type !== TokenType.ForgotPasswordToken) {
+            return new ErrorWithStatus({
+              message: USERS_MESSAGES.TOKEN_IS_INVALID,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
 
-export const verifyEmailTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { token } = req.params
+          req.decode_forgot_password_token = decoded
 
-    if (!token) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: USERS_MESSAGES.TOKEN_IS_REQUIRED
-      })
+          return true
+        }
+      }
     }
-
-    const decoded = await verifyToken({
-      token,
-      secretOrPublicKey: envConfig.secretAccessKey as string
-    })
-
-    if (decoded.token_type !== TokenType.EmailVerifyToken) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: USERS_MESSAGES.TOKEN_IS_INVALID
-      })
-    }
-
-    req.decoded_email_verify_token = decoded
-
-    next()
-  } catch (error) {
-    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-      message: USERS_MESSAGES.TOKEN_IS_INVALID
-    })
-  }
-}
-
-export const forgotPasswordTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const token = req.params.token || req.body.token
-
-    if (!token) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: USERS_MESSAGES.TOKEN_IS_REQUIRED
-      })
-    }
-
-    const decoded = await verifyToken({
-      token,
-      secretOrPublicKey: envConfig.secretAccessKey as string
-    })
-
-    if (decoded.token_type !== TokenType.ForgotPasswordToken) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: USERS_MESSAGES.TOKEN_IS_INVALID
-      })
-    }
-
-    req.decode_forgot_password_token = decoded
-
-    next()
-  } catch (error) {
-    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-      message: USERS_MESSAGES.TOKEN_IS_INVALID
-    })
-  }
-}
+  })
+)

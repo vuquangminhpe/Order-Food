@@ -1,7 +1,6 @@
 import express from 'express'
 import { authMiddleware } from '../middlewares/auth.middlewares'
 import { orderValidator, updateOrderStatusValidator } from '../middlewares/validation.middlewares'
-import { wrapAsync } from '../utils/handlers'
 import {
   createOrderController,
   getOrderByIdController,
@@ -16,8 +15,10 @@ import {
   getDeliveryHistoryController,
   searchOrdersController
 } from '../controllers/order.controller'
-import { checkUserRole } from '../middlewares/role.middlewares'
-import { UserRole } from '../models/schemas/User.schema'
+
+import { wrapAsync } from '~/middlewares/error.middlewares'
+import { checkUserRole } from '~/middlewares/common.middlewares'
+import { UserRole } from '~/models/schemas/Users.schema'
 
 const orderRouter = express.Router()
 

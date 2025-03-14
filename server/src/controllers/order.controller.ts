@@ -350,7 +350,10 @@ export const rateOrderController = async (req: Request, res: Response) => {
     review: review || '',
     foodRating: foodRating || rating,
     deliveryRating: deliveryRating || rating,
-    created_at: new Date()
+    created_at: new Date(),
+    updated_at: new Date(),
+    photos: [],
+    isVisible: true
   }
 
   const result = await databaseService.ratings.insertOne(ratingData)

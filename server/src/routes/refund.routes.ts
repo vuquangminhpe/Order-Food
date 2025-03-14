@@ -5,6 +5,17 @@ import { wrapAsync } from '../middlewares/error.middlewares'
 import { checkUserRole } from '~/middlewares/common.middlewares'
 import { UserRole } from '~/models/schemas/Users.schema'
 import { authMiddleware } from '~/middlewares/auth.middlewares'
+import { approveRejectRefundValidator } from '~/middlewares/refund.middlewares'
+import {
+  approveRefundController,
+  createRefundController,
+  getAllRefundsController,
+  getRefundController,
+  getRefundsByOrderController,
+  getUserRefundsController,
+  processRefundController,
+  rejectRefundController
+} from '~/controllers/refund.controller'
 
 const refundRouter = Router()
 

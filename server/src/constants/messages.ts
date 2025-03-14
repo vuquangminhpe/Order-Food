@@ -33,7 +33,8 @@ export const USERS_MESSAGES = {
   USER_BANNED_SUCCESS: 'User banned successfully',
   USER_UNBANNED_SUCCESS: 'User unbanned successfully',
   ACCESS_TOKEN_IS_VALID: 'Access token is valid',
-  ACCESS_TOKEN_IS_REQUIRED: 'Access token is required'
+  ACCESS_TOKEN_IS_REQUIRED: 'Access token is required',
+  REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required'
 }
 
 export const RESTAURANT_MESSAGES = {

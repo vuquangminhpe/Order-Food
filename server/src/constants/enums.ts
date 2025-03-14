@@ -5,7 +5,8 @@ export enum TokenType {
   AccessToken = 'access',
   RefreshToken = 'refresh',
   EmailVerifyToken = 'email_verify',
-  ForgotPasswordToken = 'forgot_password'
+  ForgotPasswordToken = 'forgot_password',
+  VerifyEmailToken = 'VerifyEmailToken'
 }
 export interface TokenPayload extends JwtPayload {
   user_id: string

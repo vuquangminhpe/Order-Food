@@ -1,572 +1,399 @@
 import { Request, Response } from 'express'
-import { ObjectId } from 'mongodb'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { MENU_MESSAGES } from '../constants/messages'
-import menuService from '../services/menu.services'
-import restaurantService from '../services/restaurant.services'
-import databaseService from '../services/database.services'
-import { uploadFileS3, deleteFileFromS3 } from '../utils/s3'
-import path from 'path'
-import fs from 'fs'
-import { MenuCategoryReqBody, MenuItemReqBody } from '~/models/requests/auth.requests'
+import { ObjectId } from 'mongodb'
+import userService from '../services/user.services'
+import { USERS_MESSAGES } from '../constants/messages'
+import HTTP_STATUS from '../constants/httpStatus'
+import { hashPassword, verifyPassword } from '../utils/crypto'
+import { AddAddressReqBody, UpdateAddressReqBody, UpdateProfileReqBody } from '../models/requests/auth.requests'
+import { UserRole } from '~/models/schemas/Users.schema'
 
-// Create a new menu item
-export const createMenuItemController = async (req: Request<ParamsDictionary, any, MenuItemReqBody>, res: Response) => {
+// Get user profile
+export const getUserProfileController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as { user_id: string }
-  const menuItemData = req.body
 
-  // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(menuItemData.restaurantId as string)
+  const user = await userService.getUserById(user_id)
 
-  if (!restaurant) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.RESTAURANT_NOT_FOUND
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGES.USER_NOT_FOUND
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
-    return res.status(403).json({
-      message: MENU_MESSAGES.UNAUTHORIZED_TO_CREATE
-    })
-  }
+  // Remove sensitive information
+  const { password, email_verify_token, forgot_password_token, ...userInfo } = user
 
-  // Check if category exists
-  const category = await databaseService.menuCategories.findOne({
-    _id: new ObjectId(menuItemData.categoryId),
-    restaurantId: new ObjectId(menuItemData.restaurantId)
-  })
-
-  if (!category) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.CATEGORY_NOT_FOUND
-    })
-  }
-
-  // Create menu item
-  const result = await menuService.createMenuItem(menuItemData)
-
-  res.status(201).json({
-    message: MENU_MESSAGES.CREATE_ITEM_SUCCESS,
-    result: {
-      menu_item_id: result.insertedId.toString()
-    }
+  res.status(HTTP_STATUS.OK).json({
+    message: 'User profile retrieved successfully',
+    result: userInfo
   })
 }
 
-// Get a menu item by ID
-export const getMenuItemController = async (req: Request, res: Response) => {
-  const { id } = req.params
-
-  const menuItem = await menuService.getMenuItemById(id)
-
-  if (!menuItem) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.ITEM_NOT_FOUND
-    })
-  }
-
-  res.status(200).json({
-    message: MENU_MESSAGES.GET_ITEM_SUCCESS,
-    result: menuItem
-  })
-}
-
-// Update a menu item
-export const updateMenuItemController = async (
-  req: Request<ParamsDictionary & { id: string }, any, Partial<MenuItemReqBody>>,
+// Update user profile
+export const updateProfileController = async (
+  req: Request<ParamsDictionary, any, UpdateProfileReqBody>,
   res: Response
 ) => {
-  const { id } = req.params
   const { user_id } = req.decoded_authorization as { user_id: string }
   const updateData = req.body
 
-  // Get the menu item
-  const menuItem = await menuService.getMenuItemById(id)
+  const result = await userService.updateProfile(user_id, updateData)
 
-  if (!menuItem) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.ITEM_NOT_FOUND
-    })
-  }
-
-  // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(menuItem.restaurantId.toString())
-
-  if (!restaurant) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.RESTAURANT_NOT_FOUND
-    })
-  }
-
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
-    return res.status(403).json({
-      message: MENU_MESSAGES.UNAUTHORIZED_TO_UPDATE
-    })
-  }
-
-  // If changing category, check if it exists
-  if (updateData.categoryId) {
-    const category = await databaseService.menuCategories.findOne({
-      _id: new ObjectId(updateData.categoryId),
-      restaurantId: menuItem.restaurantId
-    })
-
-    if (!category) {
-      return res.status(404).json({
-        message: MENU_MESSAGES.CATEGORY_NOT_FOUND
-      })
-    }
-  }
-
-  // Update menu item
-  const result = await menuService.updateMenuItem(id, updateData)
-
-  res.status(200).json({
-    message: MENU_MESSAGES.UPDATE_ITEM_SUCCESS,
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.PROFILE_UPDATED_SUCCESS,
     result
   })
 }
 
-// Delete a menu item
-export const deleteMenuItemController = async (req: Request, res: Response) => {
-  const { id } = req.params
+// Change password
+export const changePasswordController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as { user_id: string }
+  const { old_password, password } = req.body
 
-  // Get the menu item
-  const menuItem = await menuService.getMenuItemById(id)
+  // Password verification is done in validation middleware
+  const result = await userService.changePassword(user_id, hashPassword(password))
 
-  if (!menuItem) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.ITEM_NOT_FOUND
-    })
-  }
-
-  // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(menuItem.restaurantId.toString())
-
-  if (!restaurant) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.RESTAURANT_NOT_FOUND
-    })
-  }
-
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
-    return res.status(403).json({
-      message: MENU_MESSAGES.UNAUTHORIZED_TO_DELETE
-    })
-  }
-
-  // Delete image from S3 if exists
-  if (menuItem.image) {
-    await deleteFileFromS3(menuItem.image)
-  }
-
-  // Delete menu item
-  const result = await menuService.deleteMenuItem(id)
-
-  res.status(200).json({
-    message: MENU_MESSAGES.DELETE_ITEM_SUCCESS,
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.PASSWORD_CHANGED_SUCCESS,
     result
   })
 }
 
-// Upload menu item image
-export const uploadMenuItemImageController = async (req: Request, res: Response) => {
-  const { id } = req.params
+// Upload avatar
+export const uploadAvatarController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as { user_id: string }
-  const file = (req as any).file
 
-  if (!file) {
-    return res.status(400).json({
-      message: MENU_MESSAGES.NO_IMAGE_UPLOADED
+  if (!req.file) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'No file uploaded'
     })
   }
 
-  // Get the menu item
-  const menuItem = await menuService.getMenuItemById(id)
+  const avatarUrl = await userService.uploadAvatar(user_id, req.file)
 
-  if (!menuItem) {
-    // Clean up uploaded file
-    fs.unlinkSync(file.path)
-
-    return res.status(404).json({
-      message: MENU_MESSAGES.ITEM_NOT_FOUND
-    })
-  }
-
-  // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(menuItem.restaurantId.toString())
-
-  if (!restaurant) {
-    // Clean up uploaded file
-    fs.unlinkSync(file.path)
-
-    return res.status(404).json({
-      message: MENU_MESSAGES.RESTAURANT_NOT_FOUND
-    })
-  }
-
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
-    // Clean up uploaded file
-    fs.unlinkSync(file.path)
-
-    return res.status(403).json({
-      message: MENU_MESSAGES.UNAUTHORIZED_TO_UPDATE
-    })
-  }
-
-  try {
-    // Delete old image if exists
-    if (menuItem.image) {
-      await deleteFileFromS3(menuItem.image)
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.AVATAR_UPLOADED_SUCCESS,
+    result: {
+      avatar_url: avatarUrl
     }
-
-    // Upload new image to S3
-    const filename = `menu-items/${id}/${Date.now()}-${path.basename(file.path)}`
-
-    await uploadFileS3({
-      filename,
-      filePath: file.path,
-      contentType: file.mimetype
-    })
-
-    // Construct S3 URL
-    const fileUrl = `https://${process.env.Bucket_Name}.s3.${process.env.region}.amazonaws.com/${filename}`
-
-    // Update menu item with image URL
-    await menuService.updateMenuItem(id, { image: fileUrl })
-
-    // Clean up uploaded file
-    fs.unlinkSync(file.path)
-
-    res.status(200).json({
-      message: MENU_MESSAGES.UPLOAD_IMAGE_SUCCESS,
-      result: {
-        image_url: fileUrl
-      }
-    })
-  } catch (error) {
-    // Clean up uploaded file
-    if (fs.existsSync(file.path)) {
-      fs.unlinkSync(file.path)
-    }
-
-    throw error
-  }
+  })
 }
 
-// Create a new menu category
-export const createMenuCategoryController = async (
-  req: Request<ParamsDictionary, any, MenuCategoryReqBody>,
+// Get user addresses
+export const getAddressesController = async (req: Request, res: Response) => {
+  const { user_id } = req.decoded_authorization as { user_id: string }
+
+  const user = await userService.getUserById(user_id)
+
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGES.USER_NOT_FOUND
+    })
+  }
+
+  res.status(HTTP_STATUS.OK).json({
+    message: 'Addresses retrieved successfully',
+    result: user.addresses || []
+  })
+}
+
+// Add user address
+export const addAddressController = async (req: Request<ParamsDictionary, any, AddAddressReqBody>, res: Response) => {
+  const { user_id } = req.decoded_authorization as { user_id: string }
+  const addressData = req.body
+
+  const result = await userService.addAddress(user_id, addressData)
+
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.ADDRESS_ADDED_SUCCESS,
+    result
+  })
+}
+
+// Update user address
+export const updateAddressController = async (
+  req: Request<ParamsDictionary & { index: string }, any, UpdateAddressReqBody>,
   res: Response
 ) => {
   const { user_id } = req.decoded_authorization as { user_id: string }
-  const categoryData = req.body
+  const { index } = req.params
+  const addressData = req.body
 
-  // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(categoryData.restaurantId as string)
+  const user = await userService.getUserById(user_id)
 
-  if (!restaurant) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.RESTAURANT_NOT_FOUND
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGES.USER_NOT_FOUND
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
-    return res.status(403).json({
-      message: MENU_MESSAGES.UNAUTHORIZED_TO_CREATE
+  // Check if address exists
+  const addressIndex = parseInt(index)
+  if (isNaN(addressIndex) || !user.addresses || addressIndex < 0 || addressIndex >= user.addresses.length) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGES.ADDRESS_NOT_FOUND
     })
   }
 
-  // Create category
-  const result = await menuService.createMenuCategory(categoryData)
+  const result = await userService.updateAddress(user_id, addressIndex, addressData)
 
-  res.status(201).json({
-    message: MENU_MESSAGES.CREATE_CATEGORY_SUCCESS,
-    result: {
-      category_id: result.insertedId.toString()
-    }
-  })
-}
-
-// Get all menu categories for a restaurant
-export const getMenuCategoriesController = async (req: Request, res: Response) => {
-  const { restaurantId } = req.params
-
-  const categories = await menuService.getMenuCategories(restaurantId)
-
-  res.status(200).json({
-    message: MENU_MESSAGES.GET_CATEGORIES_SUCCESS,
-    result: categories
-  })
-}
-
-// Update a menu category
-export const updateMenuCategoryController = async (
-  req: Request<ParamsDictionary & { id: string }, any, Partial<MenuCategoryReqBody>>,
-  res: Response
-) => {
-  const { id } = req.params
-  const { user_id } = req.decoded_authorization as { user_id: string }
-  const updateData = req.body
-
-  // Get the category
-  const category = await databaseService.menuCategories.findOne({
-    _id: new ObjectId(id)
-  })
-
-  if (!category) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.CATEGORY_NOT_FOUND
-    })
-  }
-
-  // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(category.restaurantId.toString())
-
-  if (!restaurant) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.RESTAURANT_NOT_FOUND
-    })
-  }
-
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
-    return res.status(403).json({
-      message: MENU_MESSAGES.UNAUTHORIZED_TO_UPDATE
-    })
-  }
-
-  // Update category
-  const result = await menuService.updateMenuCategory(id, updateData)
-
-  res.status(200).json({
-    message: MENU_MESSAGES.UPDATE_CATEGORY_SUCCESS,
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.ADDRESS_UPDATED_SUCCESS,
     result
   })
 }
 
-// Delete a menu category
-export const deleteMenuCategoryController = async (req: Request, res: Response) => {
-  const { id } = req.params
+// Delete user address
+export const deleteAddressController = async (req: Request<ParamsDictionary & { index: string }>, res: Response) => {
   const { user_id } = req.decoded_authorization as { user_id: string }
+  const { index } = req.params
 
-  // Get the category
-  const category = await databaseService.menuCategories.findOne({
-    _id: new ObjectId(id)
-  })
+  const user = await userService.getUserById(user_id)
 
-  if (!category) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.CATEGORY_NOT_FOUND
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGES.USER_NOT_FOUND
     })
   }
 
-  // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(category.restaurantId.toString())
-
-  if (!restaurant) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.RESTAURANT_NOT_FOUND
+  // Check if address exists
+  const addressIndex = parseInt(index)
+  if (isNaN(addressIndex) || !user.addresses || addressIndex < 0 || addressIndex >= user.addresses.length) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGES.ADDRESS_NOT_FOUND
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
-    return res.status(403).json({
-      message: MENU_MESSAGES.UNAUTHORIZED_TO_DELETE
-    })
-  }
+  const result = await userService.deleteAddress(user_id, addressIndex)
 
-  // Check if category has menu items
-  const menuItems = await databaseService.menuItems.countDocuments({
-    categoryId: new ObjectId(id)
-  })
-
-  if (menuItems > 0) {
-    return res.status(400).json({
-      message: MENU_MESSAGES.CATEGORY_HAS_ITEMS,
-      itemCount: menuItems
-    })
-  }
-
-  // Delete category
-  const result = await menuService.deleteMenuCategory(id)
-
-  res.status(200).json({
-    message: MENU_MESSAGES.DELETE_CATEGORY_SUCCESS,
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.ADDRESS_DELETED_SUCCESS,
     result
   })
 }
 
-// Get a restaurant's complete menu
-export const getRestaurantMenuController = async (req: Request, res: Response) => {
-  const { restaurantId } = req.params
-
-  // Get all categories
-  const categories = await menuService.getMenuCategories(restaurantId)
-
-  // Get all menu items
-  const menuItems = await databaseService.menuItems
-    .find({
-      restaurantId: new ObjectId(restaurantId)
-    })
-    .toArray()
-
-  // Group menu items by category
-  const menuByCategory = categories.map((category) => {
-    const items = menuItems.filter((item) => item.categoryId.toString() === category._id!.toString())
-
-    return {
-      category,
-      items
-    }
-  })
-
-  res.status(200).json({
-    message: MENU_MESSAGES.GET_MENU_SUCCESS,
-    result: {
-      restaurant_id: restaurantId,
-      menu: menuByCategory
-    }
-  })
-}
-
-// Update menu item availability
-export const updateMenuItemAvailabilityController = async (req: Request, res: Response) => {
-  const { id } = req.params
+// Update delivery status (for delivery personnel)
+export const updateDeliveryStatusController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as { user_id: string }
   const { isAvailable } = req.body
 
-  if (isAvailable === undefined) {
-    return res.status(400).json({
-      message: MENU_MESSAGES.AVAILABILITY_REQUIRED
+  if (typeof isAvailable !== 'boolean') {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'isAvailable must be a boolean'
     })
   }
 
-  // Get the menu item
-  const menuItem = await menuService.getMenuItemById(id)
+  const result = await userService.updateDeliveryPersonStatus(user_id, isAvailable)
 
-  if (!menuItem) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.ITEM_NOT_FOUND
-    })
-  }
-
-  // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(menuItem.restaurantId.toString())
-
-  if (!restaurant) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.RESTAURANT_NOT_FOUND
-    })
-  }
-
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
-    return res.status(403).json({
-      message: MENU_MESSAGES.UNAUTHORIZED_TO_UPDATE
-    })
-  }
-
-  // Update availability
-  const result = await menuService.updateMenuItem(id, { isAvailable })
-
-  res.status(200).json({
-    message: MENU_MESSAGES.UPDATE_AVAILABILITY_SUCCESS,
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.STATUS_UPDATED_SUCCESS,
     result
   })
 }
 
-// Batch update menu items
-export const batchUpdateMenuItemsController = async (req: Request, res: Response) => {
+// Update location (for delivery personnel)
+export const updateLocationController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as { user_id: string }
-  const { items } = req.body
+  const { lat, lng } = req.body
 
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({
-      message: MENU_MESSAGES.INVALID_BATCH_UPDATE
+  if (!lat || !lng) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Latitude and longitude are required'
     })
   }
 
-  // Get first item to check restaurant ownership
-  const firstItemId = items[0].id
-  const firstItem = await menuService.getMenuItemById(firstItemId)
+  // Validate coordinates
+  const latitude = parseFloat(lat)
+  const longitude = parseFloat(lng)
 
-  if (!firstItem) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.ITEM_NOT_FOUND
+  if (isNaN(latitude) || isNaN(longitude)) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Invalid coordinates'
     })
   }
 
-  // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(firstItem.restaurantId.toString())
-
-  if (!restaurant) {
-    return res.status(404).json({
-      message: MENU_MESSAGES.RESTAURANT_NOT_FOUND
+  if (latitude < -90 || latitude > 90) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Latitude must be between -90 and 90'
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
-    return res.status(403).json({
-      message: MENU_MESSAGES.UNAUTHORIZED_TO_UPDATE
+  if (longitude < -180 || longitude > 180) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Longitude must be between -180 and 180'
     })
   }
 
-  // Process batch updates
-  const results = []
+  const result = await userService.updateLocation(user_id, latitude, longitude)
 
-  for (const item of items) {
-    try {
-      // Verify this item belongs to the same restaurant
-      const menuItem = await menuService.getMenuItemById(item.id)
-
-      if (!menuItem || menuItem.restaurantId.toString() !== firstItem.restaurantId.toString()) {
-        results.push({
-          id: item.id,
-          success: false,
-          message: MENU_MESSAGES.ITEM_NOT_FOUND_OR_DIFFERENT_RESTAURANT
-        })
-        continue
-      }
-
-      // Update the item
-      const result = await menuService.updateMenuItem(item.id, item.updates)
-
-      results.push({
-        id: item.id,
-        success: true
-      })
-    } catch (error: any) {
-      results.push({
-        id: item.id,
-        success: false,
-        message: error.message
-      })
-    }
-  }
-
-  res.status(200).json({
-    message: MENU_MESSAGES.BATCH_UPDATE_SUCCESS,
-    result: results
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.LOCATION_UPDATED_SUCCESS,
+    result
   })
 }
 
-// Get popular menu items
-export const getPopularMenuItemsController = async (req: Request, res: Response) => {
-  const { restaurantId } = req.params
-  const { limit = 10 } = req.query
+// Get nearby delivery personnel
+export const getNearbyDeliveryPersonnelController = async (req: Request, res: Response) => {
+  const { lat, lng, radius = 5 } = req.query
 
-  // Get menu items sorted by popularity
-  const menuItems = await databaseService.menuItems
-    .find({
-      restaurantId: new ObjectId(restaurantId),
-      isAvailable: true
+  if (!lat || !lng) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Latitude and longitude are required'
     })
-    .sort({ popularity: -1 })
-    .limit(Number(limit))
-    .toArray()
+  }
 
-  res.status(200).json({
-    message: MENU_MESSAGES.GET_POPULAR_ITEMS_SUCCESS,
-    result: menuItems
+  // Validate coordinates
+  const latitude = parseFloat(lat as string)
+  const longitude = parseFloat(lng as string)
+  const searchRadius = parseFloat(radius as string)
+
+  if (isNaN(latitude) || isNaN(longitude)) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Invalid coordinates'
+    })
+  }
+
+  if (latitude < -90 || latitude > 90) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Latitude must be between -90 and 90'
+    })
+  }
+
+  if (longitude < -180 || longitude > 180) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Longitude must be between -180 and 180'
+    })
+  }
+
+  if (isNaN(searchRadius) || searchRadius <= 0) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Radius must be a positive number'
+    })
+  }
+
+  const personnel = await userService.getNearbyDeliveryPersonnel(latitude, longitude, searchRadius)
+
+  res.status(HTTP_STATUS.OK).json({
+    message: 'Nearby delivery personnel retrieved successfully',
+    result: personnel
+  })
+}
+
+// Admin controllers
+
+// Get all users
+export const getUsersController = async (req: Request, res: Response) => {
+  const { page = 1, limit = 10, role, verify, search, sortBy = 'created_at', sortOrder = 'desc' } = req.query
+
+  // Build filters
+  const filters: any = {}
+
+  if (role !== undefined) {
+    filters.role = parseInt(role as string)
+  }
+
+  if (verify !== undefined) {
+    filters.verify = parseInt(verify as string)
+  }
+
+  if (search) {
+    filters.search = search as string
+  }
+
+  const result = await userService.getUsers({
+    page: parseInt(page as string),
+    limit: parseInt(limit as string),
+    filters,
+    sortBy: sortBy as string,
+    sortOrder: sortOrder as 'asc' | 'desc'
+  })
+
+  res.status(HTTP_STATUS.OK).json({
+    message: 'Users retrieved successfully',
+    result
+  })
+}
+
+// Get user by ID
+export const getUserByIdController = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  const user = await userService.getUserById(id)
+
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      message: USERS_MESSAGES.USER_NOT_FOUND
+    })
+  }
+
+  // Remove sensitive information
+  const { password, email_verify_token, forgot_password_token, ...userInfo } = user
+
+  res.status(HTTP_STATUS.OK).json({
+    message: 'User retrieved successfully',
+    result: userInfo
+  })
+}
+
+// Ban user
+export const banUserController = async (req: Request, res: Response) => {
+  const { id } = req.params
+  const { reason } = req.body
+
+  if (!reason) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Ban reason is required'
+    })
+  }
+
+  const result = await userService.banUser(id, reason)
+
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.USER_BANNED_SUCCESS,
+    result
+  })
+}
+
+// Unban user
+export const unbanUserController = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  const result = await userService.unbanUser(id)
+
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.USER_UNBANNED_SUCCESS,
+    result
+  })
+}
+
+// Get restaurant owners
+export const getRestaurantOwnersController = async (req: Request, res: Response) => {
+  const { page = 1, limit = 10 } = req.query
+
+  const result = await userService.getUsersByRole(
+    UserRole.RestaurantOwner,
+    parseInt(page as string),
+    parseInt(limit as string)
+  )
+
+  res.status(HTTP_STATUS.OK).json({
+    message: 'Restaurant owners retrieved successfully',
+    result
+  })
+}
+
+// Get delivery personnel
+export const getDeliveryPersonnelController = async (req: Request, res: Response) => {
+  const { page = 1, limit = 10 } = req.query
+
+  const result = await userService.getUsersByRole(
+    UserRole.DeliveryPerson,
+    parseInt(page as string),
+    parseInt(limit as string)
+  )
+
+  res.status(HTTP_STATUS.OK).json({
+    message: 'Delivery personnel retrieved successfully',
+    result
   })
 }

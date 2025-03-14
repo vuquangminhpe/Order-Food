@@ -5,6 +5,34 @@ import fs from 'fs'
 import { UPLOAD_IMAGE_DIR } from '../constants/dir'
 import HTTP_STATUS from '../constants/httpStatus'
 
+// Add necessary type definitions
+declare global {
+  namespace Express {
+    namespace Multer {
+      interface File {
+        fieldname: string
+        originalname: string
+        encoding: string
+        mimetype: string
+        size: number
+        destination: string
+        filename: string
+        path: string
+        buffer: Buffer
+      }
+    }
+
+    interface Request {
+      file?: Multer.File
+      files?:
+        | {
+            [fieldname: string]: Multer.File[]
+          }
+        | Multer.File[]
+    }
+  }
+}
+
 // Ensure upload directories exist
 const createDir = (dir: string) => {
   if (!fs.existsSync(dir)) {
@@ -16,13 +44,13 @@ createDir(UPLOAD_IMAGE_DIR)
 
 // Configure multer storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, UPLOAD_IMAGE_DIR)
+  destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
+    return cb(null as any, UPLOAD_IMAGE_DIR)
   },
-  filename: (req, file, cb) => {
+  filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
     const ext = path.extname(file.originalname)
-    cb(null, uniqueSuffix + ext)
+    cb(null as any, uniqueSuffix + ext)
   }
 })
 
@@ -30,18 +58,18 @@ const storage = multer.diskStorage({
 const imageFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   // Accept only image files
   if (file.mimetype.startsWith('image/')) {
-    cb(null, true)
+    cb(null as any, true)
   } else {
-    cb(new Error('Only image files are allowed'))
+    cb(new Error('Only image files are allowed') as any)
   }
 }
 
 const videoFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   // Accept only video files
   if (file.mimetype.startsWith('video/')) {
-    cb(null, true)
+    cb(null as any, true)
   } else {
-    cb(new Error('Only video files are allowed'))
+    cb(new Error('Only video files are allowed') as any)
   }
 }
 
@@ -140,11 +168,13 @@ export const validateImageDimensions = (
   }
 }
 
+// Middleware to clean up temporary files on error
 export const cleanupOnError = (req: Request, res: Response, next: NextFunction) => {
-  const originalEnd = res.end
-
-  res.end = function (...args) {
+  // Add a response listener instead of overriding res.end
+  res.on('finish', () => {
+    // Check if response status is an error
     if (res.statusCode >= 400) {
+      // Clean up files if they exist
       if (req.file) {
         fs.unlink(req.file.path, (err) => {
           if (err) console.error('Error deleting file on error:', err)
@@ -152,6 +182,7 @@ export const cleanupOnError = (req: Request, res: Response, next: NextFunction) 
       }
 
       if (req.files) {
+        // Handle array of files
         if (Array.isArray(req.files)) {
           req.files.forEach((file: Express.Multer.File) => {
             fs.unlink(file.path, (err) => {
@@ -159,6 +190,7 @@ export const cleanupOnError = (req: Request, res: Response, next: NextFunction) 
             })
           })
         } else {
+          // Handle object of file arrays
           Object.keys(req.files).forEach((key) => {
             ;(req.files as any)[key].forEach((file: Express.Multer.File) => {
               fs.unlink(file.path, (err) => {
@@ -169,9 +201,7 @@ export const cleanupOnError = (req: Request, res: Response, next: NextFunction) 
         }
       }
     }
-
-    return originalEnd.apply(res, args)
-  }
+  })
 
   next()
 }
