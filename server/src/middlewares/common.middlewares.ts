@@ -3,22 +3,14 @@ import HTTP_STATUS from '../constants/httpStatus'
 import { UserRole } from '~/models/schemas/Users.schema'
 
 export const checkUserRole = (roles: UserRole[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const { user_role } = req
+  return (req: Request, res: Response, next: NextFunction): void | Promise<void> => {
+    const userRole = req.user?.role
 
-    if (!user_role) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: 'Unauthorized'
-      })
+    if (!userRole || !roles.includes(userRole)) {
+      res.status(403).json({ message: 'Forbidden' })
     }
 
-    if (!roles.includes(user_role)) {
-      return res.status(HTTP_STATUS.FORBIDDEN).json({
-        message: 'Forbidden: You do not have permission to access this resource'
-      })
-    }
-
-    next()
+    return next()
   }
 }
 

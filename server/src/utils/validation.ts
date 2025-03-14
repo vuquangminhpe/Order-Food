@@ -1,58 +1,29 @@
 import { Request, Response, NextFunction } from 'express'
-import { Result, ValidationError, validationResult } from 'express-validator'
+import { Result, ValidationChain, ValidationError, validationResult } from 'express-validator'
 import { USERS_MESSAGES } from '../constants/messages'
 import HTTP_STATUS from '../constants/httpStatus'
+import { EntityError, ErrorWithStatus } from '~/models/Errors'
+import { RunnableValidationChains } from 'express-validator/lib/middlewares/schema'
 
-interface ValidationErrorsResponse {
-  message: string
-  errors: {
-    [key: string]: {
-      msg: string
-      [key: string]: any
-    }
-  }
-}
-
-export const validate = (validations: any) => {
+export const validate = (validation: RunnableValidationChains<ValidationChain>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    await Promise.all(validations.map((validation: any) => validation.run(req)))
-
+    await validation.run(req)
     const errors = validationResult(req)
-
+    const entityError = new EntityError({ errors: {} })
     if (errors.isEmpty()) {
       return next()
     }
-
-    const errorResponse: ValidationErrorsResponse = {
-      message: USERS_MESSAGES.VALIDATION_ERROR,
-      errors: {}
-    }
-
-    errors.array().forEach((error: ValidationError) => {
-      const path = (error as any).path
-      errorResponse.errors[path] = {
-        ...error
+    const errorsObject = errors.mapped()
+    for (const key in errorsObject) {
+      const { msg } = errorsObject[key]
+      if (msg instanceof ErrorWithStatus && msg.status !== HTTP_STATUS.UNPROCESSABLE_ENTITY) {
+        return next(msg)
       }
-    })
-
-    return res.status(HTTP_STATUS.BAD_REQUEST).json(errorResponse)
-  }
-}
-
-export const formatValidationErrors = (errors: Result<ValidationError>): ValidationErrorsResponse => {
-  const errorResponse: ValidationErrorsResponse = {
-    message: USERS_MESSAGES.VALIDATION_ERROR,
-    errors: {}
-  }
-
-  errors.array().forEach((error: ValidationError) => {
-    const path = (error as any).path
-    errorResponse.errors[path] = {
-      ...error
+      entityError.errors[key] = errorsObject[key]
     }
-  })
 
-  return errorResponse
+    next(entityError)
+  }
 }
 
 export const isValidEmail = (email: string): boolean => {

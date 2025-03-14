@@ -31,7 +31,9 @@ export const USERS_MESSAGES = {
   STATUS_UPDATED_SUCCESS: 'Status updated successfully',
   LOCATION_UPDATED_SUCCESS: 'Location updated successfully',
   USER_BANNED_SUCCESS: 'User banned successfully',
-  USER_UNBANNED_SUCCESS: 'User unbanned successfully'
+  USER_UNBANNED_SUCCESS: 'User unbanned successfully',
+  ACCESS_TOKEN_IS_VALID: 'Access token is valid',
+  ACCESS_TOKEN_IS_REQUIRED: 'Access token is required'
 }
 
 export const RESTAURANT_MESSAGES = {

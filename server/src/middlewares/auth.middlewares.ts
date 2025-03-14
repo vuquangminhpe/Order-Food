@@ -4,47 +4,54 @@ import { envConfig } from '../constants/config'
 import HTTP_STATUS from '../constants/httpStatus'
 import { USERS_MESSAGES } from '../constants/messages'
 import { TokenType } from '~/constants/enums'
+import { validate } from '~/utils/validation'
+import { checkSchema } from 'express-validator'
+import { ErrorWithStatus } from '~/models/Errors'
 
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const authorization = req.headers.authorization
+export const authMiddleware = validate(
+  checkSchema(
+    {
+      Authorization: {
+        notEmpty: {
+          errorMessage: new ErrorWithStatus({
+            message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
+            status: HTTP_STATUS.UNAUTHORIZED
+          })
+        },
+        custom: {
+          options: async (value: string, { req }) => {
+            const access_token = value.split(' ')[1]
 
-    if (!authorization) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: USERS_MESSAGES.TOKEN_IS_REQUIRED
-      })
-    }
+            if (!access_token) {
+              return new ErrorWithStatus({
+                message: USERS_MESSAGES.TOKEN_IS_REQUIRED,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
 
-    const token = getTokenFromHeader(authorization)
+            const decoded = await verifyToken({
+              token: access_token,
+              secretOrPublicKey: envConfig.secretAccessKey as string
+            })
 
-    if (!token) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: USERS_MESSAGES.TOKEN_IS_REQUIRED
-      })
-    }
+            if (decoded.token_type !== TokenType.AccessToken) {
+              return new ErrorWithStatus({
+                message: USERS_MESSAGES.TOKEN_IS_INVALID,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
 
-    const decoded = await verifyToken({
-      token,
-      secretOrPublicKey: envConfig.secretAccessKey as string
-    })
-
-    if (decoded.token_type !== TokenType.AccessToken) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: USERS_MESSAGES.TOKEN_IS_INVALID
-      })
-    }
-
-    req.decode_authorization = decoded
-    req.user_id = decoded.user_id
-    req.user_role = decoded.role
-
-    next()
-  } catch (error) {
-    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-      message: USERS_MESSAGES.TOKEN_IS_INVALID
-    })
-  }
-}
+            req.decode_authorization = decoded
+            req.user_id = decoded.user_id
+            req.user_role = decoded.role
+            return true
+          }
+        }
+      }
+    },
+    ['headers']
+  )
+)
 
 export const refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {
