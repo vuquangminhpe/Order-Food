@@ -62,9 +62,6 @@ if (isProduction) {
   app.use(limiter)
 }
 
-// Initialize folders
-initFolderImage()
-
 // Middleware
 app.use(express.json())
 
@@ -86,6 +83,3 @@ export const io = initSocket(httpServer)
 httpServer.listen(port, () => {
   console.log(`Server listening on port ${port}`)
 })
-function initFolderImage() {
-  throw new Error('Function not implemented.')
-}
