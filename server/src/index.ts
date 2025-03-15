@@ -10,16 +10,16 @@ import { createServer } from 'http'
 
 // Import utils
 import './utils/s3'
-import databaseService from '~/services/database.services'
-import { envConfig, isProduction } from '~/constants/config'
-import authRouter from '~/routes/auth.routes'
-import userRouter from '~/routes/user.routes'
-import restaurantRouter from '~/routes/restaurant.routes'
-import menuRouter from '~/routes/menu.routes'
-import orderRouter from '~/routes/order.routes'
-import paymentRouter from '~/routes/payment.routes'
-import { defaultErrorHandler } from '~/middlewares/error.middlewares'
-import initSocket from '~/utils/socket'
+import databaseService from './services/database.services'
+import { envConfig, isProduction } from './constants/config'
+import authRouter from './routes/auth.routes'
+import userRouter from './routes/user.routes'
+import restaurantRouter from './routes/restaurant.routes'
+import menuRouter from './routes/menu.routes'
+import orderRouter from './routes/order.routes'
+import paymentRouter from './routes/payment.routes'
+import { defaultErrorHandler } from './middlewares/error.middlewares'
+import initSocket from './utils/socket'
 
 config()
 
