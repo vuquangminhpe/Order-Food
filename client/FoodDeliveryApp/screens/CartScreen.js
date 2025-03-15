@@ -17,7 +17,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useLocation } from "../contexts/LocationContext";
 import CartItem from "../components/cart/CartItem.js";
 import PriceBreakdown from "../components/cart/PriceBreakdown";
-import EmptyState from "../components/general/EmptyState";
+import EmptyState from "../components/cart/EmptyState";
 
 const CartScreen = ({ navigation }) => {
   const { theme } = useTheme();

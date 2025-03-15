@@ -8,85 +8,64 @@ import {
   Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useTheme } from "../contexts/ThemeContext";
+import { useTheme } from "../../contexts/ThemeContext";
 import RatingStars from "../general/RatingStars";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width * 0.7;
 
-const RestaurantCard = ({
-  restaurant,
-  onPress,
-  onFavoritePress,
-  isFavorite,
-}) => {
+const RestaurantCard = ({ restaurant, onPress, horizontal = true }) => {
   const { theme } = useTheme();
-
-  const handleFavoritePress = (e) => {
-    e.stopPropagation();
-    if (onFavoritePress) {
-      onFavoritePress(restaurant._id);
-    }
-  };
 
   return (
     <TouchableOpacity
-      style={[styles.container, { backgroundColor: theme.colors.card }]}
+      style={[
+        styles.container,
+        horizontal ? styles.horizontalCard : styles.verticalCard,
+        {
+          backgroundColor: theme.colors.card,
+          ...theme.shadow.md,
+        },
+      ]}
       onPress={() => onPress(restaurant)}
       activeOpacity={0.8}
     >
-      {/* Cover Image */}
-      <View style={styles.imageContainer}>
+      {/* Restaurant Image */}
+      <View
+        style={
+          horizontal
+            ? styles.horizontalImageContainer
+            : styles.verticalImageContainer
+        }
+      >
         <Image
           source={{
-            uri: restaurant.coverImage || "https://via.placeholder.com/400x200",
+            uri:
+              restaurant.coverImage ||
+              restaurant.logoImage ||
+              "https://via.placeholder.com/400x200?text=Restaurant",
           }}
           style={styles.image}
           resizeMode="cover"
         />
 
-        {/* Favorite Button */}
-        {onFavoritePress && (
-          <TouchableOpacity
-            style={[
-              styles.favoriteButton,
-              { backgroundColor: theme.colors.white },
-            ]}
-            onPress={handleFavoritePress}
-          >
-            <Icon
-              name={isFavorite ? "heart" : "heart-outline"}
-              size={18}
-              color={isFavorite ? theme.colors.primary : theme.colors.darkGray}
-            />
-          </TouchableOpacity>
-        )}
-
-        {/* Delivery Time Pill */}
-        {restaurant.estimatedDeliveryTime && (
-          <View
-            style={[
-              styles.deliveryTimePill,
-              { backgroundColor: theme.colors.white },
-            ]}
-          >
-            <Icon
-              name="clock-outline"
-              size={12}
-              color={theme.colors.darkGray}
-            />
-            <Text
-              style={[styles.deliveryTimeText, { color: theme.colors.text }]}
-            >
-              {restaurant.estimatedDeliveryTime}-
-              {restaurant.estimatedDeliveryTime + 10} min
-            </Text>
-          </View>
-        )}
+        {/* Delivery Time Badge */}
+        <View
+          style={[
+            styles.deliveryBadge,
+            { backgroundColor: theme.colors.primary },
+          ]}
+        >
+          <Icon name="clock-outline" size={12} color={theme.colors.white} />
+          <Text style={[styles.deliveryText, { color: theme.colors.white }]}>
+            {restaurant.estimatedDeliveryTime || 30}-
+            {(restaurant.estimatedDeliveryTime || 30) + 10} min
+          </Text>
+        </View>
       </View>
 
-      {/* Content */}
-      <View style={styles.contentContainer}>
+      {/* Restaurant Info */}
+      <View style={styles.infoContainer}>
         <Text
           style={[styles.name, { color: theme.colors.text }]}
           numberOfLines={1}
@@ -94,123 +73,125 @@ const RestaurantCard = ({
           {restaurant.name}
         </Text>
 
-        {/* Rating */}
-        <View style={styles.ratingContainer}>
-          <RatingStars rating={restaurant.rating || 0} size={14} />
-          <Text style={[styles.ratingText, { color: theme.colors.darkGray }]}>
-            ({restaurant.totalRatings || 0})
-          </Text>
-        </View>
-
         {/* Categories */}
-        {restaurant.categories && restaurant.categories.length > 0 && (
-          <Text
-            style={[styles.categories, { color: theme.colors.darkGray }]}
-            numberOfLines={1}
-          >
-            {restaurant.categories.join(" • ")}
-          </Text>
-        )}
+        <Text
+          style={[styles.categories, { color: theme.colors.darkGray }]}
+          numberOfLines={1}
+        >
+          {Array.isArray(restaurant.categories)
+            ? restaurant.categories.join(" • ")
+            : "Restaurant"}
+        </Text>
 
-        {/* Delivery Info */}
-        <View style={styles.deliveryInfoContainer}>
-          {restaurant.deliveryFee !== undefined && (
-            <View style={styles.deliveryInfoItem}>
-              <Icon name="cash" size={14} color={theme.colors.darkGray} />
-              <Text
-                style={[
-                  styles.deliveryInfoText,
-                  { color: theme.colors.darkGray },
-                ]}
-              >
-                ${restaurant.deliveryFee.toFixed(2)} delivery
-              </Text>
-            </View>
-          )}
+        {/* Rating & Price */}
+        <View style={styles.ratingRow}>
+          <View style={styles.ratingContainer}>
+            <RatingStars rating={restaurant.rating || 0} size={12} />
+            <Text style={[styles.ratingText, { color: theme.colors.darkGray }]}>
+              {restaurant.rating?.toFixed(1) || "0.0"} (
+              {restaurant.totalRatings || 0})
+            </Text>
+          </View>
 
-          {restaurant.distance !== undefined && (
-            <View style={styles.deliveryInfoItem}>
-              <Icon name="map-marker" size={14} color={theme.colors.darkGray} />
-              <Text
-                style={[
-                  styles.deliveryInfoText,
-                  { color: theme.colors.darkGray },
-                ]}
-              >
-                {restaurant.distance.toFixed(1)} km
-              </Text>
-            </View>
-          )}
+          <View style={styles.priceContainer}>
+            <Text
+              style={[styles.deliveryFee, { color: theme.colors.darkGray }]}
+            >
+              {restaurant.deliveryFee
+                ? `$${restaurant.deliveryFee.toFixed(2)} delivery`
+                : "Free delivery"}
+            </Text>
+          </View>
         </View>
       </View>
     </TouchableOpacity>
   );
 };
 
+// Define a simple RatingStars component if you don't have one yet
+const RatingStars = ({ rating, size = 16 }) => {
+  const { theme } = useTheme();
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating - fullStars >= 0.5;
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+  return (
+    <View style={{ flexDirection: "row" }}>
+      {/* Full stars */}
+      {[...Array(fullStars)].map((_, i) => (
+        <Icon
+          key={`full-${i}`}
+          name="star"
+          size={size}
+          color="#FFD700"
+          style={{ marginRight: 2 }}
+        />
+      ))}
+
+      {/* Half star */}
+      {hasHalfStar && (
+        <Icon
+          key="half"
+          name="star-half-full"
+          size={size}
+          color="#FFD700"
+          style={{ marginRight: 2 }}
+        />
+      )}
+
+      {/* Empty stars */}
+      {[...Array(emptyStars)].map((_, i) => (
+        <Icon
+          key={`empty-${i}`}
+          name="star-outline"
+          size={size}
+          color="#FFD700"
+          style={{ marginRight: 2 }}
+        />
+      ))}
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
     borderRadius: 12,
-    marginRight: 16,
-    marginBottom: 8,
     overflow: "hidden",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
+    marginBottom: 16,
   },
-  imageContainer: {
+  horizontalCard: {
+    width: CARD_WIDTH,
+    marginRight: 16,
+  },
+  verticalCard: {
+    width: "100%",
+  },
+  horizontalImageContainer: {
     height: 150,
-    position: "relative",
+  },
+  verticalImageContainer: {
+    height: 180,
   },
   image: {
     width: "100%",
     height: "100%",
   },
-  favoriteButton: {
+  deliveryBadge: {
     position: "absolute",
-    top: 8,
-    right: 8,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
-  },
-  deliveryTimePill: {
-    position: "absolute",
-    bottom: 8,
-    left: 8,
+    bottom: 10,
+    left: 10,
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 4,
     paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
   },
-  deliveryTimeText: {
+  deliveryText: {
     fontSize: 10,
-    fontWeight: "500",
+    fontWeight: "bold",
     marginLeft: 4,
   },
-  contentContainer: {
+  infoContainer: {
     padding: 12,
   },
   name: {
@@ -218,30 +199,28 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 4,
   },
+  categories: {
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  ratingRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 4,
   },
   ratingText: {
     fontSize: 12,
     marginLeft: 4,
   },
-  categories: {
+  priceContainer: {
+    alignItems: "flex-end",
+  },
+  deliveryFee: {
     fontSize: 12,
-    marginBottom: 8,
-  },
-  deliveryInfoContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  deliveryInfoItem: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  deliveryInfoText: {
-    fontSize: 12,
-    marginLeft: 4,
   },
 });
 

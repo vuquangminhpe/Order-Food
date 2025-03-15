@@ -14,7 +14,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocation } from "../contexts/LocationContext";
 import { userService } from "../api/userService";
-import AddressCard from "../components/user/AddressCard";
+import AddressCard from "../components/user/AddressCard.js";
 import EmptyState from "../components/general/EmptyState";
 
 const AddressListScreen = ({ route, navigation }) => {

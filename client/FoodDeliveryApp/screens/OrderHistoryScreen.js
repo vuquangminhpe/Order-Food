@@ -15,7 +15,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { orderService, OrderStatus } from "../api/orderService";
 import OrderHistoryItem from "../components/order/OrderHistoryItem";
 import FilterChip from "../components/general/FilterChip";
-import EmptyState from "../components/general/EmptyState";
+import EmptyState from "../components/cart/EmptyState";
 
 // Tab categories for filtering orders
 const TABS = [
