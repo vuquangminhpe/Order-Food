@@ -61,7 +61,9 @@ app.use(cors(corsOptions))
 if (isProduction) {
   app.use(limiter)
 }
-
+app.get('/', (req, res) => {
+  res.send('Hello Every!')
+})
 // Middleware
 app.use(express.json())
 
