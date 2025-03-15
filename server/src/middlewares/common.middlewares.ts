@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import HTTP_STATUS from '../constants/httpStatus'
-import { UserRole } from '~/models/schemas/Users.schema'
+import { UserRole } from '../models/schemas/Users.schema'
 
 export const checkUserRole = (roles: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction): void | Promise<void> => {

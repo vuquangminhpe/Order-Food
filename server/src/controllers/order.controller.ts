@@ -8,7 +8,7 @@ import databaseService from '../services/database.services'
 import { OrderStatus, PaymentMethod, PaymentStatus } from '../models/schemas/Order.schema'
 import { getIO } from '../utils/socket'
 import DeliveryTracking from '../models/schemas/DeliveryTracking.schema'
-import { OrderReqBody, UpdateOrderStatusReqBody } from '~/models/requests/auth.requests'
+import { OrderReqBody, UpdateOrderStatusReqBody } from '../models/requests/auth.requests'
 
 // Create a new order
 export const createOrderController = async (req: Request<ParamsDictionary, any, OrderReqBody>, res: Response) => {

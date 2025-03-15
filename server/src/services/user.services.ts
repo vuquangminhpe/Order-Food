@@ -5,7 +5,7 @@ import { RegisterReqBody, UpdateProfileReqBody } from '../models/requests/auth.r
 import { uploadFileS3, deleteFileFromS3 } from '../utils/s3'
 import fs from 'fs'
 import path from 'path'
-import User, { UserRole, UserVerifyStatus } from '~/models/schemas/Users.schema'
+import User, { UserRole, UserVerifyStatus } from '../models/schemas/Users.schema'
 
 class UserService {
   // Register a new user

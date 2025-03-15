@@ -1,5 +1,5 @@
 import { JwtPayload } from 'jsonwebtoken'
-import { UserRole, UserVerifyStatus } from '~/models/schemas/Users.schema'
+import { UserRole, UserVerifyStatus } from '../models/schemas/Users.schema'
 
 export enum TokenType {
   AccessToken = 'access',

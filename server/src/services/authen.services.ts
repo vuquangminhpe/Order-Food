@@ -2,10 +2,10 @@ import { ObjectId } from 'mongodb'
 import crypto from 'crypto'
 import databaseService from './database.services'
 import { signToken, verifyToken } from '../utils/jwt'
-import { envConfig } from '~/constants/config'
-import { UserVerifyStatus } from '~/models/schemas/Users.schema'
-import { TokenPayload } from '~/constants/enums'
-import RefreshToken from '~/models/schemas/RefreshToken.schema'
+import { envConfig } from '../constants/config'
+import { UserVerifyStatus } from '../models/schemas/Users.schema'
+import { TokenPayload } from '../constants/enums'
+import RefreshToken from '../models/schemas/RefreshToken.schema'
 
 class AuthService {
   private accessTokenExpiresIn: string

@@ -1,11 +1,9 @@
 import { Request } from 'express'
-import HTTP_STATUS from '~/constants/httpStatus'
-import { USERS_MESSAGES } from '~/constants/messages'
-import { ErrorWithStatus } from '~/models/Errors'
+
 import { verifyToken } from './jwt'
 import { JsonWebTokenError } from 'jsonwebtoken'
 import _ from 'lodash'
-import { envConfig } from '~/constants/config'
+
 export const numberEnumToArray = (numberEnum: { [key: string]: string | number }) => {
   return Object.values(numberEnum).filter((value) => typeof value === 'number') as number[]
 }

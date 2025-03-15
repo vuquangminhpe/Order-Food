@@ -3,11 +3,11 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
 import { LoginReqBody, RegisterReqBody } from '../models/requests/auth.requests'
 import { USERS_MESSAGES } from '../constants/messages'
-import userService from '~/services/user.services'
-import User, { UserRole, UserVerifyStatus } from '~/models/schemas/Users.schema'
-import { hashPassword } from '~/utils/crypto'
-import authService from '~/services/authen.services'
-import { TokenPayload } from '~/constants/enums'
+import userService from '../services/user.services'
+import User, { UserRole, UserVerifyStatus } from '../models/schemas/Users.schema'
+import { hashPassword } from '../utils/crypto'
+import authService from '../services/authen.services'
+import { TokenPayload } from '../constants/enums'
 
 export const registerController = async (req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) => {
   const { name, email, password, phone, role } = req.body

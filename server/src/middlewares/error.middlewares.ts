@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import HTTP_STATUS from '../constants/httpStatus'
 import { USERS_MESSAGES } from '../constants/messages'
 import { omit } from 'lodash'
-import { ErrorWithStatus } from '~/models/Errors'
+import { ErrorWithStatus } from '../models/Errors'
 
 export class ApiError extends Error {
   status: number

@@ -16,9 +16,9 @@ import {
   getRestaurantOrdersController,
   getRestaurantRevenueController
 } from '../controllers/restaurant.controller'
-import { UserRole } from '~/models/schemas/Users.schema'
-import { checkUserRole } from '~/middlewares/common.middlewares'
-import { wrapAsync } from '~/middlewares/error.middlewares'
+import { UserRole } from '../models/schemas/Users.schema'
+import { checkUserRole } from '../middlewares/common.middlewares'
+import { wrapAsync } from '../middlewares/error.middlewares'
 
 const restaurantRouter = express.Router()
 

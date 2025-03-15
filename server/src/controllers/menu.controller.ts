@@ -6,11 +6,11 @@ import databaseService from '../services/database.services'
 import MenuItem, { MenuCategory } from '../models/schemas/Menu.schema'
 import path from 'path'
 import fs from 'fs'
-import restaurantService from '~/services/restaurant.services'
-import menuService from '~/services/menu.services'
-import { deleteFileFromS3, uploadFileS3 } from '~/utils/s3'
-import { TokenPayload } from '~/constants/enums'
-import { MenuCategoryReqBody, MenuItemReqBody } from '~/models/requests/auth.requests'
+import restaurantService from '../services/restaurant.services'
+import menuService from '../services/menu.services'
+import { deleteFileFromS3, uploadFileS3 } from '../utils/s3'
+import { TokenPayload } from '../constants/enums'
+import { MenuCategoryReqBody, MenuItemReqBody } from '../models/requests/auth.requests'
 
 // Create a new menu item
 export const createMenuItemController = async (req: Request<ParamsDictionary, any, MenuItemReqBody>, res: Response) => {

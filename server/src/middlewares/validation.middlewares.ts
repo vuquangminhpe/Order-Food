@@ -11,7 +11,7 @@ import {
 import { hashPassword } from '../utils/crypto'
 import { ObjectId } from 'mongodb'
 import { OrderStatus, PaymentMethod } from '../models/schemas/Order.schema'
-import { UserRole } from '~/models/schemas/Users.schema'
+import { UserRole } from '../models/schemas/Users.schema'
 
 // Shared schemas
 const passwordSchema: ParamSchema = {

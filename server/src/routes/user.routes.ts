@@ -30,9 +30,9 @@ import {
   updateDeliveryStatusValidator,
   updateLocationValidator,
   updateProfileValidator
-} from '~/middlewares/users.middlewares'
-import { checkUserRole } from '~/middlewares/common.middlewares'
-import { UserRole } from '~/models/schemas/Users.schema'
+} from '../middlewares/users.middlewares'
+import { checkUserRole } from '../middlewares/common.middlewares'
+import { UserRole } from '../models/schemas/Users.schema'
 
 const userRouter = express.Router()
 

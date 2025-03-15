@@ -6,7 +6,7 @@ import { USERS_MESSAGES } from '../constants/messages'
 import HTTP_STATUS from '../constants/httpStatus'
 import { hashPassword, verifyPassword } from '../utils/crypto'
 import { AddAddressReqBody, UpdateAddressReqBody, UpdateProfileReqBody } from '../models/requests/auth.requests'
-import { UserRole } from '~/models/schemas/Users.schema'
+import { UserRole } from '../models/schemas/Users.schema'
 
 // Get user profile
 export const getUserProfileController = async (req: Request, res: Response) => {

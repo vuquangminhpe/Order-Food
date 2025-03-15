@@ -5,7 +5,7 @@ import databaseService from './database.services'
 import { OrderStatus, PaymentStatus } from '../models/schemas/Order.schema'
 import { envConfig } from '../constants/config'
 import moment from 'moment'
-import { RefundMethod, RefundStatus } from '~/models/schemas/Refund.schema'
+import { RefundMethod, RefundStatus } from '../models/schemas/Refund.schema'
 
 class PaymentService {
   private vnp_TmnCode: string

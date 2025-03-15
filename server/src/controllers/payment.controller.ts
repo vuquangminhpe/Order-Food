@@ -6,8 +6,8 @@ import paymentService from '../services/payment.services'
 import databaseService from '../services/database.services'
 import HTTP_STATUS from '../constants/httpStatus'
 import { PaymentStatus } from '../models/schemas/Order.schema'
-import { PaymentReqBody } from '~/models/requests/auth.requests'
-import { RefundReqBody } from '~/models/requests/payment.requests'
+import { PaymentReqBody } from '../models/requests/auth.requests'
+import { RefundReqBody } from '../models/requests/payment.requests'
 
 // Create VNPay payment URL
 export const createPaymentUrlController = async (

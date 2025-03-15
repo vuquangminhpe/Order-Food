@@ -16,9 +16,9 @@ import {
   searchOrdersController
 } from '../controllers/order.controller'
 
-import { wrapAsync } from '~/middlewares/error.middlewares'
-import { checkUserRole } from '~/middlewares/common.middlewares'
-import { UserRole } from '~/models/schemas/Users.schema'
+import { wrapAsync } from '../middlewares/error.middlewares'
+import { checkUserRole } from '../middlewares/common.middlewares'
+import { UserRole } from '../models/schemas/Users.schema'
 
 const orderRouter = express.Router()
 

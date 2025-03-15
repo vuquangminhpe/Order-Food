@@ -2,10 +2,10 @@ import { verifyToken } from '../utils/jwt'
 import { envConfig } from '../constants/config'
 import HTTP_STATUS from '../constants/httpStatus'
 import { USERS_MESSAGES } from '../constants/messages'
-import { TokenType } from '~/constants/enums'
-import { validate } from '~/utils/validation'
+import { TokenType } from '../constants/enums'
+import { validate } from '../utils/validation'
 import { checkSchema } from 'express-validator'
-import { ErrorWithStatus } from '~/models/Errors'
+import { ErrorWithStatus } from '../models/Errors'
 
 export const authMiddleware = validate(
   checkSchema(

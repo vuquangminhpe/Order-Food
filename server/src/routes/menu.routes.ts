@@ -15,12 +15,12 @@ import {
   batchUpdateMenuItemsController,
   getPopularMenuItemsController
 } from '../controllers/menu.controller'
-import { menuCategoryValidator, menuItemValidator } from '~/middlewares/validation.middlewares'
-import { UserRole } from '~/models/schemas/Users.schema'
-import { wrapAsync } from '~/middlewares/error.middlewares'
-import { checkUserRole } from '~/middlewares/common.middlewares'
-import { authMiddleware } from '~/middlewares/auth.middlewares'
-import { uploadImageMiddleware } from '~/middlewares/upload.middlewares'
+import { menuCategoryValidator, menuItemValidator } from '../middlewares/validation.middlewares'
+import { UserRole } from '../models/schemas/Users.schema'
+import { wrapAsync } from '../middlewares/error.middlewares'
+import { checkUserRole } from '../middlewares/common.middlewares'
+import { authMiddleware } from '../middlewares/auth.middlewares'
+import { uploadImageMiddleware } from '../middlewares/upload.middlewares'
 
 const menuRouter = express.Router()
 

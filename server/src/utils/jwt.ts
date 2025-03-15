@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import { TokenData, TokenPayload, VerifyTokenData } from '~/constants/enums'
+import { TokenData, TokenPayload, VerifyTokenData } from '../constants/enums'
 
 export const signToken = async ({
   payload,

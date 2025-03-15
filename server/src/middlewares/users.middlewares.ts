@@ -2,10 +2,10 @@
 
 import { checkSchema } from 'express-validator'
 import { ObjectId } from 'mongodb'
-import { USERS_MESSAGES } from '~/constants/messages'
-import databaseService from '~/services/database.services'
-import { hashPassword } from '~/utils/crypto'
-import { isValidDateString, validate } from '~/utils/validation'
+import { USERS_MESSAGES } from '../constants/messages'
+import databaseService from '../services/database.services'
+import { hashPassword } from '../utils/crypto'
+import { isValidDateString, validate } from '../utils/validation'
 
 // User profile validators
 export const updateProfileValidator = validate(

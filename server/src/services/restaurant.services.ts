@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb'
 import { InsertOneResult, UpdateResult, DeleteResult } from 'mongodb'
 import Restaurant, { RestaurantStatus } from '../models/schemas/Restaurant.schema'
 import databaseService from './database.services'
-import { RestaurantReqBody, UpdateRestaurantReqBody } from '~/models/requests/auth.requests'
+import { RestaurantReqBody, UpdateRestaurantReqBody } from '../models/requests/auth.requests'
 
 class RestaurantService {
   // Create a new restaurant

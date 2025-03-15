@@ -2,10 +2,10 @@ import { Router } from 'express'
 import { refundValidator } from '../middlewares/validation.middlewares'
 import { wrapAsync } from '../middlewares/error.middlewares'
 
-import { checkUserRole } from '~/middlewares/common.middlewares'
-import { UserRole } from '~/models/schemas/Users.schema'
-import { authMiddleware } from '~/middlewares/auth.middlewares'
-import { approveRejectRefundValidator } from '~/middlewares/refund.middlewares'
+import { checkUserRole } from '../middlewares/common.middlewares'
+import { UserRole } from '../models/schemas/Users.schema'
+import { authMiddleware } from '../middlewares/auth.middlewares'
+import { approveRejectRefundValidator } from '../middlewares/refund.middlewares'
 import {
   approveRefundController,
   createRefundController,
@@ -15,7 +15,7 @@ import {
   getUserRefundsController,
   processRefundController,
   rejectRefundController
-} from '~/controllers/refund.controller'
+} from '../controllers/refund.controller'
 
 const refundRouter = Router()
 

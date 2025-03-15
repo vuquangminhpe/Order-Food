@@ -7,9 +7,9 @@ import fs from 'fs'
 import { RestaurantStatus } from '../models/schemas/Restaurant.schema'
 import { OrderStatus, PaymentStatus } from '../models/schemas/Order.schema'
 import databaseService from '../services/database.services'
-import { RestaurantReqBody, UpdateRestaurantReqBody } from '~/models/requests/auth.requests'
-import restaurantService from '~/services/restaurant.services'
-import { deleteFileFromS3, uploadFileS3 } from '~/utils/s3'
+import { RestaurantReqBody, UpdateRestaurantReqBody } from '../models/requests/auth.requests'
+import restaurantService from '../services/restaurant.services'
+import { deleteFileFromS3, uploadFileS3 } from '../utils/s3'
 
 // Create a new restaurant
 export const createRestaurantController = async (
