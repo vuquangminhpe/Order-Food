@@ -56,11 +56,18 @@ export const AuthContext = createContext<{
 export const useAuth = () => useContext(AuthContext);
 
 interface User {
+  date_of_birth: any;
   id: string;
   name: string;
   email: string;
   role: number;
-  // Add other user properties as needed
+  avatar?: string;
+  phone?: string;
+  verify?: number;
+  created_at?: string;
+  updated_at?: string;
+  address?: string;
+  restaurantId?: any;
 }
 
 export const AuthProvider = ({ children }: any) => {

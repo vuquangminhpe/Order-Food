@@ -1,21 +1,71 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import io from "socket.io-client";
+import io, { Socket } from "socket.io-client";
 import { useAuth } from "./AuthContext";
 import { useLocation } from "./LocationContext";
 
-export const SocketContext = createContext();
+interface OrderUpdate {
+  type: string;
+  [key: string]: any;
+  timestamp: Date;
+}
+
+interface DeliveryUpdate {
+  type: string;
+  [key: string]: any;
+  timestamp: Date;
+}
+
+interface RestaurantUpdate {
+  type: string;
+  [key: string]: any;
+  timestamp: Date;
+}
+
+interface SocketContextType {
+  socket: Socket | null;
+  connected: boolean;
+  orderUpdates: OrderUpdate[];
+  deliveryUpdates: DeliveryUpdate[];
+  restaurantUpdates: RestaurantUpdate[];
+  sendOrderStatusUpdate: (orderId: any, status: any, reason: any) => boolean;
+  sendLocationUpdate: (orderId: any, lat: any, lng: any) => boolean;
+  clearUpdate: (updateType: any, updateId: any) => void;
+  clearAllUpdates: () => void;
+}
+
+export const SocketContext = createContext<SocketContextType | null>(null);
 
 export const useSocket = () => useContext(SocketContext);
 
-export const SocketProvider = ({ children }) => {
- let SOCKET_URL = 'http://localhost:5000'
+export const SocketProvider = ({ children }: any) => {
+  let SOCKET_URL = "http://localhost:5000";
   const { user, accessToken, USER_ROLES, hasRole } = useAuth();
   const { currentLocation } = useLocation();
-  const [socket, setSocket] = useState(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
-  const [orderUpdates, setOrderUpdates] = useState([]);
-  const [deliveryUpdates, setDeliveryUpdates] = useState([]);
-  const [restaurantUpdates, setRestaurantUpdates] = useState([]);
+  interface OrderUpdate {
+    type: string;
+    [key: string]: any;
+    timestamp: Date;
+  }
+
+  const [orderUpdates, setOrderUpdates] = useState<OrderUpdate[]>([]);
+  interface DeliveryUpdate {
+    type: string;
+    [key: string]: any;
+    timestamp: Date;
+  }
+
+  const [deliveryUpdates, setDeliveryUpdates] = useState<DeliveryUpdate[]>([]);
+  interface RestaurantUpdate {
+    type: string;
+    [key: string]: any;
+    timestamp: Date;
+  }
+
+  const [restaurantUpdates, setRestaurantUpdates] = useState<
+    RestaurantUpdate[]
+  >([]);
 
   // Initialize socket connection when user is authenticated
   useEffect(() => {
@@ -138,8 +188,8 @@ export const SocketProvider = ({ children }) => {
       activeDeliveries.forEach((orderId) => {
         socket.emit("location:update", {
           orderId,
-          lat: currentLocation.lat,
-          lng: currentLocation.lng,
+          lat: (currentLocation as any).lat,
+          lng: (currentLocation as any).lng,
         });
       });
     }
@@ -163,7 +213,7 @@ export const SocketProvider = ({ children }) => {
   }, [user]);
 
   // Send order status update
-  const sendOrderStatusUpdate = (orderId, status, reason) => {
+  const sendOrderStatusUpdate = (orderId: any, status: any, reason: any) => {
     if (socket && connected) {
       socket.emit("order:status", { orderId, status, reason });
       return true;
@@ -172,7 +222,7 @@ export const SocketProvider = ({ children }) => {
   };
 
   // Send location update (for delivery personnel)
-  const sendLocationUpdate = (orderId, lat, lng) => {
+  const sendLocationUpdate = (orderId: any, lat: any, lng: any) => {
     if (socket && connected) {
       socket.emit("location:update", { orderId, lat, lng });
       return true;
@@ -181,7 +231,7 @@ export const SocketProvider = ({ children }) => {
   };
 
   // Clear specific update from state
-  const clearUpdate = (updateType, updateId) => {
+  const clearUpdate = (updateType: any, updateId: any) => {
     switch (updateType) {
       case "order":
         setOrderUpdates((prev) =>

@@ -160,7 +160,7 @@ export const ThemeContext = createContext({
 
 export const useTheme = () => useContext(ThemeContext);
 
-export const ThemeProvider = ({ children }) => {
+export const ThemeProvider = ({ children }: any) => {
   const colorScheme = useColorScheme();
   const [themeMode, setThemeMode] = useState("system"); // 'light', 'dark', or 'system'
 

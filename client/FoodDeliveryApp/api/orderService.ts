@@ -77,7 +77,7 @@ export const orderService = {
   },
 
   // Update order status (for restaurant owners)
-  async updateOrderStatus(orderId: any, status: any, reason: any) {
+  async updateOrderStatus(orderId: any, status: any, reason?: any) {
     try {
       const response = await apiService.patch(`/orders/${orderId}/status`, {
         status,
