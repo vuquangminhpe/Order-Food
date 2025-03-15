@@ -273,7 +273,7 @@
   "scripts": {
     "dev": "npx nodemon --development",
     "dev:prod": "npx nodemon --env=production",
-    "build": "express build --output public",
+    "build": "npm install",
     "start:dev": "node dist/index.js --env=development",
     "start:prod": "node dist/index.js --env=production",
     "lint": "eslint .",
