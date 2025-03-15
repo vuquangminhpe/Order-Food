@@ -5,34 +5,36 @@ import { config } from 'dotenv'
 import cors, { CorsOptions } from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
-import { createServer } from 'http'
-import initSocket from './src/utils/socket'
 
 // Routes
-
 import restaurantRouter from './src/routes/restaurant.routes'
 import menuRouter from './src/routes/menu.routes'
 import orderRouter from './src/routes/order.routes'
 import paymentRouter from './src/routes/payment.routes'
+import userRouter from './src/routes/user.routes'
+import authRouter from './src/routes/auth.routes'
 
 // Import utils
 import './src/utils/s3'
 import { envConfig, isProduction } from './src/constants/config'
-import userRouter from './src/routes/user.routes'
-import authRouter from './src/routes/auth.routes'
 
 config()
 
-// Connect to database
-databaseService
-  .connect()
-  .then(() => {
+// Connect to database - chạy khi khởi tạo serverless function
+let isConnected = false
+const connectToDatabase = async () => {
+  if (isConnected) return
+  try {
+    await databaseService.connect()
     databaseService.indexUsers()
     databaseService.indexRestaurants()
     databaseService.indexMenuItems()
     databaseService.indexOrders()
-  })
-  .catch(console.error)
+    isConnected = true
+  } catch (error) {
+    console.error('Failed to connect to database:', error)
+  }
+}
 
 // Rate limiting
 const limiter = rateLimit({
@@ -44,8 +46,6 @@ const limiter = rateLimit({
 
 // Create Express app
 const app = express()
-const httpServer = createServer(app)
-const port = envConfig.port || 3002
 
 // Security middleware
 app.use(helmet())
@@ -73,14 +73,26 @@ app.use('/menu', menuRouter)
 app.use('/orders', orderRouter)
 app.use('/payments', paymentRouter)
 
+// Add healthcheck route
+app.get('/', (req, res) => {
+  res.json({ message: 'API is running' })
+})
+
 // Error handler
 app.use(defaultErrorHandler)
 
-// Initialize Socket.io
-export const io = initSocket(httpServer)
+// Chỉ khởi động server nếu đang chạy cục bộ
+if (process.env.NODE_ENV !== 'production') {
+  const port = envConfig.port || 3002
+  app.listen(port, () => {
+    console.log(`Development server listening on port ${port}`)
+  })
+}
 
-// Start server
-httpServer.listen(port, () => {
-  console.log(`Server listening on port ${port}`)
+// Luôn kết nối database trước khi xử lý requests
+app.use(async (req, res, next) => {
+  await connectToDatabase()
+  return next()
 })
+
 export default app
