@@ -13,7 +13,7 @@ import OrdersScreen from "../screens/OrdersScreen";
 import OrderDetailsScreen from "../screens/OrderDetailsScreen";
 import AnalyticsScreen from "../screens/AnalyticsScreen";
 import RestaurantProfileScreen from "../screens/RestaurantProfileScreen";
-import EditRestaurantProfileScreen from "../screens/EditRestaurantProfileScreen";
+import EditRestaurantProfileScreen from "../screens/EditRestaurantProfileScreen"; // Ensure this is a valid React component
 import ProfileScreen from "../screens/ProfileScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
 
@@ -181,11 +181,7 @@ const ProfileStack = () => {
         component={RestaurantProfileScreen}
         options={{ title: "Restaurant Profile" }}
       />
-      <Stack.Screen
-        name="EditRestaurantProfile"
-        component={EditRestaurantProfileScreen}
-        options={{ title: "Edit Restaurant" }}
-      />
+
       <Stack.Screen
         name="Profile"
         component={ProfileScreen}

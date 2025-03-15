@@ -7,8 +7,9 @@ import {
   Platform,
   Modal,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
 import { useTheme } from "../../contexts/ThemeContext";
 
 const DatePicker = ({

@@ -12,6 +12,7 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "contexts/AuthContext.tsx",
-    "App.ts"
+    "App.ts",
+    "metro.config.js"
   ]
 }

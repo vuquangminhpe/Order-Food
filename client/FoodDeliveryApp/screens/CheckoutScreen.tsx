@@ -20,8 +20,8 @@ import { useLocation } from "../contexts/LocationContext";
 import { orderService, PaymentMethod } from "../api/orderService";
 import { paymentService } from "../api/paymentService";
 import PriceBreakdown from "../components/cart/PriceBreakdown";
-import AddressCard from "../components/user/AddressCard.js";
-import PaymentMethodCard from "../components/payment/PaymentMethodCard.js";
+import AddressCard from "@/components/user/AddressCard";
+import PaymentMethodCard from "@/components/payment/PaymentMethodCard";
 
 const CheckoutScreen = ({ navigation }: any) => {
   const { theme } = useTheme();
