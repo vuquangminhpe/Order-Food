@@ -38,7 +38,7 @@ export const authMiddleware = validate(
                 status: HTTP_STATUS.UNAUTHORIZED
               })
             }
-            // https://order-food-git-main-vu-quang-minhs-projects.vercel.app/
+
             req.decoded_authorization = decoded
             req.user_id = decoded.user_id
             req.user_role = decoded.role

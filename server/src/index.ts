@@ -23,16 +23,19 @@ import initSocket from './utils/socket'
 
 config()
 
+import { Request, Response, NextFunction } from 'express'
+
 // Connect to database
-databaseService
-  .connect()
-  .then(() => {
-    databaseService.indexUsers()
-    databaseService.indexRestaurants()
-    databaseService.indexMenuItems()
-    databaseService.indexOrders()
-  })
-  .catch(console.error)
+const connectDB = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!databaseService.connected) {
+      await databaseService.connect()
+    }
+    next()
+  } catch (error) {
+    console.error('Database connection error:', error)
+  }
+}
 
 // Rate limiting
 const limiter = rateLimit({
@@ -64,9 +67,10 @@ if (isProduction) {
 app.get('/', (req, res) => {
   res.send('Hello Every!')
 })
-// Middleware
 app.use(express.json())
 
+// Đảm bảo kết nối database trước khi xử lý bất kỳ route nào
+app.use(connectDB)
 // Routes
 app.use('/auth', authRouter)
 app.use('/users', userRouter)
