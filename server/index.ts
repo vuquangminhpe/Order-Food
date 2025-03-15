@@ -1,25 +1,25 @@
 import express from 'express'
-import databaseService from './services/database.services'
-import { defaultErrorHandler } from './middlewares/error.middlewares'
+import databaseService from './src/services/database.services'
+import { defaultErrorHandler } from './src/middlewares/error.middlewares'
 import { config } from 'dotenv'
 import cors, { CorsOptions } from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
-import initSocket from './utils/socket'
+import initSocket from './src/utils/socket'
 
 // Routes
 
-import restaurantRouter from './routes/restaurant.routes'
-import menuRouter from './routes/menu.routes'
-import orderRouter from './routes/order.routes'
-import paymentRouter from './routes/payment.routes'
+import restaurantRouter from './src/routes/restaurant.routes'
+import menuRouter from './src/routes/menu.routes'
+import orderRouter from './src/routes/order.routes'
+import paymentRouter from './src/routes/payment.routes'
 
 // Import utils
-import './utils/s3'
-import { envConfig, isProduction } from './constants/config'
-import userRouter from './routes/user.routes'
-import authRouter from './routes/auth.routes'
+import './src/utils/s3'
+import { envConfig, isProduction } from './src/constants/config'
+import userRouter from './src/routes/user.routes'
+import authRouter from './src/routes/auth.routes'
 
 config()
 
