@@ -32,27 +32,38 @@ declare global {
     }
   }
 }
+const isProduction = process.env.NODE_ENV === 'production'
 
 // Ensure upload directories exist
-const createDir = (dir: string) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
+if (!isProduction) {
+  // Ensure upload directories exist
+  const createDir = (dir: string) => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true })
+    }
   }
+  createDir(UPLOAD_IMAGE_DIR)
 }
 
-createDir(UPLOAD_IMAGE_DIR)
+let storage: multer.StorageEngine
 
 // Configure multer storage
-const storage = multer.diskStorage({
-  destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
-    return cb(null as any, UPLOAD_IMAGE_DIR)
-  },
-  filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
-    const ext = path.extname(file.originalname)
-    cb(null as any, uniqueSuffix + ext)
-  }
-})
+if (isProduction) {
+  // Sử dụng memoryStorage cho môi trường production
+  storage = multer.memoryStorage()
+} else {
+  // Sử dụng diskStorage cho môi trường development
+  storage = multer.diskStorage({
+    destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
+      return cb(null as any, UPLOAD_IMAGE_DIR)
+    },
+    filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
+      const ext = path.extname(file.originalname)
+      cb(null as any, uniqueSuffix + ext)
+    }
+  })
+}
 
 // File filter functions
 const imageFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
