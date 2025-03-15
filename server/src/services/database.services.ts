@@ -10,7 +10,8 @@ import Rating from '../models/schemas/Rating.schema'
 import Refund from '../models/schemas/Refund.schema'
 import { config } from 'dotenv'
 config()
-const uri = process.env.MONGO_URI || ''
+const uri =
+  'mongodb+srv://minhvqhe176726:minhvqhe176726@management-employee.31yis.mongodb.net/?retryWrites=true&w=majority&appName=management-employee'
 
 class DatabaseService {
   private client: MongoClient

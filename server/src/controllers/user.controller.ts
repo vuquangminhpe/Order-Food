@@ -11,6 +11,7 @@ import { UserRole } from '../models/schemas/Users.schema'
 // Get user profile
 export const getUserProfileController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as { user_id: string }
+  console.log('user_id', user_id)
 
   const user = await userService.getUserById(user_id)
 

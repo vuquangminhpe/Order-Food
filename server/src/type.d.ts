@@ -1,5 +1,4 @@
 import { Request } from 'express'
-import { TokenPayload } from './models/request/User.request'
 
 declare module 'express' {
   interface Request {

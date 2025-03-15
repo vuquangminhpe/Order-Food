@@ -16,15 +16,15 @@ export const numberEnumToArray = (numberEnum: { [key: string]: string | number }
 //     })
 //   }
 //   try {
-//     const decode_authorization = await verifyToken({
+//     const decoded_authorization = await verifyToken({
 //       token: access_token,
 //       secretOnPublicKey: envConfig.secretAccessKey as string
 //     })
 //     if (req) {
-//       ;(req as Request).decode_authorization = decode_authorization
+//       ;(req as Request).decoded_authorization = decoded_authorization
 //       return true
 //     }
-//     return decode_authorization
+//     return decoded_authorization
 //   } catch (error) {
 //     throw new ErrorWithStatus({
 //       message: _.capitalize((error as JsonWebTokenError).message),

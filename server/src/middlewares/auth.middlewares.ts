@@ -20,7 +20,6 @@ export const authMiddleware = validate(
         custom: {
           options: async (value: string, { req }) => {
             const access_token = value.split(' ')[1]
-
             if (!access_token) {
               return new ErrorWithStatus({
                 message: USERS_MESSAGES.TOKEN_IS_REQUIRED,
@@ -39,8 +38,8 @@ export const authMiddleware = validate(
                 status: HTTP_STATUS.UNAUTHORIZED
               })
             }
-
-            req.decode_authorization = decoded
+            // https://order-food-git-main-vu-quang-minhs-projects.vercel.app/
+            req.decoded_authorization = decoded
             req.user_id = decoded.user_id
             req.user_role = decoded.role
             return true

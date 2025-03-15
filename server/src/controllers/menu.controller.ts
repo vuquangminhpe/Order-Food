@@ -14,7 +14,7 @@ import { MenuCategoryReqBody, MenuItemReqBody } from '../models/requests/auth.re
 
 // Create a new menu item
 export const createMenuItemController = async (req: Request<ParamsDictionary, any, MenuItemReqBody>, res: Response) => {
-  const { user_id } = req.decode_authorization as { user_id: string }
+  const { user_id } = req.decoded_authorization as { user_id: string }
   const menuItemData = req.body
 
   // Check if user owns the restaurant
@@ -79,7 +79,7 @@ export const updateMenuItemController = async (
   res: Response
 ) => {
   const { id } = req.params
-  const { user_id } = req.decode_authorization as TokenPayload
+  const { user_id } = req.decoded_authorization as TokenPayload
   const updateData = req.body
 
   // Get the menu item
@@ -132,7 +132,7 @@ export const updateMenuItemController = async (
 // Delete a menu item
 export const deleteMenuItemController = async (req: Request, res: Response) => {
   const { id } = req.params
-  const { user_id } = req.decode_authorization as { user_id: string }
+  const { user_id } = req.decoded_authorization as { user_id: string }
 
   // Get the menu item
   const menuItem = await menuService.getMenuItemById(id)
@@ -173,7 +173,7 @@ export const deleteMenuItemController = async (req: Request, res: Response) => {
 
 export const uploadMenuItemImageController = async (req: Request, res: Response) => {
   const { id } = req.params
-  const { user_id } = req.decode_authorization as { user_id: string }
+  const { user_id } = req.decoded_authorization as { user_id: string }
   const file = (req as any).file
 
   if (!file) {
@@ -260,7 +260,7 @@ export const createMenuCategoryController = async (
   req: Request<ParamsDictionary, any, MenuCategoryReqBody>,
   res: Response
 ) => {
-  const { user_id } = req.decode_authorization as { user_id: string }
+  const { user_id } = req.decoded_authorization as { user_id: string }
   const categoryData = req.body
 
   // Check if user owns the restaurant
@@ -307,7 +307,7 @@ export const updateMenuCategoryController = async (
   res: Response
 ) => {
   const { id } = req.params
-  const { user_id } = req.decode_authorization as { user_id: string }
+  const { user_id } = req.decoded_authorization as { user_id: string }
   const updateData = req.body
 
   // Get the category
@@ -348,7 +348,7 @@ export const updateMenuCategoryController = async (
 // Delete a menu category
 export const deleteMenuCategoryController = async (req: Request, res: Response) => {
   const { id } = req.params
-  const { user_id } = req.decode_authorization as { user_id: string }
+  const { user_id } = req.decoded_authorization as { user_id: string }
 
   // Get the category
   const category = await databaseService.menuCategories.findOne({
@@ -433,7 +433,7 @@ export const getRestaurantMenuController = async (req: Request, res: Response) =
 // Update menu item availability
 export const updateMenuItemAvailabilityController = async (req: Request, res: Response) => {
   const { id } = req.params
-  const { user_id } = req.decode_authorization as { user_id: string }
+  const { user_id } = req.decoded_authorization as { user_id: string }
   const { isAvailable } = req.body
 
   if (isAvailable === undefined) {
@@ -477,7 +477,7 @@ export const updateMenuItemAvailabilityController = async (req: Request, res: Re
 
 // Batch update menu items
 export const batchUpdateMenuItemsController = async (req: Request, res: Response) => {
-  const { user_id } = req.decode_authorization as { user_id: string }
+  const { user_id } = req.decoded_authorization as { user_id: string }
   const { items } = req.body
 
   if (!items || !Array.isArray(items) || items.length === 0) {
