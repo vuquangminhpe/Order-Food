@@ -10,7 +10,8 @@
     "baseUrl": ".", // Đường dẫn base cho các import
 
     "paths": {
-      "~/*": ["src/*"] // Đường dẫn tương đối cho các import (alias)
+      "~/*": ["src/*"], // Đường dẫn tương đối cho các import (alias)
+      "@/*": ["./*"]
     }
   },
   "files": ["src/type.d.ts"], // Các file dùng để defined global type cho dự án

@@ -3,9 +3,9 @@ import { config } from 'dotenv'
 import { Upload } from '@aws-sdk/lib-storage'
 import fs from 'fs'
 import { Response } from 'express'
-import HTTP_STATUS from '~/constants/httpStatus'
+import HTTP_STATUS from '../constants/httpStatus'
 import { S3Client, DeleteObjectsCommand } from '@aws-sdk/client-s3'
-import { envConfig } from '~/constants/config'
+import { envConfig } from '../constants/config'
 config()
 const s3s = new S3Client({
   region: envConfig.region,
