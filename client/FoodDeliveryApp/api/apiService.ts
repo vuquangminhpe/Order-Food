@@ -4,7 +4,7 @@ import { API_URL } from "../config";
 
 // Create an axios instance with default configs
 const apiClient = axios.create({
-  baseURL: API_URL,
+  baseURL: "https://order-food-git-main-vu-quang-minhs-projects.vercel.app",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
