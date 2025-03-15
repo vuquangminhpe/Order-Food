@@ -28,68 +28,6 @@ const RootNavigator = () => {
   const { user, initialized, loading, hasRole, USER_ROLES } = useAuth();
   const { theme } = useTheme();
 
-  // Determine which navigator to show based on user role and authentication status
-  const renderNavigator = () => {
-    if (!initialized || loading) {
-      return (
-        <Stack.Screen
-          name="Splash"
-          component={SplashScreen}
-          options={{ headerShown: false }}
-        />
-      );
-    }
-
-    if (!user) {
-      return (
-        <Stack.Screen
-          name="Auth"
-          component={AuthNavigator}
-          options={{ headerShown: false }}
-        />
-      );
-    }
-
-    // First time user - show onboarding
-    if (user.firstLogin) {
-      return (
-        <Stack.Screen
-          name="Onboarding"
-          component={OnboardingScreen}
-          options={{ headerShown: false }}
-        />
-      );
-    }
-
-    // Based on user role, show the appropriate navigator
-    if (hasRole(USER_ROLES.RESTAURANT_OWNER)) {
-      return (
-        <Stack.Screen
-          name="RestaurantOwner"
-          component={RestaurantOwnerTabNavigator}
-          options={{ headerShown: false }}
-        />
-      );
-    } else if (hasRole(USER_ROLES.DELIVERY_PERSON)) {
-      return (
-        <Stack.Screen
-          name="DeliveryPerson"
-          component={DeliveryPersonTabNavigator}
-          options={{ headerShown: false }}
-        />
-      );
-    } else {
-      // Default to customer navigator
-      return (
-        <Stack.Screen
-          name="Customer"
-          component={CustomerTabNavigator}
-          options={{ headerShown: false }}
-        />
-      );
-    }
-  };
-
   return (
     <>
       <StatusBar
@@ -98,10 +36,24 @@ const RootNavigator = () => {
         translucent={false}
       />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {renderNavigator()}
+        {/* Loading screen */}
+        {!initialized || loading ? (
+          <Stack.Screen name="Splash" component={SplashScreen} />
+        ) : !user ? (
+          <Stack.Screen name="Auth" component={AuthNavigator} />
+        ) : user.firstLogin ? (
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+        ) : hasRole(USER_ROLES.RESTAURANT_OWNER) ? (
+          <Stack.Screen name="RestaurantOwner" component={RestaurantOwnerTabNavigator} />
+        ) : hasRole(USER_ROLES.DELIVERY_PERSON) ? (
+          <Stack.Screen name="DeliveryPerson" component={DeliveryPersonTabNavigator} />
+        ) : (
+          <Stack.Screen name="Customer" component={CustomerTabNavigator} />
+        )}
       </Stack.Navigator>
     </>
   );
 };
+
 
 export default RootNavigator;

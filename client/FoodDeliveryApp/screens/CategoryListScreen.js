@@ -12,7 +12,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useTheme } from "../contexts/ThemeContext";
 import { restaurantService } from "../api/restaurantService";
 import RestaurantCard from "../components/restaurant/RestaurantCard";
-import EmptyState from "../components/general/EmptyState";
+import EmptyState from "../components/cart/EmptyState";
 
 const CategoryListScreen = ({ route, navigation }) => {
   const { category } = route.params;

@@ -15,7 +15,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useLocation } from "../contexts/LocationContext";
 import { userService } from "../api/userService";
 import AddressCard from "../components/user/AddressCard.js";
-import EmptyState from "../components/general/EmptyState";
+import EmptyState from "../components/cart/EmptyState";
 
 const AddressListScreen = ({ route, navigation }) => {
   const { selectMode } = route.params || {};
