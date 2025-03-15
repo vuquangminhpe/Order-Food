@@ -11,7 +11,7 @@
 
     "paths": {
       "~/*": ["src/*"], // Đường dẫn tương đối cho các import (alias)
-      "@/*": ["./*"]
+      "@/*": ["src/*"]
     }
   },
   "files": ["src/type.d.ts"], // Các file dùng để defined global type cho dự án
