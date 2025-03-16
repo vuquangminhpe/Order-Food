@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 import moment from "moment";
 
@@ -107,7 +107,7 @@ const OrderHistoryItem = ({ order, onPress }: any) => {
             { backgroundColor: `${statusInfo.color}20` },
           ]}
         >
-          <Icon
+          <MaterialCommunityIcons
             name={statusInfo.icon}
             size={14}
             color={statusInfo.color}
@@ -157,7 +157,11 @@ const OrderHistoryItem = ({ order, onPress }: any) => {
               ]}
               onPress={() => onPress("track")}
             >
-              <Icon name="map-marker" size={16} color={theme.colors.white} />
+              <MaterialCommunityIcons
+                name="map-marker"
+                size={16}
+                color={theme.colors.white}
+              />
               <Text
                 style={[styles.trackButtonText, { color: theme.colors.white }]}
               >
@@ -175,7 +179,11 @@ const OrderHistoryItem = ({ order, onPress }: any) => {
             ]}
             onPress={() => onPress("reorder")}
           >
-            <Icon name="refresh" size={16} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="refresh"
+              size={16}
+              color={theme.colors.primary}
+            />
             <Text
               style={[
                 styles.reorderButtonText,
@@ -193,7 +201,11 @@ const OrderHistoryItem = ({ order, onPress }: any) => {
             style={[styles.rateButton, { borderColor: theme.colors.warning }]}
             onPress={() => onPress("rate")}
           >
-            <Icon name="star" size={16} color={theme.colors.warning} />
+            <MaterialCommunityIcons
+              name="star"
+              size={16}
+              color={theme.colors.warning}
+            />
             <Text
               style={[styles.rateButtonText, { color: theme.colors.warning }]}
             >

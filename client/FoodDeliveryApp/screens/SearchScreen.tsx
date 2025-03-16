@@ -10,7 +10,7 @@ import {
   Keyboard,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { restaurantService } from "../api/restaurantService";
 import { menuService } from "../api/menuService";
@@ -126,7 +126,11 @@ const SearchScreen = ({ navigation }: any) => {
   const renderSearchBar = () => (
     <View style={styles.searchBarContainer}>
       <View style={[styles.searchBar, { backgroundColor: theme.colors.gray }]}>
-        <Icon name="magnify" size={20} color={theme.colors.darkGray} />
+        <MaterialCommunityIcons
+          name="magnify"
+          size={20}
+          color={theme.colors.darkGray}
+        />
         <TextInput
           style={[styles.searchInput, { color: theme.colors.text }]}
           placeholder="Search for restaurants or food"
@@ -139,7 +143,11 @@ const SearchScreen = ({ navigation }: any) => {
         />
         {searchText.length > 0 && (
           <TouchableOpacity onPress={handleClearSearch}>
-            <Icon name="close-circle" size={20} color={theme.colors.darkGray} />
+            <MaterialCommunityIcons
+              name="close-circle"
+              size={20}
+              color={theme.colors.darkGray}
+            />
           </TouchableOpacity>
         )}
       </View>
@@ -227,7 +235,11 @@ const SearchScreen = ({ navigation }: any) => {
             ]}
             onPress={() => handleRecentSearchPress(term)}
           >
-            <Icon name="history" size={16} color={theme.colors.darkGray} />
+            <MaterialCommunityIcons
+              name="history"
+              size={16}
+              color={theme.colors.darkGray}
+            />
             <Text
               style={[styles.recentSearchText, { color: theme.colors.text }]}
             >
@@ -328,7 +340,11 @@ const SearchScreen = ({ navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

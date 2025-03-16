@@ -12,7 +12,7 @@ import {
   SafeAreaView,
   RefreshControl,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { menuService } from "../api/menuService";
@@ -318,7 +318,11 @@ const MenuManagementScreen = ({ navigation }: any) => {
               ]}
               onPress={() => handleEditMenuItem(item)}
             >
-              <Icon name="pencil" size={16} color={theme.colors.white} />
+              <MaterialCommunityIcons
+                name="pencil"
+                size={16}
+                color={theme.colors.white}
+              />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -328,7 +332,11 @@ const MenuManagementScreen = ({ navigation }: any) => {
               ]}
               onPress={() => handleDeleteMenuItem(item._id)}
             >
-              <Icon name="delete" size={16} color={theme.colors.white} />
+              <MaterialCommunityIcons
+                name="delete"
+                size={16}
+                color={theme.colors.white}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -339,7 +347,11 @@ const MenuManagementScreen = ({ navigation }: any) => {
   // Render empty state
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Icon name="food-off" size={60} color={theme.colors.placeholder} />
+      <MaterialCommunityIcons
+        name="food-off"
+        size={60}
+        color={theme.colors.placeholder}
+      />
       <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
         No menu items found
       </Text>
@@ -382,7 +394,11 @@ const MenuManagementScreen = ({ navigation }: any) => {
           <View
             style={[styles.searchBar, { backgroundColor: theme.colors.gray }]}
           >
-            <Icon name="magnify" size={20} color={theme.colors.placeholder} />
+            <MaterialCommunityIcons
+              name="magnify"
+              size={20}
+              color={theme.colors.placeholder}
+            />
             <TextInput
               style={[styles.searchInput, { color: theme.colors.text }]}
               placeholder="Search menu items"
@@ -392,7 +408,7 @@ const MenuManagementScreen = ({ navigation }: any) => {
             />
             {searchText.length > 0 && (
               <TouchableOpacity onPress={() => setSearchText("")}>
-                <Icon
+                <MaterialCommunityIcons
                   name="close-circle"
                   size={20}
                   color={theme.colors.darkGray}
@@ -408,7 +424,11 @@ const MenuManagementScreen = ({ navigation }: any) => {
             ]}
             onPress={handleAddMenuItem}
           >
-            <Icon name="plus" size={24} color={theme.colors.white} />
+            <MaterialCommunityIcons
+              name="plus"
+              size={24}
+              color={theme.colors.white}
+            />
           </TouchableOpacity>
         </View>
 
@@ -429,7 +449,11 @@ const MenuManagementScreen = ({ navigation }: any) => {
                 ]}
                 onPress={handleAddCategory}
               >
-                <Icon name="plus" size={16} color={theme.colors.primary} />
+                <MaterialCommunityIcons
+                  name="plus"
+                  size={16}
+                  color={theme.colors.primary}
+                />
                 <Text
                   style={[
                     styles.addCategoryText,
@@ -468,7 +492,11 @@ const MenuManagementScreen = ({ navigation }: any) => {
           ]}
           onPress={handleAddMenuItem}
         >
-          <Icon name="plus" size={24} color={theme.colors.white} />
+          <MaterialCommunityIcons
+            name="plus"
+            size={24}
+            color={theme.colors.white}
+          />
         </TouchableOpacity>
 
         {/* Error message if any */}
@@ -479,7 +507,11 @@ const MenuManagementScreen = ({ navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

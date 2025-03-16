@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
 
@@ -103,7 +103,11 @@ const OnboardingScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.iconCircle}>
-          <Icon name={item.icon} size={50} color={theme.colors.white} />
+          <MaterialCommunityIcons
+            name={item.icon}
+            size={50}
+            color={theme.colors.white}
+          />
         </View>
 
         <Text style={[styles.title, { color: theme.colors.text }]}>
@@ -187,7 +191,7 @@ const OnboardingScreen = ({ navigation }: any) => {
           <Text style={[styles.buttonText, { color: theme.colors.white }]}>
             {currentIndex === slides.length - 1 ? "Get Started" : "Next"}
           </Text>
-          <Icon
+          <MaterialCommunityIcons
             name={currentIndex === slides.length - 1 ? "check" : "arrow-right"}
             size={20}
             color={theme.colors.white}

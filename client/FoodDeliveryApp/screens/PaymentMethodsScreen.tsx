@@ -15,7 +15,7 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -308,7 +308,7 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
     >
       <View style={styles.cardHeader}>
         <View style={styles.cardBrandContainer}>
-          <Icon
+          <MaterialCommunityIcons
             name={getCardIcon(item.cardBrand)}
             size={24}
             color={theme.colors.primary}
@@ -361,7 +361,11 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
           style={styles.cardAction}
           onPress={() => openPaymentMethodModal(item)}
         >
-          <Icon name="pencil" size={20} color={theme.colors.primary} />
+          <MaterialCommunityIcons
+            name="pencil"
+            size={20}
+            color={theme.colors.primary}
+          />
           <Text style={[styles.actionText, { color: theme.colors.primary }]}>
             Edit
           </Text>
@@ -372,7 +376,11 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
             style={styles.cardAction}
             onPress={() => handleSetDefaultPaymentMethod(item.id)}
           >
-            <Icon name="check-circle" size={20} color={theme.colors.success} />
+            <MaterialCommunityIcons
+              name="check-circle"
+              size={20}
+              color={theme.colors.success}
+            />
             <Text style={[styles.actionText, { color: theme.colors.success }]}>
               Set as Default
             </Text>
@@ -383,7 +391,11 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
           style={styles.cardAction}
           onPress={() => handleDeletePaymentMethod(item.id)}
         >
-          <Icon name="delete" size={20} color={theme.colors.error} />
+          <MaterialCommunityIcons
+            name="delete"
+            size={20}
+            color={theme.colors.error}
+          />
           <Text style={[styles.actionText, { color: theme.colors.error }]}>
             Delete
           </Text>
@@ -395,7 +407,11 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
   // Render empty state
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Icon name="credit-card-off" size={60} color={theme.colors.placeholder} />
+      <MaterialCommunityIcons
+        name="credit-card-off"
+        size={60}
+        color={theme.colors.placeholder}
+      />
       <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
         No Payment Methods
       </Text>
@@ -407,7 +423,11 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
         style={[styles.addButton, { backgroundColor: theme.colors.primary }]}
         onPress={() => openPaymentMethodModal(null)}
       >
-        <Icon name="plus" size={20} color={theme.colors.white} />
+        <MaterialCommunityIcons
+          name="plus"
+          size={20}
+          color={theme.colors.white}
+        />
         <Text style={[styles.addButtonText, { color: theme.colors.white }]}>
           Add Payment Method
         </Text>
@@ -451,7 +471,11 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
             ]}
             onPress={() => openPaymentMethodModal(null)}
           >
-            <Icon name="plus" size={20} color={theme.colors.white} />
+            <MaterialCommunityIcons
+              name="plus"
+              size={20}
+              color={theme.colors.white}
+            />
           </TouchableOpacity>
         </View>
 
@@ -494,7 +518,11 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
                   style={styles.closeButton}
                   onPress={() => setModalVisible(false)}
                 >
-                  <Icon name="close" size={24} color={theme.colors.darkGray} />
+                  <MaterialCommunityIcons
+                    name="close"
+                    size={24}
+                    color={theme.colors.darkGray}
+                  />
                 </TouchableOpacity>
               </View>
 
@@ -514,7 +542,7 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
                         : { borderColor: theme.colors.border },
                     ]}
                   >
-                    <Icon
+                    <MaterialCommunityIcons
                       name="credit-card"
                       size={20}
                       color={theme.colors.darkGray}
@@ -555,7 +583,7 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
                         : { borderColor: theme.colors.border },
                     ]}
                   >
-                    <Icon
+                    <MaterialCommunityIcons
                       name="account"
                       size={20}
                       color={theme.colors.darkGray}
@@ -596,7 +624,7 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
                           : { borderColor: theme.colors.border },
                       ]}
                     >
-                      <Icon
+                      <MaterialCommunityIcons
                         name="calendar"
                         size={20}
                         color={theme.colors.darkGray}
@@ -639,7 +667,7 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
                           : { borderColor: theme.colors.border },
                       ]}
                     >
-                      <Icon
+                      <MaterialCommunityIcons
                         name="lock"
                         size={20}
                         color={theme.colors.darkGray}
@@ -722,7 +750,11 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text
               style={[styles.errorMessageText, { color: theme.colors.error }]}
             >
@@ -753,7 +785,11 @@ const PaymentMethodsScreen = ({ navigation }: any) => {
             ]}
             onPress={() => openPaymentMethodModal(null)}
           >
-            <Icon name="plus" size={24} color={theme.colors.white} />
+            <MaterialCommunityIcons
+              name="plus"
+              size={24}
+              color={theme.colors.white}
+            />
           </TouchableOpacity>
         )}
       </View>

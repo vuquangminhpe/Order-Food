@@ -12,7 +12,7 @@ import {
   Alert,
 } from "react-native";
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useSocket } from "../contexts/SocketContext";
 import { orderService, OrderStatus } from "../api/orderService";
@@ -316,7 +316,11 @@ const OrderTrackingScreen = ({ route, navigation }: any) => {
           { backgroundColor: theme.colors.background },
         ]}
       >
-        <Icon name="alert-circle" size={60} color={theme.colors.error} />
+        <MaterialCommunityIcons
+          name="alert-circle"
+          size={60}
+          color={theme.colors.error}
+        />
         <Text style={[styles.errorText, { color: theme.colors.error }]}>
           {error}
         </Text>
@@ -416,7 +420,11 @@ const OrderTrackingScreen = ({ route, navigation }: any) => {
                   description="Restaurant"
                 >
                   <View style={styles.restaurantMarker}>
-                    <Icon name="store" size={20} color="#FFF" />
+                    <MaterialCommunityIcons
+                      name="store"
+                      size={20}
+                      color="#FFF"
+                    />
                   </View>
                 </Marker>
               )}
@@ -432,7 +440,11 @@ const OrderTrackingScreen = ({ route, navigation }: any) => {
                   description="Your order is on the way"
                 >
                   <View style={styles.deliveryMarker}>
-                    <Icon name="bike" size={20} color="#FFF" />
+                    <MaterialCommunityIcons
+                      name="bike"
+                      size={20}
+                      color="#FFF"
+                    />
                   </View>
                 </Marker>
               )}
@@ -448,7 +460,11 @@ const OrderTrackingScreen = ({ route, navigation }: any) => {
                   description={order.deliveryAddress.address}
                 >
                   <View style={styles.destinationMarker}>
-                    <Icon name="home" size={20} color="#FFF" />
+                    <MaterialCommunityIcons
+                      name="home"
+                      size={20}
+                      color="#FFF"
+                    />
                   </View>
                 </Marker>
               )}
@@ -471,7 +487,7 @@ const OrderTrackingScreen = ({ route, navigation }: any) => {
               ]}
               onPress={fitAllMarkers}
             >
-              <Icon
+              <MaterialCommunityIcons
                 name="crosshairs-gps"
                 size={24}
                 color={theme.colors.primary}
@@ -508,7 +524,11 @@ const OrderTrackingScreen = ({ route, navigation }: any) => {
             Restaurant
           </Text>
           <View style={styles.restaurantInfo}>
-            <Icon name="store" size={20} color={theme.colors.darkGray} />
+            <MaterialCommunityIcons
+              name="store"
+              size={20}
+              color={theme.colors.darkGray}
+            />
             <Text style={[styles.restaurantName, { color: theme.colors.text }]}>
               {order?.restaurant?.name || "Restaurant"}
             </Text>
@@ -519,7 +539,11 @@ const OrderTrackingScreen = ({ route, navigation }: any) => {
             >
               View Order Details
             </Text>
-            <Icon name="chevron-right" size={20} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={20}
+              color={theme.colors.primary}
+            />
           </TouchableOpacity>
         </View>
 
@@ -534,7 +558,11 @@ const OrderTrackingScreen = ({ route, navigation }: any) => {
             Delivery Address
           </Text>
           <View style={styles.addressInfo}>
-            <Icon name="map-marker" size={20} color={theme.colors.darkGray} />
+            <MaterialCommunityIcons
+              name="map-marker"
+              size={20}
+              color={theme.colors.darkGray}
+            />
             <Text style={[styles.addressText, { color: theme.colors.text }]}>
               {order?.deliveryAddress?.address || "Address not available"}
             </Text>

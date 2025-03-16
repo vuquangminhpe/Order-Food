@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 import RatingStars from "../general/RatingStars";
 
@@ -66,7 +66,11 @@ const DeliveryPersonInfo = ({ deliveryPerson, onCall }: any) => {
           onPress={onCall}
           activeOpacity={0.8}
         >
-          <Icon name="phone" size={20} color={theme.colors.white} />
+          <MaterialCommunityIcons
+            name="phone"
+            size={20}
+            color={theme.colors.white}
+          />
         </TouchableOpacity>
       </View>
 
@@ -77,7 +81,7 @@ const DeliveryPersonInfo = ({ deliveryPerson, onCall }: any) => {
           { backgroundColor: theme.colors.highlight },
         ]}
       >
-        <Icon
+        <MaterialCommunityIcons
           name="information-outline"
           size={16}
           color={theme.colors.primary}

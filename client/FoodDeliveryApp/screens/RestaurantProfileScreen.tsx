@@ -10,7 +10,7 @@ import {
   Alert,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { restaurantService } from "../api/restaurantService";
@@ -147,7 +147,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
           { backgroundColor: theme.colors.background },
         ]}
       >
-        <Icon name="alert-circle" size={60} color={theme.colors.error} />
+        <MaterialCommunityIcons
+          name="alert-circle"
+          size={60}
+          color={theme.colors.error}
+        />
         <Text style={[styles.errorText, { color: theme.colors.error }]}>
           {error}
         </Text>
@@ -196,7 +200,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
             ]}
             onPress={() => handleChangeImage("cover")}
           >
-            <Icon name="camera" size={20} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="camera"
+              size={20}
+              color={theme.colors.primary}
+            />
           </TouchableOpacity>
         </View>
 
@@ -217,7 +225,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
             ]}
             onPress={() => handleChangeImage("logo")}
           >
-            <Icon name="camera" size={16} color={theme.colors.white} />
+            <MaterialCommunityIcons
+              name="camera"
+              size={16}
+              color={theme.colors.white}
+            />
           </TouchableOpacity>
         </View>
 
@@ -265,7 +277,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
           </View>
 
           <View style={styles.ratingRow}>
-            <Icon name="star" size={16} color={theme.colors.warning} />
+            <MaterialCommunityIcons
+              name="star"
+              size={16}
+              color={theme.colors.warning}
+            />
             <Text style={[styles.ratingText, { color: theme.colors.text }]}>
               {(restaurant as any).rating?.toFixed(1) || "0.0"}
               <Text style={{ color: theme.colors.darkGray }}>
@@ -281,7 +297,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
             ]}
             onPress={handleEditProfile}
           >
-            <Icon name="pencil" size={16} color={theme.colors.white} />
+            <MaterialCommunityIcons
+              name="pencil"
+              size={16}
+              color={theme.colors.white}
+            />
             <Text
               style={[styles.editProfileText, { color: theme.colors.white }]}
             >
@@ -302,21 +322,33 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
           </Text>
 
           <View style={styles.detailRow}>
-            <Icon name="phone" size={20} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="phone"
+              size={20}
+              color={theme.colors.primary}
+            />
             <Text style={[styles.detailText, { color: theme.colors.text }]}>
               {(restaurant as any).phone || "No phone number"}
             </Text>
           </View>
 
           <View style={styles.detailRow}>
-            <Icon name="email" size={20} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="email"
+              size={20}
+              color={theme.colors.primary}
+            />
             <Text style={[styles.detailText, { color: theme.colors.text }]}>
               {(restaurant as any).email || "No email address"}
             </Text>
           </View>
 
           <View style={styles.detailRow}>
-            <Icon name="map-marker" size={20} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="map-marker"
+              size={20}
+              color={theme.colors.primary}
+            />
             <Text style={[styles.detailText, { color: theme.colors.text }]}>
               {(restaurant as any).address || "No address"}
             </Text>
@@ -369,7 +401,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
           </View>
 
           <View style={styles.detailRow}>
-            <Icon name="bike-fast" size={20} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="bike-fast"
+              size={20}
+              color={theme.colors.primary}
+            />
             <Text
               style={[styles.detailLabel, { color: theme.colors.darkGray }]}
             >
@@ -381,7 +417,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
           </View>
 
           <View style={styles.detailRow}>
-            <Icon name="timer-sand" size={20} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="timer-sand"
+              size={20}
+              color={theme.colors.primary}
+            />
             <Text
               style={[styles.detailLabel, { color: theme.colors.darkGray }]}
             >
@@ -393,7 +433,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
           </View>
 
           <View style={styles.detailRow}>
-            <Icon name="cash-multiple" size={20} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="cash-multiple"
+              size={20}
+              color={theme.colors.primary}
+            />
             <Text
               style={[styles.detailLabel, { color: theme.colors.darkGray }]}
             >
@@ -432,7 +476,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
                 { backgroundColor: theme.colors.gray },
               ]}
             >
-              <Icon name="cash" size={20} color={theme.colors.success} />
+              <MaterialCommunityIcons
+                name="cash"
+                size={20}
+                color={theme.colors.success}
+              />
               <Text
                 style={[styles.paymentMethodText, { color: theme.colors.text }]}
               >
@@ -446,7 +494,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
                 { backgroundColor: theme.colors.gray },
               ]}
             >
-              <Icon name="credit-card" size={20} color={theme.colors.info} />
+              <MaterialCommunityIcons
+                name="credit-card"
+                size={20}
+                color={theme.colors.info}
+              />
               <Text
                 style={[styles.paymentMethodText, { color: theme.colors.text }]}
               >
@@ -460,7 +512,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
                 { backgroundColor: theme.colors.gray },
               ]}
             >
-              <Icon name="bank" size={20} color={theme.colors.primary} />
+              <MaterialCommunityIcons
+                name="bank"
+                size={20}
+                color={theme.colors.primary}
+              />
               <Text
                 style={[styles.paymentMethodText, { color: theme.colors.text }]}
               >
@@ -475,7 +531,11 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
           style={[styles.settingsButton, { borderColor: theme.colors.primary }]}
           onPress={() => navigation.navigate("Profile")}
         >
-          <Icon name="cog" size={20} color={theme.colors.primary} />
+          <MaterialCommunityIcons
+            name="cog"
+            size={20}
+            color={theme.colors.primary}
+          />
           <Text
             style={[styles.settingsButtonText, { color: theme.colors.primary }]}
           >

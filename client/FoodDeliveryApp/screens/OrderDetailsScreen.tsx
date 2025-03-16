@@ -9,7 +9,7 @@ import {
   Alert,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { orderService, OrderStatus } from "../api/orderService";
 import {
@@ -188,7 +188,11 @@ const OrderDetailsScreen = ({ route, navigation }: any) => {
           { backgroundColor: theme.colors.background },
         ]}
       >
-        <Icon name="alert-circle" size={60} color={theme.colors.error} />
+        <MaterialCommunityIcons
+          name="alert-circle"
+          size={60}
+          color={theme.colors.error}
+        />
         <Text style={[styles.errorText, { color: theme.colors.error }]}>
           {error}
         </Text>
@@ -228,7 +232,7 @@ const OrderDetailsScreen = ({ route, navigation }: any) => {
               },
             ]}
           >
-            <Icon
+            <MaterialCommunityIcons
               name={getStatusIcon(order?.status)}
               size={24}
               color={theme.colors[getStatusColor(order?.status)]}
@@ -259,7 +263,11 @@ const OrderDetailsScreen = ({ route, navigation }: any) => {
           </Text>
 
           <View style={styles.infoRow}>
-            <Icon name="account" size={20} color={theme.colors.darkGray} />
+            <MaterialCommunityIcons
+              name="account"
+              size={20}
+              color={theme.colors.darkGray}
+            />
             <Text style={[styles.infoLabel, { color: theme.colors.darkGray }]}>
               Name:
             </Text>
@@ -269,7 +277,11 @@ const OrderDetailsScreen = ({ route, navigation }: any) => {
           </View>
 
           <View style={styles.infoRow}>
-            <Icon name="phone" size={20} color={theme.colors.darkGray} />
+            <MaterialCommunityIcons
+              name="phone"
+              size={20}
+              color={theme.colors.darkGray}
+            />
             <Text style={[styles.infoLabel, { color: theme.colors.darkGray }]}>
               Phone:
             </Text>
@@ -284,7 +296,11 @@ const OrderDetailsScreen = ({ route, navigation }: any) => {
               { backgroundColor: theme.colors.primary },
             ]}
           >
-            <Icon name="phone" size={16} color={theme.colors.white} />
+            <MaterialCommunityIcons
+              name="phone"
+              size={16}
+              color={theme.colors.white}
+            />
             <Text
               style={[styles.callButtonText, { color: theme.colors.white }]}
             >
@@ -300,7 +316,11 @@ const OrderDetailsScreen = ({ route, navigation }: any) => {
           </Text>
 
           <View style={styles.infoRow}>
-            <Icon name="map-marker" size={20} color={theme.colors.darkGray} />
+            <MaterialCommunityIcons
+              name="map-marker"
+              size={20}
+              color={theme.colors.darkGray}
+            />
             <Text style={[styles.addressText, { color: theme.colors.text }]}>
               {order?.deliveryAddress?.address || "No address provided"}
             </Text>
@@ -309,7 +329,11 @@ const OrderDetailsScreen = ({ route, navigation }: any) => {
           <TouchableOpacity
             style={[styles.mapButton, { borderColor: theme.colors.primary }]}
           >
-            <Icon name="map" size={16} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="map"
+              size={16}
+              color={theme.colors.primary}
+            />
             <Text
               style={[styles.mapButtonText, { color: theme.colors.primary }]}
             >
@@ -480,7 +504,7 @@ const OrderDetailsScreen = ({ route, navigation }: any) => {
           </Text>
 
           <View style={styles.infoRow}>
-            <Icon
+            <MaterialCommunityIcons
               name={order?.paymentMethod === 0 ? "cash" : "credit-card"}
               size={20}
               color={theme.colors.darkGray}
@@ -496,7 +520,7 @@ const OrderDetailsScreen = ({ route, navigation }: any) => {
           </View>
 
           <View style={styles.infoRow}>
-            <Icon
+            <MaterialCommunityIcons
               name={
                 order?.paymentStatus === 0
                   ? "clock-outline"

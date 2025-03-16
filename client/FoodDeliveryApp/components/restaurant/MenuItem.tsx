@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const MenuItem = ({ item, onPress, onAddToCart }: any) => {
@@ -93,7 +93,11 @@ const MenuItem = ({ item, onPress, onAddToCart }: any) => {
               onAddToCart();
             }}
           >
-            <Icon name="plus" size={18} color={theme.colors.white} />
+            <MaterialCommunityIcons
+              name="plus"
+              size={18}
+              color={theme.colors.white}
+            />
           </TouchableOpacity>
         )}
 

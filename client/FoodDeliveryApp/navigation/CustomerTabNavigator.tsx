@@ -2,7 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 
 // Import customer screens
@@ -301,7 +301,7 @@ const CustomerTabNavigator = () => {
         options={({ route }) => ({
           tabBarVisible: getTabBarVisibility(route),
           tabBarIcon: ({ color, size }) => (
-            <Icon name="home" color={color} size={size} />
+            <MaterialCommunityIcons name="home" color={color} size={size} />
           ),
           tabBarStyle: {
             display: getTabBarVisibility(route) ? "flex" : "none",
@@ -317,7 +317,11 @@ const CustomerTabNavigator = () => {
         component={OrdersStack}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Icon name="clipboard-list" color={color} size={size} />
+            <MaterialCommunityIcons
+              name="clipboard-list"
+              color={color}
+              size={size}
+            />
           ),
         }}
       />
@@ -327,7 +331,7 @@ const CustomerTabNavigator = () => {
         options={({ route }) => ({
           tabBarVisible: getTabBarVisibility(route),
           tabBarIcon: ({ color, size }) => (
-            <Icon name="cart" color={color} size={size} />
+            <MaterialCommunityIcons name="cart" color={color} size={size} />
           ),
           tabBarStyle: {
             display: getTabBarVisibility(route) ? "flex" : "none",
@@ -343,7 +347,7 @@ const CustomerTabNavigator = () => {
         component={ProfileStack}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Icon name="account" color={color} size={size} />
+            <MaterialCommunityIcons name="account" color={color} size={size} />
           ),
         }}
       />

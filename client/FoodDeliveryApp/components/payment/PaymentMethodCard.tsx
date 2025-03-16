@@ -7,7 +7,7 @@ import {
   ImageBackground,
   Dimensions,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const { width } = Dimensions.get("window");
@@ -77,7 +77,7 @@ const PromotionCard = ({
               <Text style={[styles.code, { color: theme.colors.primary }]}>
                 {code}
               </Text>
-              <Icon
+              <MaterialCommunityIcons
                 name="content-copy"
                 size={16}
                 color={theme.colors.darkGray}

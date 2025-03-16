@@ -9,7 +9,7 @@ import {
   RefreshControl,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { restaurantService } from "../api/restaurantService";
@@ -192,7 +192,11 @@ const DashboardScreen = ({ navigation }: any) => {
             ]}
             onPress={() => navigation.navigate("Notifications")}
           >
-            <Icon name="bell" size={22} color={theme.colors.text} />
+            <MaterialCommunityIcons
+              name="bell"
+              size={22}
+              color={theme.colors.text}
+            />
             <View
               style={[styles.badge, { backgroundColor: theme.colors.primary }]}
             >
@@ -226,7 +230,7 @@ const DashboardScreen = ({ navigation }: any) => {
                   { backgroundColor: "rgba(255, 90, 95, 0.1)" },
                 ]}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="clock-outline"
                   size={22}
                   color={theme.colors.primary}
@@ -252,7 +256,11 @@ const DashboardScreen = ({ navigation }: any) => {
                   { backgroundColor: "rgba(0, 166, 153, 0.1)" },
                 ]}
               >
-                <Icon name="receipt" size={22} color={theme.colors.secondary} />
+                <MaterialCommunityIcons
+                  name="receipt"
+                  size={22}
+                  color={theme.colors.secondary}
+                />
               </View>
               <Text style={[styles.statsValue, { color: theme.colors.text }]}>
                 {dashboardData.todayOrders}
@@ -274,7 +282,11 @@ const DashboardScreen = ({ navigation }: any) => {
                   { backgroundColor: "rgba(255, 149, 0, 0.1)" },
                 ]}
               >
-                <Icon name="cash" size={22} color={theme.colors.accent} />
+                <MaterialCommunityIcons
+                  name="cash"
+                  size={22}
+                  color={theme.colors.accent}
+                />
               </View>
               <Text style={[styles.statsValue, { color: theme.colors.text }]}>
                 ${dashboardData.todayRevenue.toLocaleString()}
@@ -296,7 +308,11 @@ const DashboardScreen = ({ navigation }: any) => {
                   { backgroundColor: "rgba(66, 153, 225, 0.1)" },
                 ]}
               >
-                <Icon name="star" size={22} color={theme.colors.info} />
+                <MaterialCommunityIcons
+                  name="star"
+                  size={22}
+                  color={theme.colors.info}
+                />
               </View>
               <Text style={[styles.statsValue, { color: theme.colors.text }]}>
                 {dashboardData.restaurantRating}
@@ -344,7 +360,7 @@ const DashboardScreen = ({ navigation }: any) => {
                   },
                 ]}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name={
                     dashboardData.monthlyRevenue > 20000
                       ? "arrow-up"
@@ -521,7 +537,11 @@ const DashboardScreen = ({ navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

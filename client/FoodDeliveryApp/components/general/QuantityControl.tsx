@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const QuantityControl = ({
@@ -33,7 +33,11 @@ const QuantityControl = ({
         onPress={onDecrease}
         disabled={quantity <= min}
       >
-        <Icon name="minus" size={iconSize} color={theme.colors.text} />
+        <MaterialCommunityIcons
+          name="minus"
+          size={iconSize}
+          color={theme.colors.text}
+        />
       </TouchableOpacity>
 
       <Text
@@ -62,7 +66,11 @@ const QuantityControl = ({
         onPress={onIncrease}
         disabled={quantity >= max}
       >
-        <Icon name="plus" size={iconSize} color={theme.colors.text} />
+        <MaterialCommunityIcons
+          name="plus"
+          size={iconSize}
+          color={theme.colors.text}
+        />
       </TouchableOpacity>
     </View>
   );

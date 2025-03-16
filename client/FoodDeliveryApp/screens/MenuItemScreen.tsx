@@ -10,7 +10,7 @@ import {
   Dimensions,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useCart } from "../contexts/CartContext";
 import { menuService } from "../api/menuService";
@@ -209,7 +209,11 @@ const MenuItemScreen = ({ route, navigation }: any) => {
           { backgroundColor: theme.colors.background },
         ]}
       >
-        <Icon name="alert-circle" size={60} color={theme.colors.error} />
+        <MaterialCommunityIcons
+          name="alert-circle"
+          size={60}
+          color={theme.colors.error}
+        />
         <Text style={[styles.errorText, { color: theme.colors.error }]}>
           {error}
         </Text>
@@ -347,7 +351,7 @@ const MenuItemScreen = ({ route, navigation }: any) => {
                 >
                   Add note (allergies, preferences, etc.)
                 </Text>
-                <Icon
+                <MaterialCommunityIcons
                   name="chevron-right"
                   size={20}
                   color={theme.colors.darkGray}

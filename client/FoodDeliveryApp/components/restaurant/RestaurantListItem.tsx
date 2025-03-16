@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 import RatingStars from "../general/RatingStars";
 
@@ -74,7 +74,7 @@ const RestaurantListItem = ({
 
         <View style={styles.deliveryInfoContainer}>
           <View style={styles.deliveryInfo}>
-            <Icon
+            <MaterialCommunityIcons
               name="clock-outline"
               size={14}
               color={theme.colors.darkGray}
@@ -89,7 +89,11 @@ const RestaurantListItem = ({
           </View>
 
           <View style={styles.deliveryFeeContainer}>
-            <Icon name="bike-fast" size={14} color={theme.colors.darkGray} />
+            <MaterialCommunityIcons
+              name="bike-fast"
+              size={14}
+              color={theme.colors.darkGray}
+            />
             <Text
               style={[styles.deliveryFee, { color: theme.colors.darkGray }]}
             >
@@ -107,7 +111,7 @@ const RestaurantListItem = ({
           ]}
           onPress={onFavoritePress}
         >
-          <Icon
+          <MaterialCommunityIcons
             name={isFavorite ? "heart" : "heart-outline"}
             size={22}
             color={isFavorite ? theme.colors.primary : theme.colors.darkGray}

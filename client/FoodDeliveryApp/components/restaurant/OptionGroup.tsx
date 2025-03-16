@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const OptionGroup = ({ optionGroup, selectedItems = [], onSelect }: any) => {
@@ -88,7 +88,11 @@ const OptionGroup = ({ optionGroup, selectedItems = [], onSelect }: any) => {
               ]}
             >
               {isSelected(item) && (
-                <Icon name="check" size={16} color={theme.colors.white} />
+                <MaterialCommunityIcons
+                  name="check"
+                  size={16}
+                  color={theme.colors.white}
+                />
               )}
             </View>
           </TouchableOpacity>

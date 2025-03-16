@@ -9,7 +9,7 @@ import {
   Alert,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocation } from "../contexts/LocationContext";
@@ -179,7 +179,11 @@ const AddressListScreen = ({ route, navigation }: any) => {
               ]}
               onPress={() => navigation.navigate("AddAddress")}
             >
-              <Icon name="plus" size={24} color={theme.colors.white} />
+              <MaterialCommunityIcons
+                name="plus"
+                size={24}
+                color={theme.colors.white}
+              />
               <Text
                 style={[styles.addButtonText, { color: theme.colors.white }]}
               >
@@ -194,7 +198,7 @@ const AddressListScreen = ({ route, navigation }: any) => {
                   { backgroundColor: "rgba(255,0,0,0.1)" },
                 ]}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="alert-circle"
                   size={20}
                   color={theme.colors.error}

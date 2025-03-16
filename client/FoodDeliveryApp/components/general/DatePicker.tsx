@@ -8,7 +8,7 @@ import {
   Modal,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -110,7 +110,7 @@ const DatePicker = ({
         onPress={showDatePicker}
         disabled={disabled}
       >
-        <Icon
+        <MaterialCommunityIcons
           name={icon}
           size={20}
           color={error ? theme.colors.error : theme.colors.darkGray}

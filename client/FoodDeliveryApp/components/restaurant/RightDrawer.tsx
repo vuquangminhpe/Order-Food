@@ -10,7 +10,7 @@ import {
   Modal,
   StatusBar,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const { width, height } = Dimensions.get("window");
@@ -138,7 +138,11 @@ const RightDrawer = forwardRef(({ title, content, onClose }: any, ref) => {
               {title}
             </Text>
             <TouchableOpacity onPress={close} style={styles.closeButton}>
-              <Icon name="close" size={24} color={theme.colors.text} />
+              <MaterialCommunityIcons
+                name="close"
+                size={24}
+                color={theme.colors.text}
+              />
             </TouchableOpacity>
           </View>
 

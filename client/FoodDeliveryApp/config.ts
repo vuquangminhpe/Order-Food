@@ -1,2 +1,1 @@
-export const API_URL =
-  "https://order-food-git-main-vu-quang-minhs-projects.vercel.app";
+export const API_URL = "https://order-food-oqyp.vercel.app";

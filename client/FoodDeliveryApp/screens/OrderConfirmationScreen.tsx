@@ -10,7 +10,7 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import { useTheme } from "../contexts/ThemeContext";
 import { orderService } from "../api/orderService";
@@ -246,7 +246,11 @@ const OrderConfirmationScreen = ({ route, navigation }: any) => {
             ]}
             onPress={() => navigation.navigate("OrderTracking", { orderId })}
           >
-            <Icon name="map-marker-path" size={20} color={theme.colors.white} />
+            <MaterialCommunityIcons
+              name="map-marker-path"
+              size={20}
+              color={theme.colors.white}
+            />
             <Text style={[styles.buttonText, { color: theme.colors.white }]}>
               Track Order
             </Text>
@@ -284,7 +288,11 @@ const OrderConfirmationScreen = ({ route, navigation }: any) => {
               { backgroundColor: "rgba(255,0,0,0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

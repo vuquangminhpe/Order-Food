@@ -11,7 +11,7 @@ import {
   Linking,
   Platform,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { orderService, OrderStatus } from "../api/orderService";
 import { useLocation } from "../contexts/LocationContext";
@@ -269,7 +269,11 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
           { backgroundColor: theme.colors.background },
         ]}
       >
-        <Icon name="alert-circle" size={60} color={theme.colors.error} />
+        <MaterialCommunityIcons
+          name="alert-circle"
+          size={60}
+          color={theme.colors.error}
+        />
         <Text style={[styles.errorText, { color: theme.colors.error }]}>
           {error}
         </Text>
@@ -350,7 +354,11 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
                 { backgroundColor: theme.colors.secondary + "20" },
               ]}
             >
-              <Icon name="store" size={20} color={theme.colors.secondary} />
+              <MaterialCommunityIcons
+                name="store"
+                size={20}
+                color={theme.colors.secondary}
+              />
             </View>
 
             <View style={styles.locationInfo}>
@@ -374,7 +382,7 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
 
             {order.status === OrderStatus.ReadyForPickup && (
               <View style={styles.navigationButton}>
-                <Icon
+                <MaterialCommunityIcons
                   name="navigation"
                   size={20}
                   color={theme.colors.primary}
@@ -395,7 +403,6 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
                 ? handleNavigateToRestaurant
                 : undefined
             }
-
           >
             <View
               style={[
@@ -403,7 +410,11 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
                 { backgroundColor: theme.colors.primary + "20" },
               ]}
             >
-              <Icon name="account" size={20} color={theme.colors.primary} />
+              <MaterialCommunityIcons
+                name="account"
+                size={20}
+                color={theme.colors.primary}
+              />
             </View>
 
             <View style={styles.locationInfo}>
@@ -430,7 +441,11 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
                 style={styles.callButton}
                 onPress={handleCallCustomer}
               >
-                <Icon name="phone" size={20} color={theme.colors.primary} />
+                <MaterialCommunityIcons
+                  name="phone"
+                  size={20}
+                  color={theme.colors.primary}
+                />
               </TouchableOpacity>
             )}
           </TouchableOpacity>
@@ -483,10 +498,11 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
                 key={index}
                 style={[
                   styles.orderItem,
-                  typeof index === 'number' && index < order.items.length - 1 && {
-                    borderBottomWidth: 1,
-                    borderBottomColor: theme.colors.border,
-                  },
+                  typeof index === "number" &&
+                    index < order.items.length - 1 && {
+                      borderBottomWidth: 1,
+                      borderBottomColor: theme.colors.border,
+                    },
                 ]}
               >
                 <View style={styles.itemInfo}>
@@ -614,7 +630,7 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
           </Text>
 
           <View style={styles.paymentRow}>
-            <Icon
+            <MaterialCommunityIcons
               name={order.paymentMethod === 0 ? "cash" : "credit-card"}
               size={20}
               color={theme.colors.darkGray}
@@ -627,7 +643,7 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
           </View>
 
           <View style={styles.paymentRow}>
-            <Icon
+            <MaterialCommunityIcons
               name={
                 order.paymentStatus === 0
                   ? "clock-outline"
@@ -698,7 +714,11 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
                 <ActivityIndicator size="small" color="#FFF" />
               ) : (
                 <>
-                  <Icon name="package-up" size={20} color="#FFF" />
+                  <MaterialCommunityIcons
+                    name="package-up"
+                    size={20}
+                    color="#FFF"
+                  />
                   <Text
                     style={[
                       styles.actionButtonText,
@@ -725,7 +745,11 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
                 <ActivityIndicator size="small" color="#FFF" />
               ) : (
                 <>
-                  <Icon name="check-circle" size={20} color="#FFF" />
+                  <MaterialCommunityIcons
+                    name="check-circle"
+                    size={20}
+                    color="#FFF"
+                  />
                   <Text
                     style={[
                       styles.actionButtonText,
@@ -749,7 +773,7 @@ const DeliveryOrderDetailsScreen = ({ route, navigation }: any) => {
               onPress={() => navigation.navigate("Map")}
               disabled={processing}
             >
-              <Icon name="map" size={20} color="#FFF" />
+              <MaterialCommunityIcons name="map" size={20} color="#FFF" />
               <Text
                 style={[styles.actionButtonText, { color: theme.colors.white }]}
               >

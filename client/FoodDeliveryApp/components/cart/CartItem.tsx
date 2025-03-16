@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const CartItem = ({ item, onUpdateQuantity, onRemove, onPress }: any) => {
@@ -57,7 +57,11 @@ const CartItem = ({ item, onUpdateQuantity, onRemove, onPress }: any) => {
           style={[styles.removeButton, { borderColor: theme.colors.border }]}
           onPress={onRemove}
         >
-          <Icon name="trash-can-outline" size={16} color={theme.colors.error} />
+          <MaterialCommunityIcons
+            name="trash-can-outline"
+            size={16}
+            color={theme.colors.error}
+          />
         </TouchableOpacity>
 
         <View
@@ -70,7 +74,11 @@ const CartItem = ({ item, onUpdateQuantity, onRemove, onPress }: any) => {
             style={styles.quantityButton}
             onPress={() => onUpdateQuantity(item.quantity - 1)}
           >
-            <Icon name="minus" size={16} color={theme.colors.text} />
+            <MaterialCommunityIcons
+              name="minus"
+              size={16}
+              color={theme.colors.text}
+            />
           </TouchableOpacity>
 
           <View style={styles.quantityValueContainer}>
@@ -83,7 +91,11 @@ const CartItem = ({ item, onUpdateQuantity, onRemove, onPress }: any) => {
             style={styles.quantityButton}
             onPress={() => onUpdateQuantity(item.quantity + 1)}
           >
-            <Icon name="plus" size={16} color={theme.colors.text} />
+            <MaterialCommunityIcons
+              name="plus"
+              size={16}
+              color={theme.colors.text}
+            />
           </TouchableOpacity>
         </View>
       </View>

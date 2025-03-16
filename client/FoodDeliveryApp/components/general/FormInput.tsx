@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const FormInput = ({
@@ -69,7 +69,7 @@ const FormInput = ({
       >
         {/* Left Icon */}
         {icon && (
-          <Icon
+          <MaterialCommunityIcons
             name={icon}
             size={20}
             color={
@@ -114,7 +114,7 @@ const FormInput = ({
             style={styles.rightIcon}
             onPress={togglePasswordVisibility}
           >
-            <Icon
+            <MaterialCommunityIcons
               name={isPasswordVisible ? "eye-off" : "eye"}
               size={20}
               color={theme.colors.darkGray}

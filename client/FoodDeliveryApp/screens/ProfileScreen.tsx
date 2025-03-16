@@ -12,7 +12,7 @@ import {
   SafeAreaView,
   GestureResponderEvent,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { launchImageLibrary } from "react-native-image-picker";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -209,7 +209,11 @@ const ProfileScreen = ({ navigation }: any) => {
                 { backgroundColor: theme.colors.primary },
               ]}
             >
-              <Icon name="camera" size={14} color={theme.colors.white} />
+              <MaterialCommunityIcons
+                name="camera"
+                size={14}
+                color={theme.colors.white}
+              />
             </View>
           </>
         )}
@@ -226,7 +230,11 @@ const ProfileScreen = ({ navigation }: any) => {
         style={[styles.editButton, { backgroundColor: theme.colors.primary }]}
         onPress={() => navigation.navigate("EditProfile")}
       >
-        <Icon name="account-edit" size={16} color={theme.colors.white} />
+        <MaterialCommunityIcons
+          name="account-edit"
+          size={16}
+          color={theme.colors.white}
+        />
         <Text style={[styles.editButtonText, { color: theme.colors.white }]}>
           Edit Profile
         </Text>
@@ -311,7 +319,11 @@ const ProfileScreen = ({ navigation }: any) => {
                   { backgroundColor: theme.colors.gray },
                 ]}
               >
-                <Icon name={item.icon} size={20} color={theme.colors.primary} />
+                <MaterialCommunityIcons
+                  name={item.icon}
+                  size={20}
+                  color={theme.colors.primary}
+                />
               </View>
 
               <View style={styles.itemContent}>
@@ -341,7 +353,7 @@ const ProfileScreen = ({ navigation }: any) => {
                   thumbColor={theme.colors.background}
                 />
               ) : (
-                <Icon
+                <MaterialCommunityIcons
                   name="chevron-right"
                   size={20}
                   color={theme.colors.darkGray}
@@ -377,7 +389,11 @@ const ProfileScreen = ({ navigation }: any) => {
             <ActivityIndicator color={theme.colors.white} size="small" />
           ) : (
             <>
-              <Icon name="logout" size={18} color={theme.colors.white} />
+              <MaterialCommunityIcons
+                name="logout"
+                size={18}
+                color={theme.colors.white}
+              />
               <Text style={[styles.logoutText, { color: theme.colors.white }]}>
                 Logout
               </Text>

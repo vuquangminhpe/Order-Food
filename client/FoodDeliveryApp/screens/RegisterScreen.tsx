@@ -14,7 +14,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { showMessage } from "react-native-flash-message";
@@ -193,7 +193,7 @@ const RegisterScreen = ({ navigation }: any) => {
                   ]}
                   onPress={() => setAccountType(type.id)}
                 >
-                  <Icon
+                  <MaterialCommunityIcons
                     name={type.icon}
                     size={24}
                     color={
@@ -235,7 +235,11 @@ const RegisterScreen = ({ navigation }: any) => {
                     : { borderColor: theme.colors.border },
                 ]}
               >
-                <Icon name="account" size={20} color={theme.colors.darkGray} />
+                <MaterialCommunityIcons
+                  name="account"
+                  size={20}
+                  color={theme.colors.darkGray}
+                />
                 <TextInput
                   style={[styles.input, { color: theme.colors.text }]}
                   placeholder="Enter your full name"
@@ -266,7 +270,11 @@ const RegisterScreen = ({ navigation }: any) => {
                     : { borderColor: theme.colors.border },
                 ]}
               >
-                <Icon name="email" size={20} color={theme.colors.darkGray} />
+                <MaterialCommunityIcons
+                  name="email"
+                  size={20}
+                  color={theme.colors.darkGray}
+                />
                 <TextInput
                   style={[styles.input, { color: theme.colors.text }]}
                   placeholder="Enter your email"
@@ -298,7 +306,11 @@ const RegisterScreen = ({ navigation }: any) => {
                     : { borderColor: theme.colors.border },
                 ]}
               >
-                <Icon name="phone" size={20} color={theme.colors.darkGray} />
+                <MaterialCommunityIcons
+                  name="phone"
+                  size={20}
+                  color={theme.colors.darkGray}
+                />
                 <TextInput
                   style={[styles.input, { color: theme.colors.text }]}
                   placeholder="Enter your phone number"
@@ -329,7 +341,11 @@ const RegisterScreen = ({ navigation }: any) => {
                     : { borderColor: theme.colors.border },
                 ]}
               >
-                <Icon name="lock" size={20} color={theme.colors.darkGray} />
+                <MaterialCommunityIcons
+                  name="lock"
+                  size={20}
+                  color={theme.colors.darkGray}
+                />
                 <TextInput
                   style={[styles.input, { color: theme.colors.text }]}
                   placeholder="Enter your password"
@@ -343,7 +359,7 @@ const RegisterScreen = ({ navigation }: any) => {
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
                 >
-                  <Icon
+                  <MaterialCommunityIcons
                     name={showPassword ? "eye-off" : "eye"}
                     size={20}
                     color={theme.colors.darkGray}
@@ -370,7 +386,7 @@ const RegisterScreen = ({ navigation }: any) => {
                     : { borderColor: theme.colors.border },
                 ]}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="lock-check"
                   size={20}
                   color={theme.colors.darkGray}
@@ -388,7 +404,7 @@ const RegisterScreen = ({ navigation }: any) => {
                 <TouchableOpacity
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  <Icon
+                  <MaterialCommunityIcons
                     name={showConfirmPassword ? "eye-off" : "eye"}
                     size={20}
                     color={theme.colors.darkGray}

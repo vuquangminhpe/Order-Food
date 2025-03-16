@@ -14,7 +14,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { showMessage } from "react-native-flash-message";
@@ -163,7 +163,11 @@ const LoginScreen = ({ navigation, route }: any) => {
                     : { borderColor: theme.colors.border },
                 ]}
               >
-                <Icon name="email" size={20} color={theme.colors.darkGray} />
+                <MaterialCommunityIcons
+                  name="email"
+                  size={20}
+                  color={theme.colors.darkGray}
+                />
                 <TextInput
                   style={[styles.input, { color: theme.colors.text }]}
                   placeholder="Enter your email"
@@ -195,7 +199,11 @@ const LoginScreen = ({ navigation, route }: any) => {
                     : { borderColor: theme.colors.border },
                 ]}
               >
-                <Icon name="lock" size={20} color={theme.colors.darkGray} />
+                <MaterialCommunityIcons
+                  name="lock"
+                  size={20}
+                  color={theme.colors.darkGray}
+                />
                 <TextInput
                   style={[styles.input, { color: theme.colors.text }]}
                   placeholder="Enter your password"
@@ -209,7 +217,7 @@ const LoginScreen = ({ navigation, route }: any) => {
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
                 >
-                  <Icon
+                  <MaterialCommunityIcons
                     name={showPassword ? "eye-off" : "eye"}
                     size={20}
                     color={theme.colors.darkGray}
@@ -290,7 +298,11 @@ const LoginScreen = ({ navigation, route }: any) => {
                   { backgroundColor: theme.colors.gray },
                 ]}
               >
-                <Icon name="google" size={20} color="#DB4437" />
+                <MaterialCommunityIcons
+                  name="google"
+                  size={20}
+                  color="#DB4437"
+                />
                 <Text
                   style={[
                     styles.socialButtonText,
@@ -307,7 +319,11 @@ const LoginScreen = ({ navigation, route }: any) => {
                   { backgroundColor: theme.colors.gray },
                 ]}
               >
-                <Icon name="facebook" size={20} color="#4267B2" />
+                <MaterialCommunityIcons
+                  name="facebook"
+                  size={20}
+                  color="#4267B2"
+                />
                 <Text
                   style={[
                     styles.socialButtonText,

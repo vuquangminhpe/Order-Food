@@ -14,7 +14,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { launchImageLibrary } from "react-native-image-picker";
 import { useTheme } from "../contexts/ThemeContext";
 import { menuService } from "../api/menuService";
@@ -310,7 +310,7 @@ const AddEditMenuItemScreen = ({ route, navigation }: any) => {
                   { backgroundColor: theme.colors.gray },
                 ]}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="camera"
                   size={40}
                   color={theme.colors.placeholder}
@@ -331,7 +331,11 @@ const AddEditMenuItemScreen = ({ route, navigation }: any) => {
                 { backgroundColor: theme.colors.primary },
               ]}
             >
-              <Icon name="pencil" size={20} color={theme.colors.white} />
+              <MaterialCommunityIcons
+                name="pencil"
+                size={20}
+                color={theme.colors.white}
+              />
             </View>
           </TouchableOpacity>
 
@@ -550,7 +554,11 @@ const AddEditMenuItemScreen = ({ route, navigation }: any) => {
                   ]}
                   onPress={addOption}
                 >
-                  <Icon name="plus" size={16} color={theme.colors.white} />
+                  <MaterialCommunityIcons
+                    name="plus"
+                    size={16}
+                    color={theme.colors.white}
+                  />
                   <Text
                     style={[
                       styles.addButtonText,
@@ -620,7 +628,7 @@ const AddEditMenuItemScreen = ({ route, navigation }: any) => {
                           style={styles.deleteOptionButton}
                           onPress={() => deleteOption(index)}
                         >
-                          <Icon
+                          <MaterialCommunityIcons
                             name="delete"
                             size={20}
                             color={theme.colors.error}
@@ -772,7 +780,7 @@ const AddEditMenuItemScreen = ({ route, navigation }: any) => {
                                   deleteOptionItem(index as number, itemIndex)
                                 }
                               >
-                                <Icon
+                                <MaterialCommunityIcons
                                   name="close-circle"
                                   size={20}
                                   color={theme.colors.error}
@@ -789,7 +797,7 @@ const AddEditMenuItemScreen = ({ route, navigation }: any) => {
                           ]}
                           onPress={() => addOptionItem(index as number)}
                         >
-                          <Icon
+                          <MaterialCommunityIcons
                             name="plus"
                             size={16}
                             color={theme.colors.primary}

@@ -10,7 +10,7 @@ import {
   SafeAreaView,
   FlatList,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { orderService } from "../api/orderService";
@@ -379,7 +379,11 @@ const DeliveryEarningsScreen = ({ navigation }: any) => {
                       { backgroundColor: theme.colors.primary + "20" },
                     ]}
                   >
-                    <Icon name="cash" size={24} color={theme.colors.primary} />
+                    <MaterialCommunityIcons
+                      name="cash"
+                      size={24}
+                      color={theme.colors.primary}
+                    />
                   </View>
                 </View>
 
@@ -413,7 +417,7 @@ const DeliveryEarningsScreen = ({ navigation }: any) => {
                       { backgroundColor: theme.colors.warning + "20" },
                     ]}
                   >
-                    <Icon
+                    <MaterialCommunityIcons
                       name="clock-outline"
                       size={24}
                       color={theme.colors.warning}
@@ -476,7 +480,11 @@ const DeliveryEarningsScreen = ({ navigation }: any) => {
                 ]}
                 onPress={() => {}}
               >
-                <Icon name="credit-card" size={20} color={theme.colors.white} />
+                <MaterialCommunityIcons
+                  name="credit-card"
+                  size={20}
+                  color={theme.colors.white}
+                />
                 <Text
                   style={[
                     styles.paymentMethodText,
@@ -501,7 +509,11 @@ const DeliveryEarningsScreen = ({ navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

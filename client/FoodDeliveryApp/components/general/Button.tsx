@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   View,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const Button = ({
@@ -132,7 +132,7 @@ const Button = ({
     return (
       <>
         {icon && iconPosition === "left" && (
-          <Icon
+          <MaterialCommunityIcons
             name={icon}
             size={iconDimension}
             color={iconColor}
@@ -141,7 +141,7 @@ const Button = ({
         )}
         <Text style={textStyles}>{title}</Text>
         {icon && iconPosition === "right" && (
-          <Icon
+          <MaterialCommunityIcons
             name={icon}
             size={iconDimension}
             color={iconColor}

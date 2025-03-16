@@ -13,7 +13,7 @@ import {
   Alert,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { launchImageLibrary } from "react-native-image-picker";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -169,7 +169,7 @@ const EditProfileScreen = ({ navigation }: any) => {
               <View
                 style={[styles.avatar, { backgroundColor: theme.colors.gray }]}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="account"
                   size={40}
                   color={theme.colors.placeholder}
@@ -184,7 +184,11 @@ const EditProfileScreen = ({ navigation }: any) => {
               ]}
               onPress={handleSelectImage}
             >
-              <Icon name="camera" size={16} color={theme.colors.white} />
+              <MaterialCommunityIcons
+                name="camera"
+                size={16}
+                color={theme.colors.white}
+              />
             </TouchableOpacity>
           </View>
 
@@ -226,7 +230,7 @@ const EditProfileScreen = ({ navigation }: any) => {
                   { backgroundColor: "rgba(255, 0, 0, 0.1)" },
                 ]}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="alert-circle"
                   size={20}
                   color={theme.colors.error}

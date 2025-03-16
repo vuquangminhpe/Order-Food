@@ -56,6 +56,27 @@ export const paymentService = {
     }
   },
 
+  // VNPay IPN (Instant Payment Notification) webhook
+  async handlePaymentNotification(
+    queryParams:
+      | string
+      | string[][]
+      | Record<string, string>
+      | URLSearchParams
+      | undefined
+  ) {
+    try {
+      const queryString = new URLSearchParams(queryParams).toString();
+      const response = await apiService.get(
+        `/payments/vnpay-ipn?${queryString}`
+      );
+      return response;
+    } catch (error) {
+      console.error("Process payment notification error:", error);
+      throw error;
+    }
+  },
+
   // Request refund
   async requestRefund(refundData: { orderId: any; amount: any; reason: any }) {
     try {

@@ -15,7 +15,7 @@ import {
   SectionList,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import LinearGradient from "react-native-linear-gradient";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -293,7 +293,7 @@ const RestaurantScreen = ({ route, navigation }: any) => {
             style={[styles.infoButton, { backgroundColor: theme.colors.gray }]}
             onPress={toggleFavorite}
           >
-            <Icon
+            <MaterialCommunityIcons
               name={isFavorite ? "heart" : "heart-outline"}
               size={20}
               color={isFavorite ? theme.colors.primary : theme.colors.text}
@@ -304,14 +304,22 @@ const RestaurantScreen = ({ route, navigation }: any) => {
             style={[styles.infoButton, { backgroundColor: theme.colors.gray }]}
             onPress={shareRestaurant}
           >
-            <Icon name="share-variant" size={20} color={theme.colors.text} />
+            <MaterialCommunityIcons
+              name="share-variant"
+              size={20}
+              color={theme.colors.text}
+            />
           </TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.detailsRow}>
         <View style={styles.detailItem}>
-          <Icon name="clock-outline" size={16} color={theme.colors.darkGray} />
+          <MaterialCommunityIcons
+            name="clock-outline"
+            size={16}
+            color={theme.colors.darkGray}
+          />
           <Text style={[styles.detailText, { color: theme.colors.text }]}>
             {restaurantIsOpen() ? "Open Now" : "Closed"}
             <Text style={{ color: theme.colors.darkGray }}>
@@ -322,7 +330,7 @@ const RestaurantScreen = ({ route, navigation }: any) => {
         </View>
 
         <View style={styles.detailItem}>
-          <Icon
+          <MaterialCommunityIcons
             name="map-marker-outline"
             size={16}
             color={theme.colors.darkGray}
@@ -336,21 +344,33 @@ const RestaurantScreen = ({ route, navigation }: any) => {
         </View>
 
         <View style={styles.detailItem}>
-          <Icon name="cash" size={16} color={theme.colors.darkGray} />
+          <MaterialCommunityIcons
+            name="cash"
+            size={16}
+            color={theme.colors.darkGray}
+          />
           <Text style={[styles.detailText, { color: theme.colors.text }]}>
             ${(restaurant as any).minOrderAmount || 0} minimum
           </Text>
         </View>
 
         <View style={styles.detailItem}>
-          <Icon name="bike" size={16} color={theme.colors.darkGray} />
+          <MaterialCommunityIcons
+            name="bike"
+            size={16}
+            color={theme.colors.darkGray}
+          />
           <Text style={[styles.detailText, { color: theme.colors.text }]}>
             ${(restaurant as any).deliveryFee || 0} delivery
           </Text>
         </View>
 
         <View style={styles.detailItem}>
-          <Icon name="clock-fast" size={16} color={theme.colors.darkGray} />
+          <MaterialCommunityIcons
+            name="clock-fast"
+            size={16}
+            color={theme.colors.darkGray}
+          />
           <Text style={[styles.detailText, { color: theme.colors.text }]}>
             {(restaurant as any).estimatedDeliveryTime || 30}-
             {((restaurant as any).estimatedDeliveryTime || 30) + 10} min
@@ -508,7 +528,11 @@ const RestaurantScreen = ({ route, navigation }: any) => {
           { backgroundColor: theme.colors.background },
         ]}
       >
-        <Icon name="alert-circle" size={60} color={theme.colors.error} />
+        <MaterialCommunityIcons
+          name="alert-circle"
+          size={60}
+          color={theme.colors.error}
+        />
         <Text style={[styles.errorText, { color: theme.colors.error }]}>
           {error}
         </Text>
@@ -582,7 +606,11 @@ const RestaurantScreen = ({ route, navigation }: any) => {
         ]}
         onPress={() => navigation.goBack()}
       >
-        <Icon name="arrow-left" size={24} color={theme.colors.text} />
+        <MaterialCommunityIcons
+          name="arrow-left"
+          size={24}
+          color={theme.colors.text}
+        />
       </TouchableOpacity>
 
       {/* Main Scroll View */}
@@ -620,7 +648,11 @@ const RestaurantScreen = ({ route, navigation }: any) => {
         title="Your Cart"
         content={
           <View style={styles.cartDrawerContent}>
-            <Icon name="cart-alert" size={50} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="cart-alert"
+              size={50}
+              color={theme.colors.primary}
+            />
             <Text
               style={[styles.cartDrawerTitle, { color: theme.colors.text }]}
             >

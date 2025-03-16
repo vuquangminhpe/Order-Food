@@ -1,6 +1,6 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const CategoryCard = ({ title, icon, isActive = false, onPress }: any) => {
@@ -28,7 +28,7 @@ const CategoryCard = ({ title, icon, isActive = false, onPress }: any) => {
           },
         ]}
       >
-        <Icon name={icon} size={24} color={iconColor} />
+        <MaterialCommunityIcons name={icon} size={24} color={iconColor} />
       </View>
 
       <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>

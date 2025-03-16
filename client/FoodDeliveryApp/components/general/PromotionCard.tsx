@@ -10,7 +10,7 @@ import {
   Alert,
   Clipboard,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 import LinearGradient from "react-native-linear-gradient";
 
@@ -92,7 +92,7 @@ const PromotionCard = ({ title, description, image, code, onPress }: any) => {
                 >
                   {code}
                 </Text>
-                <Icon
+                <MaterialCommunityIcons
                   name={copied ? "check" : "content-copy"}
                   size={16}
                   color={copied ? theme.colors.success : theme.colors.primary}

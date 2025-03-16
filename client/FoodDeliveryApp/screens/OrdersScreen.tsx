@@ -12,7 +12,7 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { orderService, OrderStatus } from "../api/orderService";
@@ -382,7 +382,11 @@ const OrdersScreen = ({ navigation }: any) => {
 
         <View style={styles.orderContent}>
           <View style={styles.customerInfo}>
-            <Icon name="account" size={16} color={theme.colors.darkGray} />
+            <MaterialCommunityIcons
+              name="account"
+              size={16}
+              color={theme.colors.darkGray}
+            />
             <Text style={[styles.customerName, { color: theme.colors.text }]}>
               {item.customer?.name || "Customer"}
             </Text>
@@ -456,7 +460,7 @@ const OrdersScreen = ({ navigation }: any) => {
   // Render empty state
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Icon
+      <MaterialCommunityIcons
         name="receipt-text-outline"
         size={60}
         color={theme.colors.placeholder}
@@ -519,7 +523,11 @@ const OrdersScreen = ({ navigation }: any) => {
           <View
             style={[styles.searchBar, { backgroundColor: theme.colors.gray }]}
           >
-            <Icon name="magnify" size={20} color={theme.colors.placeholder} />
+            <MaterialCommunityIcons
+              name="magnify"
+              size={20}
+              color={theme.colors.placeholder}
+            />
             <TextInput
               style={[styles.searchInput, { color: theme.colors.text }]}
               placeholder="Search by order #, customer name"
@@ -529,7 +537,7 @@ const OrdersScreen = ({ navigation }: any) => {
             />
             {searchText.length > 0 && (
               <TouchableOpacity onPress={() => setSearchText("")}>
-                <Icon
+                <MaterialCommunityIcons
                   name="close-circle"
                   size={20}
                   color={theme.colors.darkGray}
@@ -585,7 +593,11 @@ const OrdersScreen = ({ navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

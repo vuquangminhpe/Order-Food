@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 import moment from "moment";
 
@@ -109,7 +109,7 @@ const OrderStatusTimeline = ({
                     },
                   ]}
                 >
-                  <Icon
+                  <MaterialCommunityIcons
                     name={step.icon}
                     size={16}
                     color={
@@ -194,7 +194,11 @@ const OrderStatusTimeline = ({
             { backgroundColor: `${theme.colors.error}15` },
           ]}
         >
-          <Icon name="close-circle" size={20} color={theme.colors.error} />
+          <MaterialCommunityIcons
+            name="close-circle"
+            size={20}
+            color={theme.colors.error}
+          />
           <Text style={[styles.cancelledText, { color: theme.colors.error }]}>
             {currentStatus === OrderStatus.Cancelled
               ? "Order Cancelled"

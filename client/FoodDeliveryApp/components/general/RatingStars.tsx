@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const RatingStars = ({
@@ -25,7 +25,7 @@ const RatingStars = ({
     if (i <= roundedRating) {
       // Full star
       stars.push(
-        <Icon
+        <MaterialCommunityIcons
           key={i}
           name="star"
           size={size}
@@ -39,7 +39,7 @@ const RatingStars = ({
     ) {
       // Half star
       stars.push(
-        <Icon
+        <MaterialCommunityIcons
           key={i}
           name="star-half-full"
           size={size}
@@ -50,7 +50,7 @@ const RatingStars = ({
     } else {
       // Empty star
       stars.push(
-        <Icon
+        <MaterialCommunityIcons
           key={i}
           name="star-outline"
           size={size}

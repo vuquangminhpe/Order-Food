@@ -11,7 +11,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLocation } from "../contexts/LocationContext";
 import { orderService, OrderStatus } from "../api/orderService";
@@ -410,7 +410,11 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                           { backgroundColor: theme.colors.secondary },
                         ]}
                       >
-                        <Icon name="store" size={16} color="#FFF" />
+                        <MaterialCommunityIcons
+                          name="store"
+                          size={16}
+                          color="#FFF"
+                        />
                       </View>
                     </Marker>
                   )
@@ -436,7 +440,11 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                           { backgroundColor: theme.colors.primary },
                         ]}
                       >
-                        <Icon name="map-marker" size={16} color="#FFF" />
+                        <MaterialCommunityIcons
+                          name="map-marker"
+                          size={16}
+                          color="#FFF"
+                        />
                       </View>
                     </Marker>
                   )
@@ -458,7 +466,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                 { backgroundColor: theme.colors.gray },
               ]}
             >
-              <Icon
+              <MaterialCommunityIcons
                 name="map-marker-off"
                 size={40}
                 color={theme.colors.darkGray}
@@ -477,7 +485,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
               style={[styles.mapButton, { backgroundColor: theme.colors.card }]}
               onPress={handleRecenterMap}
             >
-              <Icon
+              <MaterialCommunityIcons
                 name="crosshairs-gps"
                 size={22}
                 color={theme.colors.primary}
@@ -488,7 +496,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
               style={[styles.mapButton, { backgroundColor: theme.colors.card }]}
               onPress={fitMapToMarkers}
             >
-              <Icon
+              <MaterialCommunityIcons
                 name="fit-to-page-outline"
                 size={22}
                 color={theme.colors.primary}
@@ -534,7 +542,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                 OrderStatus.ReadyForPickup ? (
                   // Show restaurant details for pickup
                   <View style={styles.locationItem}>
-                    <Icon
+                    <MaterialCommunityIcons
                       name="store"
                       size={20}
                       color={theme.colors.secondary}
@@ -561,7 +569,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                 ) : (
                   // Show customer details for delivery
                   <View style={styles.locationItem}>
-                    <Icon
+                    <MaterialCommunityIcons
                       name="map-marker"
                       size={20}
                       color={theme.colors.primary}
@@ -716,7 +724,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                 </View>
               ) : (
                 <View style={styles.emptyOrdersContainer}>
-                  <Icon
+                  <MaterialCommunityIcons
                     name="moped"
                     size={40}
                     color={theme.colors.placeholder}
@@ -743,7 +751,11 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

@@ -17,7 +17,7 @@ import MapView, {
   PROVIDER_GOOGLE,
   AnimatedRegion,
 } from "react-native-maps";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLocation } from "../contexts/LocationContext";
 import { userService } from "../api/userService";
@@ -322,7 +322,7 @@ const EditAddressScreen = ({ route, navigation }: any) => {
                   }
                 }}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="crosshairs-gps"
                   size={24}
                   color={theme.colors.white}
@@ -335,7 +335,7 @@ const EditAddressScreen = ({ route, navigation }: any) => {
                   { backgroundColor: theme.colors.card },
                 ]}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="gesture-tap-drag"
                   size={20}
                   color={theme.colors.darkGray}
@@ -462,7 +462,7 @@ const EditAddressScreen = ({ route, navigation }: any) => {
                         ]}
                       >
                         {value && (
-                          <Icon
+                          <MaterialCommunityIcons
                             name="check"
                             size={16}
                             color={theme.colors.white}

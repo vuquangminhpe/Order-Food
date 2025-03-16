@@ -14,7 +14,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { restaurantService } from "../api/restaurantService";
@@ -558,7 +558,7 @@ const EditRestaurantProfileScreen = ({ navigation }: any) => {
                   { backgroundColor: theme.colors.gray },
                 ]}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="image-off"
                   size={40}
                   color={theme.colors.placeholder}
@@ -599,7 +599,7 @@ const EditRestaurantProfileScreen = ({ navigation }: any) => {
                   { backgroundColor: theme.colors.gray },
                 ]}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="image-off"
                   size={40}
                   color={theme.colors.placeholder}
@@ -641,7 +641,11 @@ const EditRestaurantProfileScreen = ({ navigation }: any) => {
                   ]}
                   onPress={() => removeGalleryImage(index)}
                 >
-                  <Icon name="close" size={16} color={theme.colors.white} />
+                  <MaterialCommunityIcons
+                    name="close"
+                    size={16}
+                    color={theme.colors.white}
+                  />
                 </TouchableOpacity>
               </View>
             ))}
@@ -653,7 +657,11 @@ const EditRestaurantProfileScreen = ({ navigation }: any) => {
                 ]}
                 onPress={handleSelectGalleryImages}
               >
-                <Icon name="plus" size={30} color={theme.colors.primary} />
+                <MaterialCommunityIcons
+                  name="plus"
+                  size={30}
+                  color={theme.colors.primary}
+                />
               </TouchableOpacity>
             )}
           </View>
@@ -956,7 +964,7 @@ const EditRestaurantProfileScreen = ({ navigation }: any) => {
                     { backgroundColor: "rgba(255, 0, 0, 0.1)" },
                   ]}
                 >
-                  <Icon
+                  <MaterialCommunityIcons
                     name="alert-circle"
                     size={20}
                     color={theme.colors.error}

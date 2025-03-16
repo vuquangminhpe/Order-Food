@@ -108,8 +108,12 @@ export const menuService = {
       const match = /\.(\w+)$/.exec(filename);
       const type = match ? `image/${match[1]}` : "image/jpeg";
 
-      const file = new File([imageUri], filename, { type });
-      formData.append("image", file);
+      // @ts-ignore - React Native's FormData implementation differs from standard
+      formData.append("image", {
+        uri: imageUri,
+        name: filename,
+        type,
+      });
 
       const response = await apiService.upload(
         `/menu/item/${itemId}/image`,

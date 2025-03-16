@@ -11,7 +11,7 @@ import {
   SafeAreaView,
   Alert,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocation } from "../contexts/LocationContext";
@@ -158,7 +158,11 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
     <View style={styles.statsContainer}>
       <View style={[styles.statsCard, { backgroundColor: theme.colors.card }]}>
         <View style={styles.statsHeader}>
-          <Icon name="bike-fast" size={20} color={theme.colors.primary} />
+          <MaterialCommunityIcons
+            name="bike-fast"
+            size={20}
+            color={theme.colors.primary}
+          />
           <Text style={[styles.statsTitle, { color: theme.colors.text }]}>
             Today's Deliveries
           </Text>
@@ -170,7 +174,11 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
 
       <View style={[styles.statsCard, { backgroundColor: theme.colors.card }]}>
         <View style={styles.statsHeader}>
-          <Icon name="cash" size={20} color={theme.colors.success} />
+          <MaterialCommunityIcons
+            name="cash"
+            size={20}
+            color={theme.colors.success}
+          />
           <Text style={[styles.statsTitle, { color: theme.colors.text }]}>
             Weekly Earnings
           </Text>
@@ -182,7 +190,11 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
 
       <View style={[styles.statsCard, { backgroundColor: theme.colors.card }]}>
         <View style={styles.statsHeader}>
-          <Icon name="star" size={20} color={theme.colors.warning} />
+          <MaterialCommunityIcons
+            name="star"
+            size={20}
+            color={theme.colors.warning}
+          />
           <Text style={[styles.statsTitle, { color: theme.colors.text }]}>
             Rating
           </Text>
@@ -194,7 +206,11 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
 
       <View style={[styles.statsCard, { backgroundColor: theme.colors.card }]}>
         <View style={styles.statsHeader}>
-          <Icon name="check-circle" size={20} color={theme.colors.info} />
+          <MaterialCommunityIcons
+            name="check-circle"
+            size={20}
+            color={theme.colors.info}
+          />
           <Text style={[styles.statsTitle, { color: theme.colors.text }]}>
             Acceptance Rate
           </Text>
@@ -244,7 +260,11 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
                     { backgroundColor: theme.colors.primary },
                   ]}
                 >
-                  <Icon name="camera" size={14} color={theme.colors.white} />
+                  <MaterialCommunityIcons
+                    name="camera"
+                    size={14}
+                    color={theme.colors.white}
+                  />
                 </View>
               </>
             )}
@@ -287,7 +307,11 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
             ]}
             onPress={navigateToEditProfile}
           >
-            <Icon name="account-edit" size={16} color={theme.colors.white} />
+            <MaterialCommunityIcons
+              name="account-edit"
+              size={16}
+              color={theme.colors.white}
+            />
             <Text
               style={[styles.editButtonText, { color: theme.colors.white }]}
             >
@@ -313,7 +337,11 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
             ]}
           >
             <View style={styles.settingInfo}>
-              <Icon name="power" size={22} color={theme.colors.primary} />
+              <MaterialCommunityIcons
+                name="power"
+                size={22}
+                color={theme.colors.primary}
+              />
               <Text style={[styles.settingTitle, { color: theme.colors.text }]}>
                 {isOnline ? "Go Offline" : "Go Online"}
               </Text>
@@ -337,7 +365,11 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
             ]}
           >
             <View style={styles.settingInfo}>
-              <Icon name="bell" size={22} color={theme.colors.primary} />
+              <MaterialCommunityIcons
+                name="bell"
+                size={22}
+                color={theme.colors.primary}
+              />
               <View>
                 <Text
                   style={[styles.settingTitle, { color: theme.colors.text }]}
@@ -378,12 +410,16 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
             ]}
           >
             <View style={styles.settingInfo}>
-              <Icon name="motorbike" size={22} color={theme.colors.primary} />
+              <MaterialCommunityIcons
+                name="motorbike"
+                size={22}
+                color={theme.colors.primary}
+              />
               <Text style={[styles.settingTitle, { color: theme.colors.text }]}>
                 Vehicle Information
               </Text>
             </View>
-            <Icon
+            <MaterialCommunityIcons
               name="chevron-right"
               size={22}
               color={theme.colors.darkGray}
@@ -398,7 +434,7 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
             ]}
           >
             <View style={styles.settingInfo}>
-              <Icon
+              <MaterialCommunityIcons
                 name="theme-light-dark"
                 size={22}
                 color={theme.colors.primary}
@@ -427,7 +463,7 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
             onPress={() => navigation.navigate("Notifications")}
           >
             <View style={styles.settingInfo}>
-              <Icon
+              <MaterialCommunityIcons
                 name="bell-outline"
                 size={22}
                 color={theme.colors.primary}
@@ -436,7 +472,7 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
                 Notifications
               </Text>
             </View>
-            <Icon
+            <MaterialCommunityIcons
               name="chevron-right"
               size={22}
               color={theme.colors.darkGray}
@@ -451,7 +487,7 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
             ]}
           >
             <View style={styles.settingInfo}>
-              <Icon
+              <MaterialCommunityIcons
                 name="help-circle-outline"
                 size={22}
                 color={theme.colors.primary}
@@ -460,7 +496,7 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
                 Support
               </Text>
             </View>
-            <Icon
+            <MaterialCommunityIcons
               name="chevron-right"
               size={22}
               color={theme.colors.darkGray}
@@ -475,7 +511,7 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
             ]}
           >
             <View style={styles.settingInfo}>
-              <Icon
+              <MaterialCommunityIcons
                 name="information-outline"
                 size={22}
                 color={theme.colors.primary}
@@ -484,7 +520,7 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
                 About
               </Text>
             </View>
-            <Icon
+            <MaterialCommunityIcons
               name="chevron-right"
               size={22}
               color={theme.colors.darkGray}
@@ -502,7 +538,11 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
             <ActivityIndicator color={theme.colors.white} size="small" />
           ) : (
             <>
-              <Icon name="logout" size={18} color={theme.colors.white} />
+              <MaterialCommunityIcons
+                name="logout"
+                size={18}
+                color={theme.colors.white}
+              />
               <Text style={[styles.logoutText, { color: theme.colors.white }]}>
                 Logout
               </Text>

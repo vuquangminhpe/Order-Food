@@ -2,7 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 
 // Import delivery person screens
@@ -229,7 +229,7 @@ const DeliveryPersonTabNavigator = () => {
         component={HomeStack}
         options={({ route }) => ({
           tabBarIcon: ({ color, size }) => (
-            <Icon name="home" color={color} size={size} />
+            <MaterialCommunityIcons name="home" color={color} size={size} />
           ),
           tabBarStyle: {
             display: getTabBarVisibility(route) ? "flex" : "none",
@@ -245,7 +245,7 @@ const DeliveryPersonTabNavigator = () => {
         component={MapStack}
         options={({ route }) => ({
           tabBarIcon: ({ color, size }) => (
-            <Icon name="map" color={color} size={size} />
+            <MaterialCommunityIcons name="map" color={color} size={size} />
           ),
           tabBarStyle: {
             display: getTabBarVisibility(route) ? "flex" : "none",
@@ -261,7 +261,7 @@ const DeliveryPersonTabNavigator = () => {
         component={HistoryStack}
         options={({ route }) => ({
           tabBarIcon: ({ color, size }) => (
-            <Icon name="history" color={color} size={size} />
+            <MaterialCommunityIcons name="history" color={color} size={size} />
           ),
           tabBarStyle: {
             display: getTabBarVisibility(route) ? "flex" : "none",
@@ -277,7 +277,7 @@ const DeliveryPersonTabNavigator = () => {
         component={EarningsStack}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Icon name="cash" color={color} size={size} />
+            <MaterialCommunityIcons name="cash" color={color} size={size} />
           ),
         }}
       />
@@ -286,7 +286,7 @@ const DeliveryPersonTabNavigator = () => {
         component={ProfileStack}
         options={({ route }) => ({
           tabBarIcon: ({ color, size }) => (
-            <Icon name="account" color={color} size={size} />
+            <MaterialCommunityIcons name="account" color={color} size={size} />
           ),
           tabBarStyle: {
             display: getTabBarVisibility(route) ? "flex" : "none",

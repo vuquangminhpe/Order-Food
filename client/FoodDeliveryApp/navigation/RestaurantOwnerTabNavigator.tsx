@@ -2,7 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 
 // Import restaurant owner screens
@@ -237,7 +237,11 @@ const RestaurantOwnerTabNavigator = () => {
         component={DashboardStack}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Icon name="view-dashboard" color={color} size={size} />
+            <MaterialCommunityIcons
+              name="view-dashboard"
+              color={color}
+              size={size}
+            />
           ),
         }}
       />
@@ -246,7 +250,11 @@ const RestaurantOwnerTabNavigator = () => {
         component={MenuStack}
         options={({ route }) => ({
           tabBarIcon: ({ color, size }) => (
-            <Icon name="food-variant" color={color} size={size} />
+            <MaterialCommunityIcons
+              name="food-variant"
+              color={color}
+              size={size}
+            />
           ),
           tabBarStyle: {
             display: getTabBarVisibility(route) ? "flex" : "none",
@@ -262,7 +270,7 @@ const RestaurantOwnerTabNavigator = () => {
         component={OrdersStack}
         options={({ route }) => ({
           tabBarIcon: ({ color, size }) => (
-            <Icon name="receipt" color={color} size={size} />
+            <MaterialCommunityIcons name="receipt" color={color} size={size} />
           ),
           tabBarStyle: {
             display: getTabBarVisibility(route) ? "flex" : "none",
@@ -278,7 +286,11 @@ const RestaurantOwnerTabNavigator = () => {
         component={AnalyticsStack}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Icon name="chart-bar" color={color} size={size} />
+            <MaterialCommunityIcons
+              name="chart-bar"
+              color={color}
+              size={size}
+            />
           ),
         }}
       />
@@ -288,7 +300,7 @@ const RestaurantOwnerTabNavigator = () => {
         options={({ route }) => ({
           tabBarLabel: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <Icon name="store" color={color} size={size} />
+            <MaterialCommunityIcons name="store" color={color} size={size} />
           ),
           tabBarStyle: {
             display: getTabBarVisibility(route) ? "flex" : "none",

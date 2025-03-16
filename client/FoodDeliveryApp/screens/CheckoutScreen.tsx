@@ -12,7 +12,7 @@ import {
   Platform,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -166,7 +166,11 @@ const CheckoutScreen = ({ navigation }: any) => {
           ]}
           onPress={handleAddressSelect}
         >
-          <Icon name="plus" size={24} color={theme.colors.primary} />
+          <MaterialCommunityIcons
+            name="plus"
+            size={24}
+            color={theme.colors.primary}
+          />
           <Text
             style={[styles.addAddressText, { color: theme.colors.primary }]}
           >
@@ -312,7 +316,7 @@ const CheckoutScreen = ({ navigation }: any) => {
                   { backgroundColor: "rgba(255, 0, 0, 0.1)" },
                 ]}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="alert-circle"
                   size={20}
                   color={theme.colors.error}

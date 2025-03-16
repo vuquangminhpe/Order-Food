@@ -11,7 +11,7 @@ import {
   TextInput,
   ScrollView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { orderService, OrderStatus } from "../api/orderService";
@@ -237,19 +237,27 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
 
         <View style={styles.locationInfo}>
           <View style={styles.locationRow}>
-            <Icon name="store" size={16} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="store"
+              size={16}
+              color={theme.colors.primary}
+            />
             <Text style={[styles.locationText, { color: theme.colors.text }]}>
               {item.restaurant?.name || "Restaurant"}
             </Text>
           </View>
-          <Icon
+          <MaterialCommunityIcons
             name="arrow-down"
             size={16}
             color={theme.colors.darkGray}
             style={styles.arrowIcon}
           />
           <View style={styles.locationRow}>
-            <Icon name="map-marker" size={16} color={theme.colors.secondary} />
+            <MaterialCommunityIcons
+              name="map-marker"
+              size={16}
+              color={theme.colors.secondary}
+            />
             <Text style={[styles.locationText, { color: theme.colors.text }]}>
               {item.customer?.address || "Customer Address"}
             </Text>
@@ -309,7 +317,11 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
             >
               Details
             </Text>
-            <Icon name="chevron-right" size={14} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={14}
+              color={theme.colors.primary}
+            />
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -319,7 +331,11 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
   // Render empty state
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Icon name="history" size={60} color={theme.colors.placeholder} />
+      <MaterialCommunityIcons
+        name="history"
+        size={60}
+        color={theme.colors.placeholder}
+      />
       <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
         No delivery history
       </Text>
@@ -382,7 +398,11 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
           <View
             style={[styles.searchBar, { backgroundColor: theme.colors.gray }]}
           >
-            <Icon name="magnify" size={20} color={theme.colors.placeholder} />
+            <MaterialCommunityIcons
+              name="magnify"
+              size={20}
+              color={theme.colors.placeholder}
+            />
             <TextInput
               style={[styles.searchInput, { color: theme.colors.text }]}
               placeholder="Search orders, restaurants..."
@@ -392,7 +412,7 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
             />
             {searchText.length > 0 && (
               <TouchableOpacity onPress={() => setSearchText("")}>
-                <Icon
+                <MaterialCommunityIcons
                   name="close-circle"
                   size={20}
                   color={theme.colors.darkGray}
@@ -448,7 +468,11 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

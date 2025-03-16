@@ -44,7 +44,7 @@ export const authService = {
   },
 
   // Logout (invalidate refresh token)
-  async logout(refreshToken: never) {
+  async logout(refreshToken: string) {
     try {
       const response = await apiService.post("/auth/logout", {
         refresh_token: refreshToken,
@@ -123,7 +123,7 @@ export const authService = {
   },
 
   // Update user profile
-  async updateProfile(profileData: null | undefined) {
+  async updateProfile(profileData: any) {
     try {
       const response = await apiService.put("/users/profile", profileData);
       return response.result;
@@ -160,8 +160,12 @@ export const authService = {
       const match = /\.(\w+)$/.exec(filename as any);
       const type = match ? `image/${match[1]}` : "image/jpeg";
 
-      const avatarBlob = await fetch(imageUri).then((res) => res.blob());
-      formData.append("avatar", avatarBlob, filename);
+      // @ts-ignore - React Native's FormData implementation differs from standard
+      formData.append("avatar", {
+        uri: imageUri,
+        name: filename,
+        type,
+      });
 
       const response = await apiService.upload("/users/avatar", formData);
       return response.result;
@@ -171,16 +175,7 @@ export const authService = {
     }
   },
 
-  // Check if access token is valid
-  async validateToken(token: any) {
-    try {
-      const response = await apiService.get("/auth/validate-token");
-      return response.valid;
-    } catch (error) {
-      console.error("Validate token error:", error);
-      return false;
-    }
-  },
+  // Xóa phương thức validateToken vì không tồn tại trong server routes
 };
 
 export default authService;

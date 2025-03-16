@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const AddressCard = ({
@@ -50,7 +50,7 @@ const AddressCard = ({
         <View
           style={[styles.iconCircle, { backgroundColor: theme.colors.gray }]}
         >
-          <Icon
+          <MaterialCommunityIcons
             name="map-marker"
             size={20}
             color={selected ? theme.colors.primary : theme.colors.text}
@@ -89,7 +89,7 @@ const AddressCard = ({
       {(showEditButton || showDeleteButton) && (
         <View style={styles.actionsContainer}>
           {selected && (
-            <Icon
+            <MaterialCommunityIcons
               name="check-circle"
               size={24}
               color={theme.colors.primary}
@@ -105,7 +105,11 @@ const AddressCard = ({
               ]}
               onPress={handleEdit}
             >
-              <Icon name="pencil" size={18} color={theme.colors.text} />
+              <MaterialCommunityIcons
+                name="pencil"
+                size={18}
+                color={theme.colors.text}
+              />
             </TouchableOpacity>
           )}
 
@@ -117,7 +121,11 @@ const AddressCard = ({
               ]}
               onPress={handleDelete}
             >
-              <Icon name="delete" size={18} color={theme.colors.error} />
+              <MaterialCommunityIcons
+                name="delete"
+                size={18}
+                color={theme.colors.error}
+              />
             </TouchableOpacity>
           )}
         </View>

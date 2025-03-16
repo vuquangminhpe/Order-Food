@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const EmptyState = ({
@@ -15,7 +15,11 @@ const EmptyState = ({
 
   return (
     <View style={styles.container}>
-      <Icon name={icon} size={iconSize} color={theme.colors.darkGray} />
+      <MaterialCommunityIcons
+        name={icon}
+        size={iconSize}
+        color={theme.colors.darkGray}
+      />
 
       <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>
 

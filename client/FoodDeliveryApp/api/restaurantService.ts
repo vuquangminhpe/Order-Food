@@ -187,24 +187,24 @@ export const restaurantService = {
   async updateRestaurant(
     id: any,
     updateData: {
-      name: string;
-      description: string;
-      address: string;
-      phone: string;
-      email: string;
-      deliveryFee: number;
-      minOrderAmount: number;
-      preparationTime: number;
-      active: boolean;
-      categories: never[];
-      openingHours: {
-        monday: { open: string; close: string; isOpen: boolean };
-        tuesday: { open: string; close: string; isOpen: boolean };
-        wednesday: { open: string; close: string; isOpen: boolean };
-        thursday: { open: string; close: string; isOpen: boolean };
-        friday: { open: string; close: string; isOpen: boolean };
-        saturday: { open: string; close: string; isOpen: boolean };
-        sunday: { open: string; close: string; isOpen: boolean };
+      name?: string;
+      description?: string;
+      address?: string;
+      phone?: string;
+      email?: string;
+      deliveryFee?: number;
+      minOrderAmount?: number;
+      preparationTime?: number;
+      active?: boolean;
+      categories?: any[];
+      openingHours?: {
+        monday?: { open: string; close: string; isOpen: boolean };
+        tuesday?: { open: string; close: string; isOpen: boolean };
+        wednesday?: { open: string; close: string; isOpen: boolean };
+        thursday?: { open: string; close: string; isOpen: boolean };
+        friday?: { open: string; close: string; isOpen: boolean };
+        saturday?: { open: string; close: string; isOpen: boolean };
+        sunday?: { open: string; close: string; isOpen: boolean };
       };
     }
   ) {
@@ -231,8 +231,8 @@ export const restaurantService = {
   // For restaurant owners: Upload restaurant images
   async uploadRestaurantImages(
     id: any,
-    imageType: string | Blob,
-    imageUris: any[]
+    imageType: string,
+    imageUris: string[]
   ) {
     try {
       const formData = new FormData();
@@ -240,17 +240,20 @@ export const restaurantService = {
       formData.append("imageType", imageType); // 'logo', 'cover', or 'gallery'
 
       // Append each image to the form data
-      imageUris.forEach(async (uri: string, index: any) => {
+      imageUris.forEach((uri, index) => {
         // Parse filename from URI
         const filename = uri.split("/").pop();
 
         // Determine MIME type
-        const match = /\.(\w+)$/.exec(filename as any);
+        const match = /\.(\w+)$/.exec(filename as string);
         const type = match ? `image/${match[1]}` : "image/jpeg";
 
-        const response = await fetch(uri);
-        const blob = await response.blob();
-        formData.append("images", blob, filename);
+        // @ts-ignore - React Native's FormData implementation differs from standard
+        formData.append("images", {
+          uri,
+          name: filename,
+          type,
+        });
       });
 
       const response = await apiService.upload(

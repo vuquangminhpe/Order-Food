@@ -8,7 +8,7 @@ import {
   Image,
   Alert,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -96,7 +96,11 @@ const VerifyEmailScreen = ({ route, navigation }: any) => {
     if (verified) {
       return (
         <View style={styles.centerContainer}>
-          <Icon name="check-circle" size={80} color={theme.colors.success} />
+          <MaterialCommunityIcons
+            name="check-circle"
+            size={80}
+            color={theme.colors.success}
+          />
           <Text style={[styles.statusTitle, { color: theme.colors.text }]}>
             Email Verified!
           </Text>
@@ -123,7 +127,11 @@ const VerifyEmailScreen = ({ route, navigation }: any) => {
 
     return (
       <View style={styles.contentContainer}>
-        <Icon name="email-check" size={80} color={theme.colors.primary} />
+        <MaterialCommunityIcons
+          name="email-check"
+          size={80}
+          color={theme.colors.primary}
+        />
         <Text style={[styles.title, { color: theme.colors.text }]}>
           Verify Your Email
         </Text>
@@ -140,7 +148,11 @@ const VerifyEmailScreen = ({ route, navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>
@@ -181,7 +193,11 @@ const VerifyEmailScreen = ({ route, navigation }: any) => {
           style={styles.backToLoginContainer}
           onPress={() => navigation.navigate("Login")}
         >
-          <Icon name="arrow-left" size={16} color={theme.colors.primary} />
+          <MaterialCommunityIcons
+            name="arrow-left"
+            size={16}
+            color={theme.colors.primary}
+          />
           <Text
             style={[styles.backToLoginText, { color: theme.colors.primary }]}
           >

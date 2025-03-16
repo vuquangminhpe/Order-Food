@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { restaurantService } from "../api/restaurantService";
 import RestaurantCard from "../components/restaurant/RestaurantCard";
@@ -126,7 +126,11 @@ const CategoryListScreen = ({ route, navigation }: any) => {
           { backgroundColor: theme.colors.primary },
         ]}
       >
-        <Icon name={categoryInfo.icon} size={24} color={theme.colors.white} />
+        <MaterialCommunityIcons
+          name={categoryInfo.icon}
+          size={24}
+          color={theme.colors.white}
+        />
       </View>
       <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
         {categoryInfo.name} Restaurants
@@ -216,7 +220,11 @@ const CategoryListScreen = ({ route, navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

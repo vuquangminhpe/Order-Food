@@ -7,7 +7,7 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 import RatingStars from "../general/RatingStars";
 
@@ -56,7 +56,11 @@ const RestaurantCard = ({ restaurant, onPress, horizontal = true }: any) => {
             { backgroundColor: theme.colors.primary },
           ]}
         >
-          <Icon name="clock-outline" size={12} color={theme.colors.white} />
+          <MaterialCommunityIcons
+            name="clock-outline"
+            size={12}
+            color={theme.colors.white}
+          />
           <Text style={[styles.deliveryText, { color: theme.colors.white }]}>
             {restaurant.estimatedDeliveryTime || 30}-
             {(restaurant.estimatedDeliveryTime || 30) + 10} min

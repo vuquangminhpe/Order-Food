@@ -1,6 +1,6 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const FilterChip = ({
@@ -32,7 +32,7 @@ const FilterChip = ({
     if (!icon) return null;
 
     return (
-      <Icon
+      <MaterialCommunityIcons
         name={icon}
         size={16}
         color={textColor}
@@ -64,7 +64,11 @@ const FilterChip = ({
           onPress={handleClose}
           hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
         >
-          <Icon name="close-circle" size={16} color={theme.colors.white} />
+          <MaterialCommunityIcons
+            name="close-circle"
+            size={16}
+            color={theme.colors.white}
+          />
         </TouchableOpacity>
       )}
     </TouchableOpacity>

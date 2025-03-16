@@ -10,7 +10,7 @@ import {
   Alert,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -238,7 +238,7 @@ const CartScreen = ({ navigation }: any) => {
                     { backgroundColor: theme.colors.gray },
                   ]}
                 >
-                  <Icon
+                  <MaterialCommunityIcons
                     name="ticket-percent"
                     size={20}
                     color={theme.colors.primary}
@@ -248,7 +248,7 @@ const CartScreen = ({ navigation }: any) => {
                   >
                     Add Promo Code
                   </Text>
-                  <Icon
+                  <MaterialCommunityIcons
                     name="chevron-right"
                     size={20}
                     color={theme.colors.darkGray}
@@ -308,7 +308,7 @@ const CartScreen = ({ navigation }: any) => {
               >
                 Proceed to Checkout
               </Text>
-              <Icon
+              <MaterialCommunityIcons
                 name="arrow-right"
                 size={20}
                 color={
@@ -327,7 +327,11 @@ const CartScreen = ({ navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

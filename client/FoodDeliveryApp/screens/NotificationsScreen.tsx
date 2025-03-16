@@ -10,7 +10,7 @@ import {
   SafeAreaView,
   Alert,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -274,7 +274,7 @@ const NotificationsScreen = ({ navigation }: any) => {
           { backgroundColor: getIconColor(item.type) + "20" },
         ]}
       >
-        <Icon
+        <MaterialCommunityIcons
           name={getNotificationIcon(item.type)}
           size={20}
           color={getIconColor(item.type)}
@@ -311,7 +311,11 @@ const NotificationsScreen = ({ navigation }: any) => {
         style={styles.deleteButton}
         onPress={() => deleteNotification(item.id)}
       >
-        <Icon name="delete-outline" size={20} color={theme.colors.error} />
+        <MaterialCommunityIcons
+          name="delete-outline"
+          size={20}
+          color={theme.colors.error}
+        />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -319,7 +323,11 @@ const NotificationsScreen = ({ navigation }: any) => {
   // Render empty state
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Icon name="bell-off" size={60} color={theme.colors.placeholder} />
+      <MaterialCommunityIcons
+        name="bell-off"
+        size={60}
+        color={theme.colors.placeholder}
+      />
       <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
         No Notifications
       </Text>
@@ -432,7 +440,11 @@ const NotificationsScreen = ({ navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

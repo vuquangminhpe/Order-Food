@@ -13,7 +13,7 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocation } from "../contexts/LocationContext";
@@ -118,10 +118,11 @@ const HomeScreen = ({ navigation }: any) => {
       setPopularRestaurants(popularResponse.restaurants);
 
       // Fetch nearby restaurants if location is available
-      if (currentLocation) {
+      // Trong phần fetchRestaurants khi gọi API
+      if (currentLocation?.lat && currentLocation?.lng) {
         const nearbyResponse = await restaurantService.getNearbyRestaurants(
-          (currentLocation as any).lat,
-          (currentLocation as any).lng,
+          currentLocation.lat,
+          currentLocation.lng,
           5 // 5km radius
         );
         setNearbyRestaurants(nearbyResponse);
@@ -223,7 +224,11 @@ const HomeScreen = ({ navigation }: any) => {
           style={styles.locationContainer}
           onPress={handleAddressPress}
         >
-          <Icon name="map-marker" size={24} color={theme.colors.primary} />
+          <MaterialCommunityIcons
+            name="map-marker"
+            size={24}
+            color={theme.colors.primary}
+          />
           <View style={styles.locationTextContainer}>
             <Text
               style={[
@@ -244,7 +249,11 @@ const HomeScreen = ({ navigation }: any) => {
                 : "Set your location"}
             </Text>
           </View>
-          <Icon name="chevron-down" size={20} color={theme.colors.text} />
+          <MaterialCommunityIcons
+            name="chevron-down"
+            size={20}
+            color={theme.colors.text}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -254,7 +263,11 @@ const HomeScreen = ({ navigation }: any) => {
           ]}
           onPress={handleNotificationPress}
         >
-          <Icon name="bell" size={22} color={theme.colors.text} />
+          <MaterialCommunityIcons
+            name="bell"
+            size={22}
+            color={theme.colors.text}
+          />
           {/* Notification badge - if there are notifications */}
           <View style={styles.badge}>
             <Text style={styles.badgeText}>3</Text>
@@ -288,7 +301,11 @@ const HomeScreen = ({ navigation }: any) => {
           style={[styles.searchBar, { backgroundColor: theme.colors.gray }]}
           onPress={handleSearchPress}
         >
-          <Icon name="magnify" size={22} color={theme.colors.placeholder} />
+          <MaterialCommunityIcons
+            name="magnify"
+            size={22}
+            color={theme.colors.placeholder}
+          />
           <Text
             style={[
               styles.searchPlaceholder,
@@ -454,7 +471,11 @@ const HomeScreen = ({ navigation }: any) => {
         {/* Error message if any */}
         {error && (
           <View style={styles.errorContainer}>
-            <Icon name="alert-circle" size={24} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={24}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>

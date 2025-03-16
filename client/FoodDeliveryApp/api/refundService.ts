@@ -87,6 +87,34 @@ export const refundService = {
       throw error;
     }
   },
+
+  // Admin only: Get all refunds
+  async getAllRefunds(status?: number, page = 1, limit = 10) {
+    try {
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        ...(status !== undefined && { status: status.toString() }),
+      }).toString();
+
+      const response = await apiService.get(`/refunds/admin/all?${queryParams}`);
+      return response.result;
+    } catch (error) {
+      console.error("Get all refunds error:", error);
+      throw error;
+    }
+  },
+
+  // Admin only: Process refund
+  async processRefund(refundId: any) {
+    try {
+      const response = await apiService.post(`/refunds/${refundId}/process`);
+      return response.result;
+    } catch (error) {
+      console.error("Process refund error:", error);
+      throw error;
+    }
+  },
 };
 
 export default refundService;

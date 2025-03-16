@@ -7,7 +7,7 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 const { width } = Dimensions.get("window");
@@ -73,7 +73,7 @@ const PromotionCard = ({
               style={styles.copyButton}
               onPress={handleCopyCode}
             >
-              <Icon
+              <MaterialCommunityIcons
                 name="content-copy"
                 size={16}
                 color={theme.colors.primary}

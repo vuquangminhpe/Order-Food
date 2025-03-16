@@ -13,7 +13,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -64,7 +64,11 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
           ]}
         >
           <View style={styles.iconContainer}>
-            <Icon name="lock-question" size={80} color={theme.colors.primary} />
+            <MaterialCommunityIcons
+              name="lock-question"
+              size={80}
+              color={theme.colors.primary}
+            />
           </View>
 
           <Text style={[styles.title, { color: theme.colors.text }]}>
@@ -78,7 +82,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
 
           {success ? (
             <View style={styles.successContainer}>
-              <Icon
+              <MaterialCommunityIcons
                 name="check-circle"
                 size={60}
                 color={theme.colors.success}
@@ -128,7 +132,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
                       },
                     ]}
                   >
-                    <Icon
+                    <MaterialCommunityIcons
                       name="email"
                       size={20}
                       color={theme.colors.darkGray}
@@ -183,7 +187,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
                 style={styles.backToLoginContainer}
                 onPress={() => navigation.navigate("Login")}
               >
-                <Icon
+                <MaterialCommunityIcons
                   name="arrow-left"
                   size={16}
                   color={theme.colors.primary}

@@ -12,7 +12,7 @@ import {
   Platform,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { orderService } from "../api/orderService";
 
@@ -34,7 +34,7 @@ const StarRating = ({
           disabled={disabled}
           style={{ padding: 5 }}
         >
-          <Icon
+          <MaterialCommunityIcons
             name={i <= rating ? "star" : "star-outline"}
             size={size}
             color={
@@ -190,7 +190,11 @@ const RateOrderScreen = ({ route, navigation }: any) => {
             </Text>
 
             <View style={styles.orderInfoRow}>
-              <Icon name="store" size={16} color={theme.colors.darkGray} />
+              <MaterialCommunityIcons
+                name="store"
+                size={16}
+                color={theme.colors.darkGray}
+              />
               <Text
                 style={[styles.orderInfoText, { color: theme.colors.text }]}
               >
@@ -199,7 +203,11 @@ const RateOrderScreen = ({ route, navigation }: any) => {
             </View>
 
             <View style={styles.orderInfoRow}>
-              <Icon name="calendar" size={16} color={theme.colors.darkGray} />
+              <MaterialCommunityIcons
+                name="calendar"
+                size={16}
+                color={theme.colors.darkGray}
+              />
               <Text
                 style={[styles.orderInfoText, { color: theme.colors.text }]}
               >
@@ -211,7 +219,11 @@ const RateOrderScreen = ({ route, navigation }: any) => {
             </View>
 
             <View style={styles.orderInfoRow}>
-              <Icon name="food" size={16} color={theme.colors.darkGray} />
+              <MaterialCommunityIcons
+                name="food"
+                size={16}
+                color={theme.colors.darkGray}
+              />
               <Text
                 style={[styles.orderInfoText, { color: theme.colors.text }]}
                 numberOfLines={2}
@@ -307,7 +319,7 @@ const RateOrderScreen = ({ route, navigation }: any) => {
             </>
           ) : (
             <View style={styles.alreadyRatedContainer}>
-              <Icon
+              <MaterialCommunityIcons
                 name="check-circle"
                 size={60}
                 color={theme.colors.success}
@@ -384,7 +396,11 @@ const RateOrderScreen = ({ route, navigation }: any) => {
                 { backgroundColor: "rgba(255, 0, 0, 0.1)" },
               ]}
             >
-              <Icon name="alert-circle" size={20} color={theme.colors.error} />
+              <MaterialCommunityIcons
+                name="alert-circle"
+                size={20}
+                color={theme.colors.error}
+              />
               <Text style={[styles.errorText, { color: theme.colors.error }]}>
                 {error}
               </Text>

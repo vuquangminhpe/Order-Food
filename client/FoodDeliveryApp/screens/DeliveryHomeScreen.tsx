@@ -11,7 +11,7 @@ import {
   Alert,
   Switch,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocation } from "../contexts/LocationContext";
@@ -231,7 +231,11 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
 
       <View style={styles.locationContainer}>
         <View style={styles.locationItem}>
-          <Icon name="store" size={16} color={theme.colors.secondary} />
+          <MaterialCommunityIcons
+            name="store"
+            size={16}
+            color={theme.colors.secondary}
+          />
           <Text
             style={[styles.locationText, { color: theme.colors.text }]}
             numberOfLines={1}
@@ -242,11 +246,19 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.locationDivider}>
-          <Icon name="dots-vertical" size={16} color={theme.colors.border} />
+          <MaterialCommunityIcons
+            name="dots-vertical"
+            size={16}
+            color={theme.colors.border}
+          />
         </View>
 
         <View style={styles.locationItem}>
-          <Icon name="map-marker" size={16} color={theme.colors.primary} />
+          <MaterialCommunityIcons
+            name="map-marker"
+            size={16}
+            color={theme.colors.primary}
+          />
           <Text
             style={[styles.locationText, { color: theme.colors.text }]}
             numberOfLines={1}
@@ -275,7 +287,11 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
           ]}
           onPress={() => navigation.navigate("Map", { order: item })}
         >
-          <Icon name="navigation" size={16} color={theme.colors.white} />
+          <MaterialCommunityIcons
+            name="navigation"
+            size={16}
+            color={theme.colors.white}
+          />
           <Text
             style={[styles.navigationButtonText, { color: theme.colors.white }]}
           >
@@ -313,7 +329,11 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
 
       <View style={styles.locationContainer}>
         <View style={styles.locationItem}>
-          <Icon name="store" size={16} color={theme.colors.secondary} />
+          <MaterialCommunityIcons
+            name="store"
+            size={16}
+            color={theme.colors.secondary}
+          />
           <Text
             style={[styles.locationText, { color: theme.colors.text }]}
             numberOfLines={1}
@@ -323,11 +343,19 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.locationDivider}>
-          <Icon name="dots-vertical" size={16} color={theme.colors.border} />
+          <MaterialCommunityIcons
+            name="dots-vertical"
+            size={16}
+            color={theme.colors.border}
+          />
         </View>
 
         <View style={styles.locationItem}>
-          <Icon name="map-marker" size={16} color={theme.colors.primary} />
+          <MaterialCommunityIcons
+            name="map-marker"
+            size={16}
+            color={theme.colors.primary}
+          />
           <Text
             style={[styles.locationText, { color: theme.colors.text }]}
             numberOfLines={1}
@@ -338,7 +366,11 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
       </View>
 
       <View style={styles.estimateRow}>
-        <Icon name="clock-outline" size={16} color={theme.colors.darkGray} />
+        <MaterialCommunityIcons
+          name="clock-outline"
+          size={16}
+          color={theme.colors.darkGray}
+        />
         <Text style={[styles.estimateText, { color: theme.colors.darkGray }]}>
           Estimated delivery time: {item.estimatedTime} min
         </Text>
@@ -358,7 +390,7 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
   // Render empty state
   const renderEmptyState = (isActive: boolean) => (
     <View style={styles.emptyContainer}>
-      <Icon
+      <MaterialCommunityIcons
         name={isActive ? "moped" : "clipboard-text"}
         size={60}
         color={theme.colors.placeholder}
@@ -460,7 +492,11 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
                 Available Orders
               </Text>
               <TouchableOpacity onPress={fetchOrders}>
-                <Icon name="refresh" size={20} color={theme.colors.primary} />
+                <MaterialCommunityIcons
+                  name="refresh"
+                  size={20}
+                  color={theme.colors.primary}
+                />
               </TouchableOpacity>
             </View>
 
@@ -490,7 +526,11 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
               { backgroundColor: "rgba(255, 0, 0, 0.1)" },
             ]}
           >
-            <Icon name="alert-circle" size={20} color={theme.colors.error} />
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={theme.colors.error}
+            />
             <Text style={[styles.errorText, { color: theme.colors.error }]}>
               {error}
             </Text>
