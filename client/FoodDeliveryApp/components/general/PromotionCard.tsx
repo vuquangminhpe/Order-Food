@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
-import LinearGradient from "react-native-linear-gradient";
+import { LinearGradient } from "expo-linear-gradient"; // Thay đổi import này
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width * 0.8;
@@ -107,6 +107,7 @@ const PromotionCard = ({ title, description, image, code, onPress }: any) => {
 };
 
 const styles = StyleSheet.create({
+  // Các style không thay đổi
   container: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,

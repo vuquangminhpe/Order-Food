@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import LinearGradient from "react-native-linear-gradient";
+import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
@@ -649,7 +649,7 @@ const RestaurantScreen = ({ route, navigation }: any) => {
         content={
           <View style={styles.cartDrawerContent}>
             <MaterialCommunityIcons
-              name="cart-alert"
+              name="cart"
               size={50}
               color={theme.colors.primary}
             />
