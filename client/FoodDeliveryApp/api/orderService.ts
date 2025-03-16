@@ -17,10 +17,46 @@ export const PaymentMethod = {
   CashOnDelivery: 0,
   VNPay: 1,
 };
+interface OrderItemOption {
+  title: string;
+  items: {
+    name: string;
+    price: number;
+  }[];
+}
+
+interface OrderItem {
+  menuItemId: string;
+  quantity: number;
+  options?: OrderItemOption[];
+}
+
+interface OrderAddress {
+  address: string;
+  lat: number;
+  lng: number;
+}
+
+interface OrderData {
+  restaurantId: string;
+  items: OrderItem[];
+  deliveryAddress: OrderAddress;
+  paymentMethod: number;
+  notes?: string;
+  serviceCharge?: number;
+  discount?: number;
+}
+
+interface OrderQueryParams {
+  page?: number;
+  limit?: number;
+  status?: number;
+  sortBy?: string;
+  sortOrder?: string;
+}
 
 export const orderService = {
-  // Create a new order
-  async createOrder(orderData: any) {
+  async createOrder(orderData: OrderData) {
     try {
       const response = await apiService.post("/orders", orderData);
       return response.result;
@@ -30,8 +66,7 @@ export const orderService = {
     }
   },
 
-  // Get order by ID
-  async getOrderById(orderId: any) {
+  async getOrderById(orderId: string) {
     try {
       const response = await apiService.get(`/orders/${orderId}`);
       return response.result;
@@ -41,16 +76,7 @@ export const orderService = {
     }
   },
 
-  // Get user's orders
-  async getUserOrders(
-    params: {
-      page?: number;
-      limit?: number;
-      status?: number;
-      sortBy?: string;
-      sortOrder?: string;
-    } = {}
-  ) {
+  async getUserOrders(params: OrderQueryParams = {}) {
     try {
       const {
         page = 1,
@@ -76,8 +102,7 @@ export const orderService = {
     }
   },
 
-  // Update order status (for restaurant owners)
-  async updateOrderStatus(orderId: any, status: any, reason?: any) {
+  async updateOrderStatus(orderId: string, status: number, reason?: string) {
     try {
       const response = await apiService.patch(`/orders/${orderId}/status`, {
         status,
@@ -90,8 +115,7 @@ export const orderService = {
     }
   },
 
-  // Cancel order (for customers)
-  async cancelOrder(orderId: any, reason: any) {
+  async cancelOrder(orderId: string, reason: string) {
     try {
       const response = await apiService.post(`/orders/${orderId}/cancel`, {
         reason,
@@ -103,9 +127,8 @@ export const orderService = {
     }
   },
 
-  // Rate order (for customers)
   async rateOrder(
-    orderId: any,
+    orderId: string,
     rating: number,
     review: string,
     foodRating: number,
@@ -125,8 +148,7 @@ export const orderService = {
     }
   },
 
-  // Get order tracking information
-  async getOrderTracking(orderId: any) {
+  async getOrderTracking(orderId: string) {
     try {
       const response = await apiService.get(`/orders/${orderId}/tracking`);
       return response.result;
@@ -136,8 +158,7 @@ export const orderService = {
     }
   },
 
-  // Assign delivery person to order (for restaurant owners)
-  async assignDeliveryPerson(orderId: any, deliveryPersonId: any) {
+  async assignDeliveryPerson(orderId: string, deliveryPersonId: string) {
     try {
       const response = await apiService.post(`/orders/${orderId}/assign`, {
         deliveryPersonId,
@@ -149,8 +170,7 @@ export const orderService = {
     }
   },
 
-  // Update delivery location (for delivery personnel)
-  async updateDeliveryLocation(orderId: any, lat: any, lng: any) {
+  async updateDeliveryLocation(orderId: string, lat: number, lng: number) {
     try {
       const response = await apiService.post(
         `/orders/${orderId}/delivery-location`,
@@ -166,7 +186,6 @@ export const orderService = {
     }
   },
 
-  // Get active delivery orders (for delivery personnel)
   async getActiveDeliveryOrders() {
     try {
       const response = await apiService.get("/orders/delivery/active");
@@ -177,7 +196,6 @@ export const orderService = {
     }
   },
 
-  // Get delivery history (for delivery personnel)
   async getDeliveryHistory(
     params: {
       page?: number;
@@ -206,7 +224,6 @@ export const orderService = {
     }
   },
 
-  // Search orders (for admin)
   async searchOrders(
     params: {
       query?: string;

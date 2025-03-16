@@ -1,12 +1,11 @@
 import apiService from "./apiService";
 
 export const refundService = {
-  // Create a new refund request
   async createRefundRequest(
-    orderId: any,
-    amount: any,
-    reason: any,
-    method: any
+    orderId: string,
+    amount: number,
+    reason: string,
+    method: number
   ) {
     try {
       const response = await apiService.post("/refunds", {
@@ -23,7 +22,7 @@ export const refundService = {
   },
 
   // Get refund by ID
-  async getRefundById(refundId: any) {
+  async getRefundById(refundId: string) {
     try {
       const response = await apiService.get(`/refunds/${refundId}`);
       return response.result;
@@ -34,7 +33,7 @@ export const refundService = {
   },
 
   // Get refunds for an order
-  async getRefundsByOrderId(orderId: any) {
+  async getRefundsByOrderId(orderId: string) {
     try {
       const response = await apiService.get(`/refunds/order/${orderId}`);
       return response.result;
@@ -63,7 +62,7 @@ export const refundService = {
   },
 
   // Approve refund (for restaurant owners)
-  async approveRefund(refundId: any, notes: any) {
+  async approveRefund(refundId: string, notes: string) {
     try {
       const response = await apiService.post(`/refunds/${refundId}/approve`, {
         notes,
@@ -76,7 +75,7 @@ export const refundService = {
   },
 
   // Reject refund (for restaurant owners)
-  async rejectRefund(refundId: any, reason: any) {
+  async rejectRefund(refundId: string, reason: string) {
     try {
       const response = await apiService.post(`/refunds/${refundId}/reject`, {
         reason,
@@ -97,7 +96,9 @@ export const refundService = {
         ...(status !== undefined && { status: status.toString() }),
       }).toString();
 
-      const response = await apiService.get(`/refunds/admin/all?${queryParams}`);
+      const response = await apiService.get(
+        `/refunds/admin/all?${queryParams}`
+      );
       return response.result;
     } catch (error) {
       console.error("Get all refunds error:", error);
@@ -106,7 +107,7 @@ export const refundService = {
   },
 
   // Admin only: Process refund
-  async processRefund(refundId: any) {
+  async processRefund(refundId: string) {
     try {
       const response = await apiService.post(`/refunds/${refundId}/process`);
       return response.result;

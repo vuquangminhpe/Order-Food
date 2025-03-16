@@ -1,11 +1,9 @@
 import apiService from "./apiService";
-import { FormData } from "react-native";
 
 interface UserProfile {
   name?: string;
-  email?: string;
   phone?: string;
-  bio?: string;
+  date_of_birth?: string; // Cập nhật để phản ánh đúng API server
 }
 
 interface Address {
@@ -29,7 +27,7 @@ export const userService = {
     }
   },
 
-  // Update user profile
+  // Update user profile - cập nhật để phản ánh đúng API server
   async updateProfile(profileData: UserProfile) {
     try {
       const response = await apiService.put("/users/profile", profileData);
@@ -107,7 +105,10 @@ export const userService = {
   // Update address
   async updateAddress(index: number, addressData: Partial<Address>) {
     try {
-      const response = await apiService.put(`/users/addresses/${index}`, addressData);
+      const response = await apiService.put(
+        `/users/addresses/${index}`,
+        addressData
+      );
       return response.result;
     } catch (error) {
       console.error("Update address error:", error);
@@ -129,7 +130,9 @@ export const userService = {
   // Update delivery person status
   async updateDeliveryStatus(isAvailable: boolean) {
     try {
-      const response = await apiService.put("/users/delivery/status", { isAvailable });
+      const response = await apiService.put("/users/delivery/status", {
+        isAvailable,
+      });
       return response.result;
     } catch (error) {
       console.error("Update delivery status error:", error);
@@ -149,7 +152,11 @@ export const userService = {
   },
 
   // Get nearby delivery personnel
-  async getNearbyDeliveryPersonnel(lat: number, lng: number, radius: number = 5) {
+  async getNearbyDeliveryPersonnel(
+    lat: number,
+    lng: number,
+    radius: number = 5
+  ) {
     try {
       const response = await apiService.get(
         `/users/delivery/nearby?lat=${lat}&lng=${lng}&radius=${radius}`
@@ -162,21 +169,25 @@ export const userService = {
   },
 
   // Admin only: Get all users
-  async getAllUsers(params: {
-    page?: number;
-    limit?: number;
-    role?: number;
-    verify?: number;
-    search?: string;
-    sortBy?: string;
-    sortOrder?: string;
-  } = {}) {
+  async getAllUsers(
+    params: {
+      page?: number;
+      limit?: number;
+      role?: number;
+      verify?: number;
+      search?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    } = {}
+  ) {
     try {
       const queryParams = new URLSearchParams({
         page: (params.page || 1).toString(),
         limit: (params.limit || 10).toString(),
         ...(params.role !== undefined && { role: params.role.toString() }),
-        ...(params.verify !== undefined && { verify: params.verify.toString() }),
+        ...(params.verify !== undefined && {
+          verify: params.verify.toString(),
+        }),
         ...(params.search && { search: params.search }),
         ...(params.sortBy && { sortBy: params.sortBy }),
         ...(params.sortOrder && { sortOrder: params.sortOrder }),
@@ -204,7 +215,9 @@ export const userService = {
   // Admin only: Ban user
   async banUser(userId: string, reason: string) {
     try {
-      const response = await apiService.post(`/users/admin/ban/${userId}`, { reason });
+      const response = await apiService.post(`/users/admin/ban/${userId}`, {
+        reason,
+      });
       return response.result;
     } catch (error) {
       console.error("Ban user error:", error);

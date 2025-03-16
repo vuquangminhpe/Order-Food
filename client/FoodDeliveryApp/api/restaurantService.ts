@@ -1,5 +1,44 @@
 import apiService from "./apiService";
 
+interface RestaurantOpeningHours {
+  day: number;
+  open: string;
+  close: string;
+  isClosed: boolean;
+}
+
+interface RestaurantLocation {
+  lat: number;
+  lng: number;
+}
+
+interface RestaurantData {
+  name: string;
+  description: string;
+  address: string;
+  location: RestaurantLocation;
+  categories: string[];
+  openingHours: RestaurantOpeningHours[];
+  deliveryFee: number;
+  minOrderAmount: number;
+  estimatedDeliveryTime: number;
+  phoneNumber: string;
+}
+
+interface UpdateRestaurantData {
+  name?: string;
+  description?: string;
+  address?: string;
+  location?: RestaurantLocation;
+  categories?: string[];
+  openingHours?: RestaurantOpeningHours[];
+  deliveryFee?: number;
+  minOrderAmount?: number;
+  estimatedDeliveryTime?: number;
+  phoneNumber?: string;
+  status?: number;
+}
+
 interface GetAllRestaurantsParams {
   page?: number;
   limit?: number;
@@ -8,9 +47,7 @@ interface GetAllRestaurantsParams {
   minRating?: number;
   search?: string;
 }
-
 export const restaurantService = {
-  // Get all restaurants with pagination and filters
   async getAllRestaurants(params: GetAllRestaurantsParams = {}) {
     try {
       const {
@@ -39,8 +76,7 @@ export const restaurantService = {
     }
   },
 
-  // Get restaurants near a location
-  async getNearbyRestaurants(lat: any, lng: any, radius = 5) {
+  async getNearbyRestaurants(lat: number, lng: number, radius = 5) {
     try {
       const queryParams = new URLSearchParams({
         lat: lat.toString(),
@@ -58,8 +94,7 @@ export const restaurantService = {
     }
   },
 
-  // Get restaurants by category
-  async getRestaurantsByCategory(category: any, page = 1, limit = 10) {
+  async getRestaurantsByCategory(category: string, page = 1, limit = 10) {
     try {
       const queryParams = new URLSearchParams({
         page: page.toString(),
@@ -76,8 +111,7 @@ export const restaurantService = {
     }
   },
 
-  // Get restaurant by ID
-  async getRestaurantById(id: any) {
+  async getRestaurantById(id: string) {
     try {
       const response = await apiService.get(`/restaurants/${id}`);
       return response.result;
@@ -87,8 +121,8 @@ export const restaurantService = {
     }
   },
 
-  // Get restaurant menu
-  async getRestaurantMenu(id: any) {
+  // Đã cập nhật trong menuService.ts, giữ lại để tương thích ngược
+  async getRestaurantMenu(id: string) {
     try {
       const response = await apiService.get(`/restaurants/${id}/menu`);
       return response.result;
@@ -98,8 +132,7 @@ export const restaurantService = {
     }
   },
 
-  // Get restaurant ratings
-  async getRestaurantRatings(id: any, page = 1, limit = 10) {
+  async getRestaurantRatings(id: string, page = 1, limit = 10) {
     try {
       const queryParams = new URLSearchParams({
         page: page.toString(),
@@ -116,9 +149,8 @@ export const restaurantService = {
     }
   },
 
-  // For restaurant owners: Get restaurant orders
   async getRestaurantOrders(
-    id: any,
+    id: string,
     params: {
       page?: number;
       limit?: number;
@@ -148,12 +180,11 @@ export const restaurantService = {
     }
   },
 
-  // For restaurant owners: Get restaurant revenue
   async getRestaurantRevenue(
-    id: any,
+    id: string,
     period = "monthly",
-    year: any,
-    month: any
+    year: string,
+    month?: string
   ) {
     try {
       const queryParams = new URLSearchParams({
@@ -172,8 +203,7 @@ export const restaurantService = {
     }
   },
 
-  // For restaurant owners: Create restaurant
-  async createRestaurant(restaurantData: any) {
+  async createRestaurant(restaurantData: RestaurantData) {
     try {
       const response = await apiService.post("/restaurants", restaurantData);
       return response.result;
@@ -183,31 +213,7 @@ export const restaurantService = {
     }
   },
 
-  // For restaurant owners: Update restaurant
-  async updateRestaurant(
-    id: any,
-    updateData: {
-      name?: string;
-      description?: string;
-      address?: string;
-      phone?: string;
-      email?: string;
-      deliveryFee?: number;
-      minOrderAmount?: number;
-      preparationTime?: number;
-      active?: boolean;
-      categories?: any[];
-      openingHours?: {
-        monday?: { open: string; close: string; isOpen: boolean };
-        tuesday?: { open: string; close: string; isOpen: boolean };
-        wednesday?: { open: string; close: string; isOpen: boolean };
-        thursday?: { open: string; close: string; isOpen: boolean };
-        friday?: { open: string; close: string; isOpen: boolean };
-        saturday?: { open: string; close: string; isOpen: boolean };
-        sunday?: { open: string; close: string; isOpen: boolean };
-      };
-    }
-  ) {
+  async updateRestaurant(id: string, updateData: UpdateRestaurantData) {
     try {
       const response = await apiService.put(`/restaurants/${id}`, updateData);
       return response.result;
@@ -217,8 +223,7 @@ export const restaurantService = {
     }
   },
 
-  // For restaurant owners: Delete restaurant
-  async deleteRestaurant(id: any) {
+  async deleteRestaurant(id: string) {
     try {
       const response = await apiService.delete(`/restaurants/${id}`);
       return response.result;
@@ -228,9 +233,8 @@ export const restaurantService = {
     }
   },
 
-  // For restaurant owners: Upload restaurant images
   async uploadRestaurantImages(
-    id: any,
+    id: string,
     imageType: string,
     imageUris: string[]
   ) {

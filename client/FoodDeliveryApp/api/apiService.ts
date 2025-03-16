@@ -61,7 +61,7 @@ export const apiService = {
     return this.request("get", endpoint, null, config);
   },
 
-  post(endpoint: string, data: any, config = {}) {
+  post(endpoint: string, data?: any, config = {}) {
     return this.request("post", endpoint, data, config);
   },
 

@@ -1,10 +1,38 @@
 import apiService from "./apiService";
+interface MenuItemOption {
+  title: string;
+  required: boolean;
+  multiple: boolean;
+  items: {
+    name: string;
+    price: number;
+  }[];
+}
+
+interface MenuItemData {
+  restaurantId: string;
+  name: string;
+  description: string;
+  price: number;
+  discountedPrice?: number;
+  categoryId: string;
+  options?: MenuItemOption[];
+  isAvailable: boolean;
+}
+
+interface MenuCategoryData {
+  restaurantId: string;
+  name: string;
+  description?: string;
+  order?: number;
+}
 
 export const menuService = {
-  // Get restaurant's complete menu
-  async getRestaurantMenu(restaurantId: any) {
+  async getRestaurantMenu(restaurantId: string) {
     try {
-      const response = await apiService.get(`/menu/restaurant/${restaurantId}`);
+      const response = await apiService.get(
+        `/restaurants/${restaurantId}/menu`
+      );
       return response.result;
     } catch (error) {
       console.error("Get restaurant menu error:", error);
@@ -12,8 +40,7 @@ export const menuService = {
     }
   },
 
-  // Get popular menu items
-  async getPopularMenuItems(restaurantId: any, limit = 10) {
+  async getPopularMenuItems(restaurantId: string, limit = 10) {
     try {
       const response = await apiService.get(
         `/menu/popular/${restaurantId}?limit=${limit}`
@@ -25,8 +52,7 @@ export const menuService = {
     }
   },
 
-  // Get menu categories
-  async getMenuCategories(restaurantId: any) {
+  async getMenuCategories(restaurantId: string) {
     try {
       const response = await apiService.get(`/menu/categories/${restaurantId}`);
       return response.result;
@@ -36,8 +62,7 @@ export const menuService = {
     }
   },
 
-  // Get menu item details
-  async getMenuItem(itemId: any) {
+  async getMenuItem(itemId: string) {
     try {
       const response = await apiService.get(`/menu/item/${itemId}`);
       return response.result;
@@ -47,8 +72,7 @@ export const menuService = {
     }
   },
 
-  // For restaurant owners: Create menu item
-  async createMenuItem(menuItemData: any) {
+  async createMenuItem(menuItemData: MenuItemData) {
     try {
       const response = await apiService.post("/menu/item", menuItemData);
       return response.result;
@@ -58,8 +82,7 @@ export const menuService = {
     }
   },
 
-  // For restaurant owners: Update menu item
-  async updateMenuItem(itemId: any, updateData: any) {
+  async updateMenuItem(itemId: string, updateData: Partial<MenuItemData>) {
     try {
       const response = await apiService.put(`/menu/item/${itemId}`, updateData);
       return response.result;
@@ -69,8 +92,7 @@ export const menuService = {
     }
   },
 
-  // For restaurant owners: Delete menu item
-  async deleteMenuItem(itemId: any) {
+  async deleteMenuItem(itemId: string) {
     try {
       const response = await apiService.delete(`/menu/item/${itemId}`);
       return response.result;
@@ -80,8 +102,7 @@ export const menuService = {
     }
   },
 
-  // For restaurant owners: Update menu item availability
-  async updateMenuItemAvailability(itemId: any, isAvailable: any) {
+  async updateMenuItemAvailability(itemId: string, isAvailable: boolean) {
     try {
       const response = await apiService.patch(
         `/menu/item/${itemId}/availability`,
@@ -96,8 +117,7 @@ export const menuService = {
     }
   },
 
-  // For restaurant owners: Upload menu item image
-  async uploadMenuItemImage(itemId: any, imageUri: any) {
+  async uploadMenuItemImage(itemId: string, imageUri: string) {
     try {
       const formData = new FormData();
 
@@ -105,7 +125,7 @@ export const menuService = {
       const filename = imageUri.split("/").pop();
 
       // Determine MIME type
-      const match = /\.(\w+)$/.exec(filename);
+      const match = /\.(\w+)$/.exec(filename || "");
       const type = match ? `image/${match[1]}` : "image/jpeg";
 
       // @ts-ignore - React Native's FormData implementation differs from standard
@@ -126,8 +146,9 @@ export const menuService = {
     }
   },
 
-  // For restaurant owners: Batch update menu items
-  async batchUpdateMenuItems(items: any) {
+  async batchUpdateMenuItems(
+    items: { id: string; updates: Partial<MenuItemData> }[]
+  ) {
     try {
       const response = await apiService.post("/menu/items/batch", {
         items,
@@ -139,8 +160,7 @@ export const menuService = {
     }
   },
 
-  // For restaurant owners: Create menu category
-  async createMenuCategory(categoryData: any) {
+  async createMenuCategory(categoryData: MenuCategoryData) {
     try {
       const response = await apiService.post("/menu/category", categoryData);
       return response.result;
@@ -150,8 +170,10 @@ export const menuService = {
     }
   },
 
-  // For restaurant owners: Update menu category
-  async updateMenuCategory(categoryId: any, updateData: any) {
+  async updateMenuCategory(
+    categoryId: string,
+    updateData: Partial<MenuCategoryData>
+  ) {
     try {
       const response = await apiService.put(
         `/menu/category/${categoryId}`,
@@ -164,8 +186,7 @@ export const menuService = {
     }
   },
 
-  // For restaurant owners: Delete menu category
-  async deleteMenuCategory(categoryId: any) {
+  async deleteMenuCategory(categoryId: string) {
     try {
       const response = await apiService.delete(`/menu/category/${categoryId}`);
       return response.result;

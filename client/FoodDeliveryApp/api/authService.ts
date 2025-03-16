@@ -1,8 +1,17 @@
 import apiService from "./apiService";
 
+interface UserData {
+  name: string;
+  email: string;
+  password: string;
+  confirm_password: string;
+  phone: string;
+  role: number;
+}
+
 export const authService = {
-  // Login with email and password
-  async login(email: any, password: any) {
+  // Thêm kiểu dữ liệu cụ thể
+  async login(email: string, password: string) {
     try {
       const response = await apiService.post("/auth/login", {
         email,
@@ -15,15 +24,7 @@ export const authService = {
     }
   },
 
-  // Register a new user
-  async register(userData: {
-    name: any;
-    email: any;
-    password: any;
-    confirm_password: any;
-    phone: any;
-    role: any;
-  }) {
+  async register(userData: UserData) {
     try {
       const { name, email, password, confirm_password, phone, role } = userData;
 
@@ -43,7 +44,6 @@ export const authService = {
     }
   },
 
-  // Logout (invalidate refresh token)
   async logout(refreshToken: string) {
     try {
       const response = await apiService.post("/auth/logout", {
@@ -56,7 +56,6 @@ export const authService = {
     }
   },
 
-  // Refresh access token using refresh token
   async refreshToken(refreshToken: string) {
     try {
       const response = await apiService.post("/auth/refresh-token", {
@@ -69,8 +68,7 @@ export const authService = {
     }
   },
 
-  // Verify email with token
-  async verifyEmail(token: any) {
+  async verifyEmail(token: string) {
     try {
       const response = await apiService.get(`/auth/verify-email/${token}`);
       return {
@@ -83,8 +81,7 @@ export const authService = {
     }
   },
 
-  // Request password reset
-  async forgotPassword(email: any) {
+  async forgotPassword(email: string) {
     try {
       const response = await apiService.post("/auth/forgot-password", {
         email,
@@ -96,8 +93,7 @@ export const authService = {
     }
   },
 
-  // Reset password with token
-  async resetPassword(token: any, password: any) {
+  async resetPassword(token: string, password: string) {
     try {
       const response = await apiService.post("/auth/reset-password", {
         token,
@@ -111,7 +107,6 @@ export const authService = {
     }
   },
 
-  // Get user profile
   async getUserProfile() {
     try {
       const response = await apiService.get("/users/profile");
@@ -122,8 +117,11 @@ export const authService = {
     }
   },
 
-  // Update user profile
-  async updateProfile(profileData: any) {
+  async updateProfile(profileData: {
+    name?: string;
+    phone?: string;
+    date_of_birth?: string; // Cập nhật để phản ánh đúng API
+  }) {
     try {
       const response = await apiService.put("/users/profile", profileData);
       return response.result;
@@ -133,8 +131,7 @@ export const authService = {
     }
   },
 
-  // Change password
-  async changePassword(oldPassword: any, newPassword: any) {
+  async changePassword(oldPassword: string, newPassword: string) {
     try {
       const response = await apiService.put("/users/change-password", {
         old_password: oldPassword,
@@ -148,7 +145,6 @@ export const authService = {
     }
   },
 
-  // Upload avatar
   async uploadAvatar(imageUri: string) {
     try {
       const formData = new FormData();
@@ -157,7 +153,7 @@ export const authService = {
       const filename = imageUri.split("/").pop();
 
       // Determine MIME type
-      const match = /\.(\w+)$/.exec(filename as any);
+      const match = /\.(\w+)$/.exec(filename as string);
       const type = match ? `image/${match[1]}` : "image/jpeg";
 
       // @ts-ignore - React Native's FormData implementation differs from standard
@@ -174,8 +170,6 @@ export const authService = {
       throw error;
     }
   },
-
-  // Xóa phương thức validateToken vì không tồn tại trong server routes
 };
 
 export default authService;

@@ -1,12 +1,20 @@
 import apiService from "./apiService";
 
+interface PaymentData {
+  orderId: string;
+  amount: number;
+  orderInfo?: string;
+}
+
+interface RefundData {
+  orderId: string;
+  amount: number;
+  reason: string;
+}
+
 export const paymentService = {
   // Create payment URL for VNPay
-  async createPaymentUrl(paymentData: {
-    orderId: any;
-    amount: any;
-    orderInfo: any;
-  }) {
+  async createPaymentUrl(paymentData: PaymentData) {
     try {
       const response = await apiService.post("/payments/create-payment-url", {
         orderId: paymentData.orderId,
@@ -22,7 +30,7 @@ export const paymentService = {
   },
 
   // Generate QR code for payment
-  async generateQrCode(paymentData: { orderId: any; amount: any }) {
+  async generateQrCode(paymentData: { orderId: string; amount: number }) {
     try {
       const response = await apiService.post("/payments/generate-qr", {
         orderId: paymentData.orderId,
@@ -78,7 +86,7 @@ export const paymentService = {
   },
 
   // Request refund
-  async requestRefund(refundData: { orderId: any; amount: any; reason: any }) {
+  async requestRefund(refundData: RefundData) {
     try {
       const response = await apiService.post("/payments/refund", {
         orderId: refundData.orderId,
