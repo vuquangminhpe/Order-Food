@@ -74,11 +74,12 @@ export const verifyEmailController = async (req: Request, res: Response) => {
 
 export const refreshTokenController = async (req: Request, res: Response) => {
   const { refresh_token } = req.body
-  const { user_id, verify } = req.decoded_refresh_token
+
+  const { user_id, verify } = req.decoded_refresh_token as TokenPayload
 
   const result = await authService.refreshToken({
     user_id,
-    verify,
+    verify: verify || UserVerifyStatus.Unverified,
     refresh_token
   })
 
