@@ -49,43 +49,73 @@ const EditProfileScreen = ({ navigation }: any) => {
     }
   }, [user]);
 
-  // Handle selecting image from gallery
-  const handleSelectImage = () => {
-    const options = {
-      mediaType: "photo" as const,
-      includeBase64: false,
-      maxHeight: 800,
-      maxWidth: 800,
-    };
+  // Handle selecting image from gallery with improved error handling
+  const handleSelectImage = async () => {
+    try {
+      const options = {
+        mediaType: "photo" as const,
+        includeBase64: false,
+        maxHeight: 800,
+        maxWidth: 800,
+        quality: 0.8,
+      };
 
-    launchImageLibrary(options, async (response) => {
-      if (response.didCancel) {
+      const result = await launchImageLibrary(options);
+
+      if (result.didCancel) {
+        console.log("User cancelled image picker");
         return;
       }
 
-      if (response.errorCode) {
-        console.error("ImagePicker Error: ", response.errorMessage);
+      if (result.errorCode) {
+        console.error("ImagePicker Error: ", result.errorMessage);
+        Alert.alert("Error", `Failed to select image: ${result.errorMessage}`);
         return;
       }
 
-      if (response.assets && response.assets.length > 0) {
-        const source = response.assets[0].uri || null;
+      if (result.assets && result.assets.length > 0) {
+        const source = result.assets[0].uri || null;
         setAvatarSource(source);
-        setAvatar(source);
 
         // Upload avatar immediately
-        try {
-          setUploadingImage(true);
-          const result = await userService.uploadAvatar(source);
-          // Update avatar URL with the one from server
-          setAvatarSource(result.avatar_url);
-          setUploadingImage(false);
-        } catch (error) {
-          setUploadingImage(false);
-          Alert.alert("Error", "Failed to upload avatar. Please try again.");
+        if (source) {
+          await uploadAvatar(source);
         }
       }
-    });
+    } catch (error) {
+      console.error("Image selection error:", error);
+      Alert.alert("Error", "Failed to select image. Please try again.");
+    }
+  };
+
+  // Upload avatar with improved implementation
+  const uploadAvatar = async (source: string) => {
+    try {
+      setUploadingImage(true);
+      setError(null);
+
+      console.log("Starting avatar upload with URI:", source);
+
+      const result = await userService.uploadAvatar(source);
+
+      console.log("Upload result:", result);
+
+      if (result && (result.avatar_url || result.avatar)) {
+        const avatarUrl = result.avatar_url || result.avatar;
+        setAvatarSource(avatarUrl);
+
+        // Also update the profile avatar to ensure it's in sync
+        await updateProfile({ avatar: avatarUrl });
+      } else {
+        throw new Error("Invalid response format from server");
+      }
+    } catch (error) {
+      console.error("Upload avatar error:", error);
+      Alert.alert("Error", "Failed to upload avatar. Please try again.");
+      setError("Failed to upload profile image");
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   // Validate form
@@ -111,7 +141,7 @@ const EditProfileScreen = ({ navigation }: any) => {
     return isValid;
   };
 
-  // Handle form submission
+  // Handle form submission with improved error handling
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
@@ -129,6 +159,14 @@ const EditProfileScreen = ({ navigation }: any) => {
           : undefined,
       };
 
+      console.log("Updating profile with data:", profileData);
+
+      // Update the profile on the server
+      const result = await userService.updateProfile(profileData);
+
+      console.log("Profile update result:", result);
+
+      // Update the local user data
       await updateProfile(profileData);
 
       Alert.alert("Success", "Profile updated successfully", [
@@ -137,6 +175,7 @@ const EditProfileScreen = ({ navigation }: any) => {
     } catch (err) {
       console.error("Update profile error:", err);
       setError("Failed to update profile. Please try again.");
+      Alert.alert("Error", "Failed to update profile. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -183,6 +222,7 @@ const EditProfileScreen = ({ navigation }: any) => {
                 { backgroundColor: theme.colors.primary },
               ]}
               onPress={handleSelectImage}
+              disabled={uploadingImage}
             >
               <MaterialCommunityIcons
                 name="camera"
@@ -267,6 +307,7 @@ const styles = StyleSheet.create({
   avatarContainer: {
     alignItems: "center",
     marginVertical: 20,
+    position: "relative",
   },
   avatar: {
     width: 100,
@@ -306,6 +347,3 @@ const styles = StyleSheet.create({
 });
 
 export default EditProfileScreen;
-function setAvatar(source: string | null) {
-  throw new Error("Function not implemented.");
-}

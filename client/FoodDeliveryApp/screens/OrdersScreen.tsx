@@ -461,7 +461,7 @@ const OrdersScreen = ({ navigation }: any) => {
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <MaterialCommunityIcons
-        name="receipt-text-outline"
+        name="script-text-outline"
         size={60}
         color={theme.colors.placeholder}
       />

@@ -18,6 +18,7 @@ export const AuthContext = createContext<{
   initialized: boolean;
   accessToken: string | null;
   refreshToken: string | null;
+  setLoading: (loading: boolean) => void;
   login: (email: string, password: string) => Promise<User | undefined>;
   register: (userData: {
     name: string;
@@ -42,6 +43,7 @@ export const AuthContext = createContext<{
   accessToken: null,
   refreshToken: null,
   login: async () => undefined,
+  setLoading: () => {},
   register: async () => {},
   logout: async () => {},
   forgotPassword: async () => {},
@@ -193,7 +195,7 @@ export const AuthProvider = ({ children }: any) => {
   };
 
   // Login handler
-  const login = async (email: any, password: any) => {
+  const login = async (email: string, password: string) => {
     try {
       setLoading(true);
       const result = await authService.login(email, password);
@@ -309,10 +311,12 @@ export const AuthProvider = ({ children }: any) => {
   const value = {
     user,
     loading,
+
     initialized,
     accessToken,
     refreshToken,
     login,
+    setLoading,
     register,
     logout,
     forgotPassword,

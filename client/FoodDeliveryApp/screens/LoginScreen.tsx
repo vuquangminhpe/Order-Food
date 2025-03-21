@@ -18,15 +18,18 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { showMessage } from "react-native-flash-message";
+import authService from "@/api/authService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ navigation, route }: any) => {
   const { theme } = useTheme();
-  const { login, loading } = useAuth();
+  const { login, loading, setLoading } = useAuth();
 
   // State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState({});
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
@@ -80,33 +83,48 @@ const LoginScreen = ({ navigation, route }: any) => {
 
   // Handle login
   const handleLogin = async () => {
-    Keyboard.dismiss();
-
     if (!validateForm()) {
       return;
     }
 
     try {
-      const user = await login(email, password);
+      setLoading(true);
+      setError(null);
 
-      showMessage({
-        message: "Login successful!",
-        description: `Welcome back, ${user?.name}!`,
-        type: "success",
-        duration: 3000,
-      });
+      const result = await authService.login(email, password);
 
-      // Navigation will be handled by RootNavigator based on user role
-    } catch (error: any) {
-      let errorMessage =
-        "Login failed. Please check your credentials and try again.";
+      if (result && result.result) {
+        const userData = result.result;
 
-      if (error.message) {
-        errorMessage = error.message;
+        await storeUserSession(userData.access_token, userData.refresh_token);
+
+        navigation.replace("MainApp");
+      } else {
+        throw new Error("Invalid response format");
       }
+    } catch (error: any) {
+      console.error("Login error:", error);
 
-      Alert.alert("Login Failed", errorMessage);
+      if (error.response && error.response.status === 401) {
+        setError("Email hoặc mật khẩu không chính xác.");
+      } else if (error.request) {
+        setError(
+          "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối internet."
+        );
+      } else {
+        setError("Đăng nhập thất bại. Vui lòng thử lại sau.");
+      }
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const storeUserSession = async (
+    accessToken: string,
+    refreshToken: string
+  ) => {
+    await AsyncStorage.setItem("accessToken", accessToken);
+    await AsyncStorage.setItem("refreshToken", refreshToken);
   };
 
   // Navigate to register screen

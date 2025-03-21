@@ -141,26 +141,42 @@ const ProfileScreen = ({ navigation }: any) => {
     }
   };
 
-  // Upload profile image
+  // Upload profile image - Fixed implementation
   const uploadProfileImage = async (imageUri: string | undefined) => {
+    if (!imageUri) {
+      Alert.alert("Error", "No image selected");
+      return;
+    }
+
     try {
       setAvatarLoading(true);
+
+      console.log("Starting avatar upload with URI:", imageUri);
+
+      // Call the updated userService.uploadAvatar method
       const result = await userService.uploadAvatar(imageUri);
 
-      if (result && result.avatar_url) {
+      console.log("Upload result:", result);
+
+      if (result && (result.avatar_url || result.avatar)) {
+        const avatarUrl = result.avatar_url || result.avatar;
+
         // Update user profile with new avatar
-        await updateProfile({ avatar: result.avatar_url });
+        await updateProfile({ avatar: avatarUrl });
+
         Alert.alert("Success", "Profile image updated successfully");
+      } else {
+        throw new Error("Invalid response format from server");
       }
     } catch (error) {
       console.error("Upload avatar error:", error);
-      Alert.alert("Error", "Failed to upload profile image");
+      Alert.alert("Error", "Failed to upload profile image. Please try again.");
     } finally {
       setAvatarLoading(false);
     }
   };
 
-  // Handle logout
+  // Handle logout with improved error handling
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       { text: "Cancel", style: "cancel" },
@@ -171,8 +187,14 @@ const ProfileScreen = ({ navigation }: any) => {
           setLoading(true);
           try {
             await logout();
+            // If logout is successful, navigate to auth stack
+            // This should typically be handled by the auth context
           } catch (error) {
             console.error("Logout error:", error);
+            Alert.alert(
+              "Logout Failed",
+              "There was a problem logging out. Please try again."
+            );
           } finally {
             setLoading(false);
           }
