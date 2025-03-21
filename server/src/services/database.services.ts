@@ -10,7 +10,7 @@ import Refund from '../models/schemas/Refund.schema'
 import { config } from 'dotenv'
 import { Collection, Db, MongoClient } from 'mongodb'
 config()
-const uri = process.env.MONGO_URI as string
+const uri = process.env.MONGODB_URI as string
 
 class DatabaseService {
   private client: MongoClient
