@@ -60,6 +60,7 @@ export const loginValidator = validate(
               email: value,
               password: hashPassword(req.body.password)
             })
+            console.log('testsafasdf', value, req.body.password, user)
 
             if (user === null) {
               throw new Error(USERS_MESSAGES.USER_NOT_FOUND)

@@ -38,6 +38,7 @@ export const authMiddleware = validate(
                 status: HTTP_STATUS.UNAUTHORIZED
               })
             }
+            console.log(decoded)
 
             req.decoded_authorization = decoded
             req.user_id = decoded.user_id

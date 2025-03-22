@@ -1,1 +1,1 @@
-export const API_URL = "https://order-food-oqyp.vercel.app";
+export const API_URL = "http://192.168.31.66:5000";

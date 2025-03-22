@@ -52,7 +52,7 @@ app.use(helmet())
 
 // CORS setup
 const corsOptions: CorsOptions = {
-  origin: isProduction ? envConfig.client_url : '*',
+  origin: '*',
   optionsSuccessStatus: 200
 }
 app.use(cors(corsOptions))

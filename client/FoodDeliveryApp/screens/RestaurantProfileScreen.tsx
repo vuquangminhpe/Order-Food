@@ -14,6 +14,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { restaurantService } from "../api/restaurantService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const RestaurantProfileScreen = ({ navigation }: any) => {
   const { theme } = useTheme();
@@ -40,6 +41,8 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
         );
         setRestaurant(restaurantData);
       } catch (err) {
+        // await AsyncStorage.setItem("accessToken", "");
+        // await AsyncStorage.setItem("refreshToken", "");
         console.error("Error fetching restaurant profile:", err);
         setError("Failed to load restaurant profile. Please try again.");
       } finally {
