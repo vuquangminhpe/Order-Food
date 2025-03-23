@@ -18,6 +18,48 @@ import { useAuth } from "../contexts/AuthContext";
 import { menuService } from "../api/menuService";
 import { Image } from "react-native";
 
+// Định nghĩa kiểu dữ liệu cho cấu trúc API trả về
+interface MenuOption {
+  title: string;
+  required: boolean;
+  multiple: boolean;
+  items: {
+    name: string;
+    price: number;
+  }[];
+}
+
+interface MenuItem {
+  _id: string;
+  restaurantId: string;
+  categoryId: string;
+  name: string;
+  description: string;
+  price: number;
+  discountedPrice: number;
+  image: string;
+  options: MenuOption[];
+  isAvailable: boolean;
+  popularity: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface MenuCategory {
+  _id: string;
+  restaurantId: string;
+  name: string;
+  description: string;
+  order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface MenuCategoryWithItems {
+  category: MenuCategory;
+  items: MenuItem[];
+}
+
 const MenuManagementScreen = ({ navigation }: any) => {
   const { theme } = useTheme();
   const { user } = useAuth();
@@ -26,11 +68,12 @@ const MenuManagementScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [menuCategories, setMenuCategories] = useState<any[]>([]);
-  const [activeCategory, setActiveCategory] = useState(null);
-  const [menuItems, setMenuItems] = useState<any[]>([]);
-  const [filteredItems, setFilteredItems] = useState<any[]>([]);
+  const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [filteredItems, setFilteredItems] = useState<MenuItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [menuData, setMenuData] = useState<MenuCategoryWithItems[]>([]);
 
   // Fetch menu data
   const fetchMenuData = async () => {
@@ -43,26 +86,38 @@ const MenuManagementScreen = ({ navigation }: any) => {
       // Get restaurant ID from user
       const restaurantId = user?.restaurantId || "1"; // Fallback to a default ID for demo
 
-      // Fetch menu categories
-      const categoriesResponse = await menuService.getMenuCategories(
-        restaurantId
+      // Fetch complete menu (contains both categories and items)
+      const menuResponse = await menuService.getRestaurantMenu(restaurantId);
+      console.log("Menu response:", menuResponse);
+
+      // Store original menu structure
+      setMenuData(menuResponse);
+
+      // Extract categories from the response
+      const extractedCategories = menuResponse.map(
+        (item: MenuCategoryWithItems) => item.category
       );
-      setMenuCategories(categoriesResponse);
+      setMenuCategories(extractedCategories);
+
+      // Extract all items from all categories
+      let allItems: MenuItem[] = [];
+      menuResponse.forEach((categoryData: MenuCategoryWithItems) => {
+        if (categoryData.items && Array.isArray(categoryData.items)) {
+          allItems = [...allItems, ...categoryData.items];
+        }
+      });
+      setMenuItems(allItems);
 
       // Set the first category as active if one exists and none is selected
-      if (categoriesResponse.length > 0 && !activeCategory) {
-        setActiveCategory(categoriesResponse[0]._id);
+      if (extractedCategories.length > 0 && !activeCategory) {
+        setActiveCategory(extractedCategories[0]._id);
       }
-
-      // Fetch complete menu
-      const menuResponse = await menuService.getRestaurantMenu(restaurantId);
-      setMenuItems(menuResponse);
 
       // Filter items by the active category
       filterItemsByCategory(
-        menuResponse,
+        allItems,
         activeCategory ||
-          (categoriesResponse.length > 0 ? categoriesResponse[0]._id : null)
+          (extractedCategories.length > 0 ? extractedCategories[0]._id : null)
       );
     } catch (err) {
       console.error("Error fetching menu data:", err);
@@ -87,13 +142,13 @@ const MenuManagementScreen = ({ navigation }: any) => {
   useEffect(() => {
     if (activeCategory) {
       const filtered = menuItems.filter(
-        (item: any) =>
+        (item) =>
           item.categoryId === activeCategory &&
           item.name.toLowerCase().includes(searchText.toLowerCase())
       );
       setFilteredItems(filtered);
     } else {
-      const filtered = menuItems.filter((item: any) =>
+      const filtered = menuItems.filter((item) =>
         item.name.toLowerCase().includes(searchText.toLowerCase())
       );
       setFilteredItems(filtered);
@@ -101,20 +156,21 @@ const MenuManagementScreen = ({ navigation }: any) => {
   }, [searchText, menuItems, activeCategory]);
 
   // Filter items by category
-  const filterItemsByCategory = (items: any[], categoryId: string | null) => {
+  const filterItemsByCategory = (
+    items: MenuItem[],
+    categoryId: string | null
+  ) => {
     if (!categoryId) {
-      setFilteredItems(items as any);
+      setFilteredItems(items);
       return;
     }
 
-    const filtered = items.filter(
-      (item: { categoryId: any }) => item.categoryId === categoryId
-    );
+    const filtered = items.filter((item) => item.categoryId === categoryId);
     setFilteredItems(filtered);
   };
 
   // Handle category press
-  const handleCategoryPress = (categoryId: React.SetStateAction<null>) => {
+  const handleCategoryPress = (categoryId: string) => {
     setActiveCategory(categoryId);
   };
 
@@ -124,12 +180,12 @@ const MenuManagementScreen = ({ navigation }: any) => {
   };
 
   // Handle edit menu item
-  const handleEditMenuItem = (item: any) => {
+  const handleEditMenuItem = (item: MenuItem) => {
     navigation.navigate("EditMenuItem", { item, categories: menuCategories });
   };
 
   // Handle delete menu item
-  const handleDeleteMenuItem = (itemId: any) => {
+  const handleDeleteMenuItem = (itemId: string) => {
     Alert.alert(
       "Delete Menu Item",
       "Are you sure you want to delete this menu item?",
@@ -162,7 +218,10 @@ const MenuManagementScreen = ({ navigation }: any) => {
   };
 
   // Handle toggle item availability
-  const handleToggleAvailability = async (itemId: any, currentValue: any) => {
+  const handleToggleAvailability = async (
+    itemId: string,
+    currentValue: boolean
+  ) => {
     try {
       const newAvailability = !currentValue;
 
@@ -233,7 +292,7 @@ const MenuManagementScreen = ({ navigation }: any) => {
   };
 
   // Render category item
-  const renderCategoryItem = ({ item }: any) => (
+  const renderCategoryItem = ({ item }: { item: MenuCategory }) => (
     <TouchableOpacity
       style={[
         styles.categoryItem,
@@ -261,7 +320,7 @@ const MenuManagementScreen = ({ navigation }: any) => {
   );
 
   // Render menu item
-  const renderMenuItem = ({ item }: any) => (
+  const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <View style={[styles.menuItem, { backgroundColor: theme.colors.card }]}>
       <Image
         source={{ uri: item.image || "https://via.placeholder.com/100" }}
