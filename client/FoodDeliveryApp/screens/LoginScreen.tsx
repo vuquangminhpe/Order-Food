@@ -24,7 +24,7 @@ import { CommonActions } from "@react-navigation/native";
 
 const LoginScreen = ({ navigation, route }: any) => {
   const { theme } = useTheme();
-  const { login, loading, setLoading, navigateByRole } = useAuth();
+  const { setUser, login, loading, setLoading, navigateByRole } = useAuth();
 
   // State
   const [email, setEmail] = useState("");
@@ -97,7 +97,7 @@ const LoginScreen = ({ navigation, route }: any) => {
         const response = result.result;
 
         await storeUserSession(response.access_token, response.refresh_token);
-
+        setUser(response.user);
         navigateByRole(navigation, response.user.role);
       } else {
         throw new Error("Invalid response format");

@@ -82,29 +82,18 @@ export const AuthProvider = ({ children }: any) => {
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const navigateByRole = (navigation: any, role: any) => {
-    let routeName = "Customer"; // Default route
-
-    if (role === USER_ROLES.RESTAURANT_OWNER) {
-      routeName = "RestaurantOwner";
-    } else if (role === USER_ROLES.DELIVERY_PERSON) {
-      routeName = "DeliveryPerson";
-    }
-
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: "Splash" }],
+    const userProfile = authService
+      .getUserProfile()
+      .then((profile) => {
+        setUser(profile);
+        setLoading(false);
       })
-    );
-    setTimeout(() => {
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{ name: routeName }],
-        })
-      );
-    }, 100);
+      .catch((error) => {
+        console.error("Error fetching user profile:", error);
+        setLoading(false);
+      });
   };
+
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
@@ -338,7 +327,7 @@ export const AuthProvider = ({ children }: any) => {
   const value = {
     user,
     loading,
-
+    setUser,
     initialized,
     accessToken,
     refreshToken,
