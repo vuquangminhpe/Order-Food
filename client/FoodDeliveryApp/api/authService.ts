@@ -17,6 +17,8 @@ export const authService = {
         email,
         password,
       });
+      console.log("Login response:", response);
+
       return response;
     } catch (error) {
       console.error("Login error:", error);

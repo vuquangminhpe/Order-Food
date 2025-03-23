@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { authService } from "../api/authService";
+import { CommonActions } from "@react-navigation/native";
 
 // User roles
 export const USER_ROLES = {
@@ -29,6 +30,7 @@ export const AuthContext = createContext<{
     role: number;
   }) => Promise<void>;
   logout: () => Promise<void>;
+  navigateByRole: (navigation: any, role: any) => void;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, password: string) => Promise<void>;
   updateProfile: (profileData: Partial<User>) => Promise<User>;
@@ -43,6 +45,7 @@ export const AuthContext = createContext<{
   accessToken: null,
   refreshToken: null,
   login: async () => undefined,
+  navigateByRole: () => {},
   setLoading: () => {},
   register: async () => {},
   logout: async () => {},
@@ -78,8 +81,30 @@ export const AuthProvider = ({ children }: any) => {
   const [refreshToken, setRefreshToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
+  const navigateByRole = (navigation: any, role: any) => {
+    let routeName = "Customer"; // Default route
 
-  // Set up axios interceptor for handling auth
+    if (role === USER_ROLES.RESTAURANT_OWNER) {
+      routeName = "RestaurantOwner";
+    } else if (role === USER_ROLES.DELIVERY_PERSON) {
+      routeName = "DeliveryPerson";
+    }
+
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Splash" }],
+      })
+    );
+    setTimeout(() => {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: routeName }],
+        })
+      );
+    }, 100);
+  };
   useEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
@@ -142,6 +167,7 @@ export const AuthProvider = ({ children }: any) => {
           // Fetch user profile with the stored token
           try {
             const userProfile = await authService.getUserProfile();
+            console.error("userProfile", userProfile);
             setUser(userProfile);
           } catch (error) {
             // Token may be expired, try to refresh
@@ -202,6 +228,7 @@ export const AuthProvider = ({ children }: any) => {
 
       setAccessToken(result.access_token);
       setRefreshToken(result.refresh_token);
+      await AsyncStorage.setItem("userData", JSON.stringify(result.user));
       await saveTokens(result.access_token, result.refresh_token);
 
       const userProfile = await authService.getUserProfile();
@@ -325,6 +352,7 @@ export const AuthProvider = ({ children }: any) => {
     verifyEmail,
     hasRole,
     isAuthenticated,
+    navigateByRole,
     USER_ROLES,
   };
 

@@ -28,12 +28,15 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
   // Fetch restaurant details
   useEffect(() => {
     const fetchRestaurantProfile = async () => {
+      const restaurantId = user?.restaurantId;
       try {
         setLoading(true);
         setError(null);
 
         // Get restaurant ID from user
-        const restaurantId = user?.restaurantId || "1"; // Fallback to a default ID for demo
+        const restaurantId = user?.restaurantId;
+
+        console.error("Restaurant ID not found");
 
         // Fetch restaurant details
         const restaurantData = await restaurantService.getRestaurantById(
@@ -43,7 +46,7 @@ const RestaurantProfileScreen = ({ navigation }: any) => {
       } catch (err) {
         // await AsyncStorage.setItem("accessToken", "");
         // await AsyncStorage.setItem("refreshToken", "");
-        console.error("Error fetching restaurant profile:", err);
+        console.error("Error fetching restaurant profile:", err, restaurantId);
         setError("Failed to load restaurant profile. Please try again.");
       } finally {
         setLoading(false);

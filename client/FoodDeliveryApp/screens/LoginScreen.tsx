@@ -16,14 +16,15 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth, USER_ROLES } from "../contexts/AuthContext";
 import { showMessage } from "react-native-flash-message";
 import authService from "@/api/authService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CommonActions } from "@react-navigation/native";
 
 const LoginScreen = ({ navigation, route }: any) => {
   const { theme } = useTheme();
-  const { login, loading, setLoading } = useAuth();
+  const { login, loading, setLoading, navigateByRole } = useAuth();
 
   // State
   const [email, setEmail] = useState("");
@@ -86,24 +87,23 @@ const LoginScreen = ({ navigation, route }: any) => {
     if (!validateForm()) {
       return;
     }
+    const result = await authService.login(email, password);
 
     try {
       setLoading(true);
       setError(null);
 
-      const result = await authService.login(email, password);
-
       if (result && result.result) {
-        const userData = result.result;
+        const response = result.result;
 
-        await storeUserSession(userData.access_token, userData.refresh_token);
+        await storeUserSession(response.access_token, response.refresh_token);
 
-        navigation.replace("MainApp");
+        navigateByRole(navigation, response.user.role);
       } else {
         throw new Error("Invalid response format");
       }
     } catch (error: any) {
-      console.error("Login error:", error);
+      console.error("Login error:", error, result);
 
       if (error.response && error.response.status === 401) {
         setError("Email hoặc mật khẩu không chính xác.");

@@ -66,7 +66,7 @@ class AuthService {
       verify,
       role
     })
-
+    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({
         user_id: new ObjectId(user_id),
@@ -76,7 +76,8 @@ class AuthService {
 
     return {
       access_token,
-      refresh_token
+      refresh_token,
+      user
     }
   }
 
