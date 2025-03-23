@@ -6,6 +6,8 @@ import { TokenType } from '../constants/enums'
 import { validate } from '../utils/validation'
 import { checkSchema } from 'express-validator'
 import { ErrorWithStatus } from '../models/Errors'
+import { ObjectId } from 'mongodb'
+import databaseService from '~/services/database.services'
 
 export const authMiddleware = validate(
   checkSchema(
@@ -38,8 +40,10 @@ export const authMiddleware = validate(
                 status: HTTP_STATUS.UNAUTHORIZED
               })
             }
-            console.log(decoded)
-
+            const user = await databaseService.users.findOne({
+              _id: new ObjectId(decoded.user_id)
+            })
+            req.user = user
             req.decoded_authorization = decoded
             req.user_id = decoded.user_id
             req.user_role = decoded.role

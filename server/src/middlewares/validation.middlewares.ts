@@ -12,7 +12,7 @@ import { hashPassword } from '../utils/crypto'
 import { ObjectId } from 'mongodb'
 import { OrderStatus, PaymentMethod } from '../models/schemas/Order.schema'
 import { UserRole } from '../models/schemas/Users.schema'
-
+import { Request } from 'express'
 // Shared schemas
 const passwordSchema: ParamSchema = {
   notEmpty: {
@@ -411,8 +411,8 @@ export const menuItemValidator = validate(
         custom: {
           options: async (value, { req }) => {
             const category = await databaseService.menuCategories.findOne({
-              _id: new ObjectId(value),
-              restaurantId: new ObjectId(req.body.restaurantId)
+              _id: new ObjectId(value as string),
+              restaurantId: new ObjectId(req.body.restaurantId as string)
             })
 
             if (!category) {

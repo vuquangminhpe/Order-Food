@@ -18,12 +18,13 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { launchImageLibrary } from "react-native-image-picker";
 import { useTheme } from "../contexts/ThemeContext";
 import { menuService } from "../api/menuService";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AddEditMenuItemScreen = ({ route, navigation }: any) => {
   const { item, categories } = route.params || {};
   const isEditMode = !!item;
   const { theme } = useTheme();
-
+  const { user } = useAuth();
   // Initial state for new menu item
   const initialItemState = {
     name: "",
@@ -230,6 +231,7 @@ const AddEditMenuItemScreen = ({ route, navigation }: any) => {
 
       // Format menu item data
       const formattedItem = {
+        restaurantId: user?.restaurantId,
         name: menuItem.name,
         description: menuItem.description,
         price: parseFloat(menuItem.price),
@@ -240,7 +242,7 @@ const AddEditMenuItemScreen = ({ route, navigation }: any) => {
         isAvailable: menuItem.isAvailable,
         options: menuItem.options,
       };
-
+      console.error(menuItem);
       let result;
 
       if (isEditMode) {

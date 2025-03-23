@@ -16,10 +16,8 @@ import { MenuCategoryReqBody, MenuItemReqBody } from '../models/requests/auth.re
 export const createMenuItemController = async (req: Request<ParamsDictionary, any, MenuItemReqBody>, res: Response) => {
   const { user_id } = req.decoded_authorization as { user_id: string }
   const menuItemData = req.body
-  console.log('etestttsttttttttttttttttttttttttttttttttttttttttttt', menuItemData)
 
-  // Check if user owns the restaurant
-  const restaurant = await restaurantService.getRestaurantById(menuItemData.restaurantId as string)
+  const restaurant = await restaurantService.getRestaurantById(new ObjectId(menuItemData.restaurantId).toString())
 
   if (!restaurant) {
     return res.status(404).json({
@@ -28,14 +26,11 @@ export const createMenuItemController = async (req: Request<ParamsDictionary, an
   }
 
   if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
-    console.log('1231231232')
-
     return res.status(403).json({
       message: MENU_MESSAGES.UNAUTHORIZED_TO_CREATE
     })
   }
 
-  // Check if category exists
   const category = await databaseService.menuCategories.findOne({
     _id: new ObjectId(menuItemData.categoryId),
     restaurantId: new ObjectId(menuItemData.restaurantId)

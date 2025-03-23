@@ -14,6 +14,7 @@ export interface TokenPayload extends JwtPayload {
   verify?: UserVerifyStatus
   role?: UserRole
   token?: string
+  restaurantId?: string
 }
 export interface LoginResponse {
   access_token: string
