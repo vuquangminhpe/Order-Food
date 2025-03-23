@@ -65,6 +65,7 @@ const OrdersScreen = ({ navigation }: any) => {
 
       // Get restaurant ID from user
       const restaurantId = user?.restaurantId || "1"; // Fallback to a default ID for demo
+      console.log(user);
 
       // Determine which orders to fetch based on active tab
       let status;
@@ -118,7 +119,7 @@ const OrdersScreen = ({ navigation }: any) => {
       // Apply search filter
       filterOrders(response.orders, searchText);
     } catch (err) {
-      console.error("Error fetching orders:", err);
+      console.error("Error fetching orders:", err, user?.restaurantId);
       setError("Failed to load orders. Please try again.");
     } finally {
       setLoading(false);

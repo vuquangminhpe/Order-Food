@@ -161,6 +161,7 @@ export const restaurantService = {
   ) {
     try {
       const { page = 1, limit = 10, status, startDate, endDate } = params;
+      console.log("tesstsetwe", id);
 
       const queryParams = new URLSearchParams({
         page: page.toString(),

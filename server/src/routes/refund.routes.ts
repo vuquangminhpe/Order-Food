@@ -29,21 +29,9 @@ refundRouter.get('/user/history', authMiddleware, wrapAsync(getUserRefundsContro
 
 refundRouter.get('/admin/all', authMiddleware, checkUserRole([UserRole.Admin]), wrapAsync(getAllRefundsController))
 
-refundRouter.post(
-  '/:id/approve',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  approveRejectRefundValidator,
-  wrapAsync(approveRefundController)
-)
+refundRouter.post('/:id/approve', authMiddleware, approveRejectRefundValidator, wrapAsync(approveRefundController))
 
-refundRouter.post(
-  '/:id/reject',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  approveRejectRefundValidator,
-  wrapAsync(rejectRefundController)
-)
+refundRouter.post('/:id/reject', authMiddleware, approveRejectRefundValidator, wrapAsync(rejectRefundController))
 
 refundRouter.post('/:id/process', authMiddleware, checkUserRole([UserRole.Admin]), wrapAsync(processRefundController))
 

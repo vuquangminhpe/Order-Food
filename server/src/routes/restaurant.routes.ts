@@ -31,50 +31,22 @@ restaurantRouter.get('/:id/menu', wrapAsync(getRestaurantMenuController))
 restaurantRouter.get('/:id/ratings', wrapAsync(getRestaurantRatingsController))
 
 // Protected routes - Restaurant owner only
-restaurantRouter.post(
-  '/',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  restaurantValidator,
-  wrapAsync(createRestaurantController)
-)
+restaurantRouter.post('/', authMiddleware, restaurantValidator, wrapAsync(createRestaurantController))
 
-restaurantRouter.put(
-  '/:id',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  updateRestaurantValidator,
-  wrapAsync(updateRestaurantController)
-)
+restaurantRouter.put('/:id', authMiddleware, updateRestaurantValidator, wrapAsync(updateRestaurantController))
 
-restaurantRouter.delete(
-  '/:id',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  wrapAsync(deleteRestaurantController)
-)
+restaurantRouter.delete('/:id', authMiddleware, wrapAsync(deleteRestaurantController))
 
 restaurantRouter.post(
   '/:id/images',
   authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
   uploadImageMiddleware.array('images', 10),
   wrapAsync(uploadRestaurantImagesController)
 )
 
 // Restaurant analytics - restricted access
-restaurantRouter.get(
-  '/:id/orders',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  wrapAsync(getRestaurantOrdersController)
-)
+restaurantRouter.get('/:id/orders', authMiddleware, wrapAsync(getRestaurantOrdersController))
 
-restaurantRouter.get(
-  '/:id/revenue',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  wrapAsync(getRestaurantRevenueController)
-)
+restaurantRouter.get('/:id/revenue', authMiddleware, wrapAsync(getRestaurantRevenueController))
 
 export default restaurantRouter

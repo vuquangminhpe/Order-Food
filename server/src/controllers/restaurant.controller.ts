@@ -69,7 +69,7 @@ export const updateRestaurantController = async (
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     return res.status(403).json({
       message: RESTAURANT_MESSAGES.UNAUTHORIZED_TO_UPDATE
     })
@@ -95,7 +95,7 @@ export const deleteRestaurantController = async (req: Request, res: Response) =>
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     return res.status(403).json({
       message: RESTAURANT_MESSAGES.UNAUTHORIZED_TO_DELETE
     })
@@ -277,7 +277,7 @@ export const getRestaurantOrdersController = async (req: Request, res: Response)
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     return res.status(403).json({
       message: RESTAURANT_MESSAGES.UNAUTHORIZED_ACCESS
     })
@@ -311,7 +311,7 @@ export const getRestaurantRevenueController = async (req: Request, res: Response
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     return res.status(403).json({
       message: RESTAURANT_MESSAGES.UNAUTHORIZED_ACCESS
     })

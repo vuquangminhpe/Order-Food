@@ -28,13 +28,7 @@ paymentRouter.get('/vnpay-ipn', wrapAsync(vnpayIpnController))
 paymentRouter.get('/vnpay-return', wrapAsync(vnpayReturnController))
 
 // Refund payment (for restaurant owners and admins)
-paymentRouter.post(
-  '/refund',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  refundValidator,
-  wrapAsync(refundPaymentController)
-)
+paymentRouter.post('/refund', authMiddleware, refundValidator, wrapAsync(refundPaymentController))
 
 // Get payment history for user
 paymentRouter.get('/history', authMiddleware, wrapAsync(getPaymentHistoryController))

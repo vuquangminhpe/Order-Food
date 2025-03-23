@@ -72,12 +72,7 @@ userRouter.put(
 )
 
 // Get nearby delivery personnel
-userRouter.get(
-  '/delivery/nearby',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  wrapAsync(getNearbyDeliveryPersonnelController)
-)
+userRouter.get('/delivery/nearby', authMiddleware, wrapAsync(getNearbyDeliveryPersonnelController))
 
 // Admin routes
 userRouter.get('/admin/all', authMiddleware, checkUserRole([UserRole.Admin]), wrapAsync(getUsersController))

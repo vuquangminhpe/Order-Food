@@ -16,6 +16,7 @@ import { MenuCategoryReqBody, MenuItemReqBody } from '../models/requests/auth.re
 export const createMenuItemController = async (req: Request<ParamsDictionary, any, MenuItemReqBody>, res: Response) => {
   const { user_id } = req.decoded_authorization as { user_id: string }
   const menuItemData = req.body
+  console.log('etestttsttttttttttttttttttttttttttttttttttttttttttt', menuItemData)
 
   // Check if user owns the restaurant
   const restaurant = await restaurantService.getRestaurantById(menuItemData.restaurantId as string)
@@ -26,7 +27,9 @@ export const createMenuItemController = async (req: Request<ParamsDictionary, an
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
+    console.log('1231231232')
+
     return res.status(403).json({
       message: MENU_MESSAGES.UNAUTHORIZED_TO_CREATE
     })
@@ -100,7 +103,7 @@ export const updateMenuItemController = async (
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     return res.status(403).json({
       message: MENU_MESSAGES.UNAUTHORIZED_TO_UPDATE
     })
@@ -152,7 +155,7 @@ export const deleteMenuItemController = async (req: Request, res: Response) => {
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     return res.status(403).json({
       message: MENU_MESSAGES.UNAUTHORIZED_TO_DELETE
     })
@@ -206,7 +209,7 @@ export const uploadMenuItemImageController = async (req: Request, res: Response)
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     // Clean up uploaded file
     fs.unlinkSync(file.path)
 
@@ -272,7 +275,7 @@ export const createMenuCategoryController = async (
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     return res.status(403).json({
       message: MENU_MESSAGES.UNAUTHORIZED_TO_CREATE
     })
@@ -330,7 +333,7 @@ export const updateMenuCategoryController = async (
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     return res.status(403).json({
       message: MENU_MESSAGES.UNAUTHORIZED_TO_UPDATE
     })
@@ -370,7 +373,7 @@ export const deleteMenuCategoryController = async (req: Request, res: Response) 
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     return res.status(403).json({
       message: MENU_MESSAGES.UNAUTHORIZED_TO_DELETE
     })
@@ -460,7 +463,7 @@ export const updateMenuItemAvailabilityController = async (req: Request, res: Re
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     return res.status(403).json({
       message: MENU_MESSAGES.UNAUTHORIZED_TO_UPDATE
     })
@@ -505,7 +508,7 @@ export const batchUpdateMenuItemsController = async (req: Request, res: Response
     })
   }
 
-  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 3) {
+  if (restaurant.ownerId.toString() !== user_id && req.user_role !== 1) {
     return res.status(403).json({
       message: MENU_MESSAGES.UNAUTHORIZED_TO_UPDATE
     })

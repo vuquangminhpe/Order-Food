@@ -31,73 +31,28 @@ menuRouter.get('/categories/:restaurantId', wrapAsync(getMenuCategoriesControlle
 menuRouter.get('/item/:id', wrapAsync(getMenuItemController))
 
 // Protected routes - Restaurant owner only
-menuRouter.post(
-  '/item',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  menuItemValidator,
-  wrapAsync(createMenuItemController)
-)
+menuRouter.post('/item', authMiddleware, menuItemValidator, wrapAsync(createMenuItemController))
 
-menuRouter.put(
-  '/item/:id',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  menuItemValidator,
-  wrapAsync(updateMenuItemController)
-)
+menuRouter.put('/item/:id', authMiddleware, menuItemValidator, wrapAsync(updateMenuItemController))
 
-menuRouter.delete(
-  '/item/:id',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  wrapAsync(deleteMenuItemController)
-)
+menuRouter.delete('/item/:id', authMiddleware, wrapAsync(deleteMenuItemController))
 
-menuRouter.patch(
-  '/item/:id/availability',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  wrapAsync(updateMenuItemAvailabilityController)
-)
+menuRouter.patch('/item/:id/availability', authMiddleware, wrapAsync(updateMenuItemAvailabilityController))
 
 menuRouter.post(
   '/item/:id/image',
   authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
   uploadImageMiddleware.single('image'),
   wrapAsync(uploadMenuItemImageController)
 )
 
-menuRouter.post(
-  '/items/batch',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  wrapAsync(batchUpdateMenuItemsController)
-)
+menuRouter.post('/items/batch', authMiddleware, wrapAsync(batchUpdateMenuItemsController))
 
 // Menu category routes
-menuRouter.post(
-  '/category',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  menuCategoryValidator,
-  wrapAsync(createMenuCategoryController)
-)
+menuRouter.post('/category', authMiddleware, menuCategoryValidator, wrapAsync(createMenuCategoryController))
 
-menuRouter.put(
-  '/category/:id',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  menuCategoryValidator,
-  wrapAsync(updateMenuCategoryController)
-)
+menuRouter.put('/category/:id', authMiddleware, menuCategoryValidator, wrapAsync(updateMenuCategoryController))
 
-menuRouter.delete(
-  '/category/:id',
-  authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
-  wrapAsync(deleteMenuCategoryController)
-)
+menuRouter.delete('/category/:id', authMiddleware, wrapAsync(deleteMenuCategoryController))
 
 export default menuRouter

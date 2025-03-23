@@ -39,7 +39,6 @@ orderRouter.get('/:id/tracking', authMiddleware, wrapAsync(getOrderTrackingContr
 orderRouter.patch(
   '/:id/status',
   authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
   updateOrderStatusValidator,
   wrapAsync(updateOrderStatusController)
 )
@@ -48,7 +47,6 @@ orderRouter.patch(
 orderRouter.post(
   '/:id/assign',
   authMiddleware,
-  checkUserRole([UserRole.RestaurantOwner, UserRole.Admin]),
   wrapAsync(assignDeliveryPersonController)
 )
 

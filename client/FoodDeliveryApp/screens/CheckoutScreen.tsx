@@ -118,7 +118,7 @@ const CheckoutScreen = ({ navigation }: any) => {
         clearCart();
 
         // Navigate to payment result (in a real app, would use WebView for payment)
-        navigation.replace("PaymentResult", {
+        navigation.navigate("PaymentResult", {
           orderId: orderResult.order_id,
           paymentUrl: paymentResult.paymentUrl,
         });

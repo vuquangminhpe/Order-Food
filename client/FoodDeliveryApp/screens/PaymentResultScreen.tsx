@@ -34,6 +34,14 @@ const PaymentResultScreen = ({ route, navigation }: any) => {
 
   // Process payment result
   useEffect(() => {
+    setLoading(true);
+    setPaymentStatus(null);
+    setOrderDetails(null);
+    setError(null);
+
+    // Reset các animation
+    fadeAnimation.setValue(0);
+    slideAnimation.setValue(50);
     const processPayment = async () => {
       try {
         setLoading(true);
