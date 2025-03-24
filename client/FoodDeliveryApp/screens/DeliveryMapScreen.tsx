@@ -16,6 +16,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import { useLocation } from "../contexts/LocationContext";
 import { orderService, OrderStatus } from "../api/orderService";
 import { userService } from "../api/userService";
+import { useAuth } from "../contexts/AuthContext";
 
 const { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
@@ -25,6 +26,7 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 const DeliveryMapScreen = ({ route, navigation }: any) => {
   const { theme } = useTheme();
   const { currentLocation } = useLocation();
+  const { user } = useAuth();
   const mapRef = useRef<MapView>(null);
 
   // State
@@ -41,19 +43,212 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
   const [error, setError] = useState<string | null>(null);
   const [locationUpdateInterval, setLocationUpdateInterval] =
     useState<any>(null);
+  const [usingMockData, setUsingMockData] = useState(false);
 
-  // Fetch active deliveries
+  // ============= MOCK DATA GENERATION FUNCTIONS =============
+  // Central location for mock data (e.g., Ho Chi Minh City)
+  const centralLocation = {
+    lat: 10.7758439,
+    lng: 106.7017555,
+  };
+
+  // Helper to generate a location near the central point
+  const getNearbyLocation = (maxDistanceKm = 5) => {
+    // 0.01 in lat/lng is roughly 1km
+    const latOffset =
+      (Math.random() * maxDistanceKm * 2 - maxDistanceKm) * 0.01;
+    const lngOffset =
+      (Math.random() * maxDistanceKm * 2 - maxDistanceKm) * 0.01;
+
+    return {
+      lat: centralLocation.lat + latOffset,
+      lng: centralLocation.lng + lngOffset,
+    };
+  };
+
+  // Mock restaurants
+  const mockRestaurants = [
+    {
+      _id: "rest001",
+      name: "Phở Hà Nội",
+      address: "123 Nguyễn Huệ, District 1",
+      location: getNearbyLocation(3),
+    },
+    {
+      _id: "rest002",
+      name: "Bánh Mì Express",
+      address: "45 Lê Lợi, District 1",
+      location: getNearbyLocation(2),
+    },
+    {
+      _id: "rest003",
+      name: "Cơm Tấm Sài Gòn",
+      address: "78 Võ Văn Tần, District 3",
+      location: getNearbyLocation(4),
+    },
+    {
+      _id: "rest004",
+      name: "Bún Chả 36",
+      address: "112 Hai Bà Trưng, District 1",
+      location: getNearbyLocation(3.5),
+    },
+    {
+      _id: "rest005",
+      name: "Highlands Coffee",
+      address: "333 Nguyễn Trãi, District 5",
+      location: getNearbyLocation(5),
+    },
+  ];
+
+  // Mock food items
+  const mockFoodItems = [
+    { name: "Phở Bò", price: 55000 },
+    { name: "Bánh Mì Thịt", price: 25000 },
+    { name: "Cơm Tấm Sườn", price: 45000 },
+    { name: "Bún Chả", price: 60000 },
+    { name: "Cà Phê Sữa Đá", price: 35000 },
+    { name: "Trà Sữa Trân Châu", price: 40000 },
+    { name: "Gỏi Cuốn", price: 35000 },
+    { name: "Chả Giò", price: 30000 },
+    { name: "Bún Bò Huế", price: 65000 },
+    { name: "Bún Thịt Nướng", price: 50000 },
+  ];
+
+  // Mock customer addresses
+  const mockAddresses = [
+    { address: "12 Lý Tự Trọng, District 1", location: getNearbyLocation() },
+    { address: "56 Trần Hưng Đạo, District 1", location: getNearbyLocation() },
+    { address: "789 Điện Biên Phủ, District 3", location: getNearbyLocation() },
+    { address: "45 Võ Thị Sáu, District 3", location: getNearbyLocation() },
+    { address: "67 Lê Thánh Tôn, District 1", location: getNearbyLocation() },
+    {
+      address: "890 Nam Kỳ Khởi Nghĩa, District 3",
+      location: getNearbyLocation(),
+    },
+  ];
+
+  // Generate a random order number
+  const generateOrderNumber = () => {
+    return `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+  };
+
+  // Generate random items for an order
+  const generateOrderItems = (maxItems = 5) => {
+    const numItems = Math.floor(Math.random() * maxItems) + 1;
+    const items = [];
+
+    for (let i = 0; i < numItems; i++) {
+      const randomItem =
+        mockFoodItems[Math.floor(Math.random() * mockFoodItems.length)];
+      const quantity = Math.floor(Math.random() * 3) + 1;
+
+      items.push({
+        ...randomItem,
+        quantity,
+        totalPrice: randomItem.price * quantity,
+      });
+    }
+
+    return items;
+  };
+
+  // Calculate total from items
+  const calculateTotal = (items) => {
+    return items.reduce((total, item) => total + (item.totalPrice || 0), 0);
+  };
+
+  // Generate a single mock order
+  const generateMockOrder = (
+    status = OrderStatus.ReadyForPickup,
+    hasDeliveryPerson = false
+  ) => {
+    const restaurant =
+      mockRestaurants[Math.floor(Math.random() * mockRestaurants.length)];
+    const deliveryAddress =
+      mockAddresses[Math.floor(Math.random() * mockAddresses.length)];
+    const items = generateOrderItems();
+    const total = calculateTotal(items);
+
+    return {
+      _id: `order_${Math.random().toString(36).substr(2, 9)}`,
+      orderNumber: generateOrderNumber(),
+      orderStatus: status, // Using orderStatus instead of status for consistency with API
+      items: items,
+      total: total,
+      subtotal: total * 0.9,
+      deliveryFee: 15000,
+      restaurant: restaurant,
+      deliveryAddress: deliveryAddress,
+      estimatedDeliveryTime: Math.floor(Math.random() * 30) + 15, // 15-45 minutes
+      createdAt: new Date(
+        Date.now() - Math.floor(Math.random() * 3600000)
+      ).toISOString(), // Within the last hour
+      deliveryPersonId: hasDeliveryPerson ? user?.id : undefined,
+      paymentMethod: Math.random() > 0.5 ? 0 : 1, // Cash or Card
+      notes:
+        Math.random() > 0.7 ? "Please bring extra napkins and chopsticks" : "",
+      user: {
+        _id: `user_${Math.random().toString(36).substr(2, 9)}`,
+        name: `Khách hàng ${Math.floor(Math.random() * 100)}`,
+        phone: `0${Math.floor(Math.random() * 900000000) + 100000000}`,
+      },
+    };
+  };
+
+  // Generate multiple mock orders
+  const generateMockOrders = (
+    count = 2,
+    status = OrderStatus.OutForDelivery,
+    hasDeliveryPerson = true
+  ) => {
+    const orders = [];
+
+    // Create one order that's ready for pickup
+    orders.push(generateMockOrder(OrderStatus.ReadyForPickup, true));
+
+    // Create one order that's out for delivery
+    orders.push(generateMockOrder(OrderStatus.OutForDelivery, true));
+
+    return orders;
+  };
+
+  // Fetch active deliveries with mock data fallback
   const fetchActiveDeliveries = async () => {
     try {
       setLoading(true);
       setError(null);
+      setUsingMockData(false);
 
-      // Fetch active deliveries from API
-      const activeDeliveriesResponse =
-        await orderService.getActiveDeliveryOrders();
-      setActiveDeliveries(activeDeliveriesResponse || []);
+      // Use the order from route params if available (coming from another screen)
+      if (route.params?.order) {
+        const orderFromParams = route.params.order;
+        setSelectedOrder(orderFromParams);
+        setActiveDeliveries([orderFromParams]);
+      } else {
+        try {
+          // Try to fetch active deliveries from API
+          const activeDeliveriesResponse =
+            await orderService.getActiveDeliveryOrders();
 
-      // Set initial region to current location
+          if (activeDeliveriesResponse && activeDeliveriesResponse.length > 0) {
+            setActiveDeliveries(activeDeliveriesResponse);
+          } else {
+            // If no data from API, use mock data
+            console.log("No active deliveries found, using mock data");
+            const mockDeliveries = generateMockOrders();
+            setActiveDeliveries(mockDeliveries);
+            setUsingMockData(true);
+          }
+        } catch (err) {
+          console.error("Error fetching active deliveries:", err);
+          // If API call fails, use mock data
+          const mockDeliveries = generateMockOrders();
+          setActiveDeliveries(mockDeliveries);
+          setUsingMockData(true);
+        }
+      }
+
+      // Set initial region to current location or default location if not available
       if (currentLocation) {
         setRegion({
           latitude: currentLocation.lat,
@@ -61,10 +256,23 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
           latitudeDelta: LATITUDE_DELTA,
           longitudeDelta: LONGITUDE_DELTA,
         });
+      } else if (usingMockData) {
+        // If using mock data and no current location, use the central location
+        setRegion({
+          latitude: centralLocation.lat,
+          longitude: centralLocation.lng,
+          latitudeDelta: LATITUDE_DELTA,
+          longitudeDelta: LONGITUDE_DELTA,
+        });
       }
     } catch (err) {
-      console.error("Error fetching active deliveries:", err);
-      setError("Failed to load active deliveries. Please try again.");
+      console.error("Error in fetchActiveDeliveries:", err);
+      setError("Failed to load active deliveries. Using demo data.");
+
+      // Fallback to mock data
+      const mockDeliveries = generateMockOrders();
+      setActiveDeliveries(mockDeliveries);
+      setUsingMockData(true);
     } finally {
       setLoading(false);
     }
@@ -105,7 +313,8 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
 
   // Update location on server if we have an active delivery and valid location
   const updateLocationIfNeeded = async () => {
-    if (!currentLocation || activeDeliveries.length === 0) return;
+    if (!currentLocation || activeDeliveries.length === 0 || usingMockData)
+      return;
 
     try {
       // Update user location
@@ -143,15 +352,24 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
 
   // Create route coordinates for polyline
   useEffect(() => {
-    if (selectedOrder && currentLocation) {
+    if (selectedOrder) {
       const coordinates = [];
 
       // If order status is ready for pickup, route is from current location to restaurant
       if (selectedOrder.orderStatus === OrderStatus.ReadyForPickup) {
-        coordinates.push({
-          latitude: currentLocation.lat,
-          longitude: currentLocation.lng,
-        });
+        if (currentLocation) {
+          coordinates.push({
+            latitude: currentLocation.lat,
+            longitude: currentLocation.lng,
+          });
+        } else if (usingMockData) {
+          // If using mock data and no current location, use a nearby point
+          const mockDriverLocation = getNearbyLocation(1);
+          coordinates.push({
+            latitude: mockDriverLocation.lat,
+            longitude: mockDriverLocation.lng,
+          });
+        }
 
         if (selectedOrder.restaurant?.location) {
           coordinates.push({
@@ -162,15 +380,24 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
       }
       // If order status is out for delivery, route is from current location to customer
       else if (selectedOrder.orderStatus === OrderStatus.OutForDelivery) {
-        coordinates.push({
-          latitude: currentLocation.lat,
-          longitude: currentLocation.lng,
-        });
+        if (currentLocation) {
+          coordinates.push({
+            latitude: currentLocation.lat,
+            longitude: currentLocation.lng,
+          });
+        } else if (usingMockData) {
+          // If using mock data and no current location, use a nearby point
+          const mockDriverLocation = getNearbyLocation(1);
+          coordinates.push({
+            latitude: mockDriverLocation.lat,
+            longitude: mockDriverLocation.lng,
+          });
+        }
 
         if (selectedOrder.deliveryAddress) {
           coordinates.push({
-            latitude: selectedOrder.deliveryAddress.lat,
-            longitude: selectedOrder.deliveryAddress.lng,
+            latitude: selectedOrder.deliveryAddress.location.lat,
+            longitude: selectedOrder.deliveryAddress.location.lng,
           });
         }
       }
@@ -185,7 +412,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
         });
       }
     }
-  }, [selectedOrder, currentLocation]);
+  }, [selectedOrder, currentLocation, usingMockData]);
 
   // Handle order press - show route
   const handleOrderPress = (order: any) => {
@@ -207,8 +434,8 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
       order.deliveryAddress
     ) {
       setRegion({
-        latitude: order.deliveryAddress.lat,
-        longitude: order.deliveryAddress.lng,
+        latitude: order.deliveryAddress.location.lat,
+        longitude: order.deliveryAddress.location.lng,
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
       });
@@ -230,6 +457,23 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
           onPress: async () => {
             try {
               setLoading(true);
+
+              if (usingMockData) {
+                // For mock data, just simulate completion
+                setTimeout(() => {
+                  // Remove the order from active deliveries
+                  setActiveDeliveries(
+                    activeDeliveries.filter(
+                      (order) => order._id !== selectedOrder._id
+                    )
+                  );
+                  // Clear selected order
+                  setSelectedOrder(null);
+                  Alert.alert("Success", "Delivery completed successfully");
+                  setLoading(false);
+                }, 1000);
+                return;
+              }
 
               // Call API to update order status
               await orderService.updateOrderStatus(
@@ -272,6 +516,29 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
             try {
               setLoading(true);
 
+              if (usingMockData) {
+                // For mock data, just simulate pickup
+                setTimeout(() => {
+                  // Update the order status
+                  const updatedOrder = {
+                    ...selectedOrder,
+                    orderStatus: OrderStatus.OutForDelivery,
+                  };
+
+                  // Update in active deliveries
+                  const updatedDeliveries = activeDeliveries.map((order) =>
+                    order._id === selectedOrder._id ? updatedOrder : order
+                  );
+
+                  setActiveDeliveries(updatedDeliveries);
+                  setSelectedOrder(updatedOrder);
+
+                  Alert.alert("Success", "Order picked up successfully");
+                  setLoading(false);
+                }, 1000);
+                return;
+              }
+
               // Call API to update order status
               await orderService.updateOrderStatus(
                 selectedOrder._id,
@@ -300,22 +567,39 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
 
   // Recenter map on current location
   const handleRecenterMap = () => {
-    if (!currentLocation) return;
-
-    setRegion({
-      latitude: currentLocation.lat,
-      longitude: currentLocation.lng,
-      latitudeDelta: LATITUDE_DELTA,
-      longitudeDelta: LONGITUDE_DELTA,
-    });
-
-    if (mapRef.current) {
-      mapRef.current.animateToRegion({
+    if (currentLocation) {
+      setRegion({
         latitude: currentLocation.lat,
         longitude: currentLocation.lng,
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
       });
+
+      if (mapRef.current) {
+        mapRef.current.animateToRegion({
+          latitude: currentLocation.lat,
+          longitude: currentLocation.lng,
+          latitudeDelta: LATITUDE_DELTA,
+          longitudeDelta: LONGITUDE_DELTA,
+        });
+      }
+    } else if (usingMockData) {
+      // If using mock data and no current location, center on the mock central location
+      setRegion({
+        latitude: centralLocation.lat,
+        longitude: centralLocation.lng,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
+      });
+
+      if (mapRef.current) {
+        mapRef.current.animateToRegion({
+          latitude: centralLocation.lat,
+          longitude: centralLocation.lng,
+          latitudeDelta: LATITUDE_DELTA,
+          longitudeDelta: LONGITUDE_DELTA,
+        });
+      }
     }
   };
 
@@ -331,6 +615,12 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
         latitude: currentLocation.lat,
         longitude: currentLocation.lng,
       });
+    } else if (usingMockData) {
+      // If using mock data and no current location, add the central location
+      coordinates.push({
+        latitude: centralLocation.lat,
+        longitude: centralLocation.lng,
+      });
     }
 
     // Add restaurant and customer locations
@@ -342,10 +632,10 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
         });
       }
 
-      if (delivery.deliveryAddress) {
+      if (delivery.deliveryAddress?.location) {
         coordinates.push({
-          latitude: delivery.deliveryAddress.lat,
-          longitude: delivery.deliveryAddress.lng,
+          latitude: delivery.deliveryAddress.location.lat,
+          longitude: delivery.deliveryAddress.location.lng,
         });
       }
     });
@@ -429,12 +719,12 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
               {/* Customer Markers */}
               {activeDeliveries.map(
                 (delivery: any) =>
-                  delivery.deliveryAddress && (
+                  delivery.deliveryAddress?.location && (
                     <Marker
                       key={`customer-${delivery._id}`}
                       coordinate={{
-                        latitude: delivery.deliveryAddress.lat,
-                        longitude: delivery.deliveryAddress.lng,
+                        latitude: delivery.deliveryAddress.location.lat,
+                        longitude: delivery.deliveryAddress.location.lng,
                       }}
                       title={delivery.user?.name || "Customer"}
                       description={delivery.deliveryAddress.address}
@@ -509,6 +799,22 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
               />
             </TouchableOpacity>
           </View>
+
+          {/* Mock Data Indicator */}
+          {usingMockData && (
+            <View
+              style={{
+                position: "absolute",
+                top: 16,
+                left: 16,
+                backgroundColor: "rgba(255, 193, 7, 0.9)",
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 20,
+                zIndex: 999,
+              }}
+            ></View>
+          )}
         </View>
 
         {/* Bottom Panel */}

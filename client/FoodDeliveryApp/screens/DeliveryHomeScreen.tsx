@@ -18,8 +18,183 @@ import { useLocation } from "../contexts/LocationContext";
 import { orderService, OrderStatus } from "../api/orderService";
 import { useFocusEffect } from "@react-navigation/native";
 import userService from "@/api/userService";
+import apiService from "@/api/apiService";
 
 const DeliveryHomeScreen = ({ navigation }: any) => {
+  // ============= MOCK DATA GENERATION FUNCTIONS =============
+  // These functions will generate mock data when API calls fail
+
+  // Central location for mock data (e.g., Ho Chi Minh City)
+  const centralLocation = {
+    lat: 10.7758439,
+    lng: 106.7017555,
+  };
+
+  // Helper to generate a location near the central point
+  const getNearbyLocation = (maxDistanceKm = 5) => {
+    // 0.01 in lat/lng is roughly 1km
+    const latOffset =
+      (Math.random() * maxDistanceKm * 2 - maxDistanceKm) * 0.01;
+    const lngOffset =
+      (Math.random() * maxDistanceKm * 2 - maxDistanceKm) * 0.01;
+
+    return {
+      lat: centralLocation.lat + latOffset,
+      lng: centralLocation.lng + lngOffset,
+    };
+  };
+
+  // Mock restaurants
+  const mockRestaurants = [
+    {
+      _id: "rest001",
+      name: "Phở Hà Nội",
+      address: "123 Nguyễn Huệ, District 1",
+      location: getNearbyLocation(3),
+    },
+    {
+      _id: "rest002",
+      name: "Bánh Mì Express",
+      address: "45 Lê Lợi, District 1",
+      location: getNearbyLocation(2),
+    },
+    {
+      _id: "rest003",
+      name: "Cơm Tấm Sài Gòn",
+      address: "78 Võ Văn Tần, District 3",
+      location: getNearbyLocation(4),
+    },
+    {
+      _id: "rest004",
+      name: "Bún Chả 36",
+      address: "112 Hai Bà Trưng, District 1",
+      location: getNearbyLocation(3.5),
+    },
+    {
+      _id: "rest005",
+      name: "Highlands Coffee",
+      address: "333 Nguyễn Trãi, District 5",
+      location: getNearbyLocation(5),
+    },
+  ];
+
+  // Mock food items
+  const mockFoodItems = [
+    { name: "Phở Bò", price: 55000 },
+    { name: "Bánh Mì Thịt", price: 25000 },
+    { name: "Cơm Tấm Sườn", price: 45000 },
+    { name: "Bún Chả", price: 60000 },
+    { name: "Cà Phê Sữa Đá", price: 35000 },
+    { name: "Trà Sữa Trân Châu", price: 40000 },
+    { name: "Gỏi Cuốn", price: 35000 },
+    { name: "Chả Giò", price: 30000 },
+    { name: "Bún Bò Huế", price: 65000 },
+    { name: "Bún Thịt Nướng", price: 50000 },
+  ];
+
+  // Mock customer addresses
+  const mockAddresses = [
+    { address: "12 Lý Tự Trọng, District 1", location: getNearbyLocation() },
+    { address: "56 Trần Hưng Đạo, District 1", location: getNearbyLocation() },
+    { address: "789 Điện Biên Phủ, District 3", location: getNearbyLocation() },
+    { address: "45 Võ Thị Sáu, District 3", location: getNearbyLocation() },
+    { address: "67 Lê Thánh Tôn, District 1", location: getNearbyLocation() },
+    {
+      address: "890 Nam Kỳ Khởi Nghĩa, District 3",
+      location: getNearbyLocation(),
+    },
+  ];
+
+  // Generate a random order number
+  const generateOrderNumber = () => {
+    return `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+  };
+
+  // Generate random items for an order
+  const generateOrderItems = (maxItems = 5) => {
+    const numItems = Math.floor(Math.random() * maxItems) + 1;
+    const items = [];
+
+    for (let i = 0; i < numItems; i++) {
+      const randomItem =
+        mockFoodItems[Math.floor(Math.random() * mockFoodItems.length)];
+      const quantity = Math.floor(Math.random() * 3) + 1;
+
+      items.push({
+        ...randomItem,
+        quantity,
+        totalPrice: randomItem.price * quantity,
+      });
+    }
+
+    return items;
+  };
+
+  // Calculate total from items
+  const calculateTotal = (items: any[]) => {
+    return items.reduce(
+      (total: any, item: { totalPrice: any }) => total + (item.totalPrice || 0),
+      0
+    );
+  };
+
+  // Generate a single mock order
+  const generateMockOrder = (
+    status = OrderStatus.ReadyForPickup,
+    hasDeliveryPerson = false
+  ) => {
+    const restaurant =
+      mockRestaurants[Math.floor(Math.random() * mockRestaurants.length)];
+    const deliveryAddress =
+      mockAddresses[Math.floor(Math.random() * mockAddresses.length)];
+    const items = generateOrderItems();
+    const total = calculateTotal(items);
+
+    return {
+      _id: `order_${Math.random().toString(36).substr(2, 9)}`,
+      orderNumber: generateOrderNumber(),
+      status: status,
+      items: items,
+      total: total,
+      subtotal: total * 0.9,
+      deliveryFee: 15000,
+      restaurant: restaurant,
+      deliveryAddress: deliveryAddress,
+      estimatedDeliveryTime: Math.floor(Math.random() * 30) + 15, // 15-45 minutes
+      createdAt: new Date(
+        Date.now() - Math.floor(Math.random() * 3600000)
+      ).toISOString(), // Within the last hour
+      deliveryPersonId: hasDeliveryPerson ? user?.id : undefined,
+      paymentMethod: Math.random() > 0.5 ? 0 : 1, // Cash or Card
+      notes:
+        Math.random() > 0.7 ? "Please bring extra napkins and chopsticks" : "",
+    };
+  };
+
+  // Generate multiple mock orders
+  const generateMockOrders = (
+    count = 10,
+    status = OrderStatus.ReadyForPickup,
+    hasDeliveryPerson = false
+  ) => {
+    const orders = [];
+    for (let i = 0; i < count; i++) {
+      orders.push(generateMockOrder(status, hasDeliveryPerson));
+    }
+    return orders;
+  };
+
+  // Generate mock active orders (already assigned to the current delivery person)
+  const generateMockActiveOrders = (count = 2) => {
+    return generateMockOrders(count, OrderStatus.OutForDelivery, true);
+  };
+
+  // Generate mock available orders (ready for pickup, not assigned)
+  const generateMockAvailableOrders = (count = 5) => {
+    return generateMockOrders(count, OrderStatus.ReadyForPickup, false);
+  };
+
+  // ============= COMPONENT STATE AND HOOKS =============
   const { theme } = useTheme();
   const { user } = useAuth();
   const { currentLocation, startWatchingPosition, stopWatchingPosition } =
@@ -32,6 +207,7 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
   const [activeOrders, setActiveOrders] = useState<any[]>([]);
   const [isOnline, setIsOnline] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [usingMockData, setUsingMockData] = useState(false);
 
   // Start location tracking when component mounts
   useEffect(() => {
@@ -92,7 +268,7 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
     }, [isOnline])
   );
 
-  // Fetch orders
+  // UPDATED: Fetch orders with fallback to mock data
   const fetchOrders = async () => {
     if (!isOnline) return;
 
@@ -102,32 +278,86 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
         setLoading(true);
       }
 
-      // Fetch active deliveries assigned to this delivery person
-      const activeDeliveriesResponse =
-        await orderService.getActiveDeliveryOrders();
+      // Try to fetch active deliveries from API
+      let activeDeliveriesResponse = [];
+      let useActiveMockData = false;
+
+      try {
+        activeDeliveriesResponse = await orderService.getActiveDeliveryOrders();
+        if (
+          !activeDeliveriesResponse ||
+          activeDeliveriesResponse.length === 0
+        ) {
+          useActiveMockData = true;
+        }
+      } catch (err) {
+        console.error("Error fetching active deliveries:", err);
+        useActiveMockData = true;
+      }
+
+      // Set active orders (API data or mock data)
+      if (useActiveMockData) {
+        activeDeliveriesResponse = generateMockActiveOrders(2);
+        setUsingMockData(true);
+        console.log("Using mock active orders data");
+      }
+
       setActiveOrders(activeDeliveriesResponse || []);
 
-      // Fetch orders ready for pickup (available orders)
-      // Note: This endpoint might need to be implemented on the server
-      // For now, we'll use a search with the ReadyForPickup status
+      // Try to fetch available orders from API
+      let availableOrdersFiltered = [];
+      let useAvailableMockData = false;
+
       try {
-        const availableOrdersResponse = await orderService.searchOrders({
-          status: OrderStatus.ReadyForPickup,
-          limit: 10,
-        });
+        // Make a direct API call to get all recent orders
+        const response = await apiService.get(`/orders/user?limit=20`);
 
-        const availableOrdersFiltered = availableOrdersResponse.orders.filter(
-          (order: any) => !order.deliveryPersonId
-        );
+        if (
+          response &&
+          response.result &&
+          Array.isArray(response.result.orders)
+        ) {
+          // Filter orders client-side instead of server-side
+          availableOrdersFiltered = response.result.orders.filter(
+            (order: any) => {
+              return (
+                // Check if status matches ReadyForPickup (3)
+                order.status === 3 &&
+                // Check that no delivery person is assigned
+                !order.deliveryPersonId
+              );
+            }
+          );
 
-        setAvailableOrders(availableOrdersFiltered || []);
+          if (availableOrdersFiltered.length === 0) {
+            useAvailableMockData = true;
+          }
+        } else {
+          useAvailableMockData = true;
+        }
       } catch (err) {
-        console.error("Error fetching available orders:", err);
-        setAvailableOrders([]);
+        console.error("Error in direct API call:", err);
+        useAvailableMockData = true;
       }
+
+      // Set available orders (API data or mock data)
+      if (useAvailableMockData) {
+        availableOrdersFiltered = generateMockAvailableOrders(4);
+        setUsingMockData(true);
+        console.log("Using mock available orders data");
+      }
+
+      console.log("Available orders count:", availableOrdersFiltered.length);
+      setAvailableOrders(availableOrdersFiltered || []);
     } catch (err) {
       console.error("Error fetching orders:", err);
       setError("Failed to load orders. Please try again.");
+
+      // Fallback to mock data even if the entire function fails
+      setActiveOrders(generateMockActiveOrders(2));
+      setAvailableOrders(generateMockAvailableOrders(4));
+      setUsingMockData(true);
+      console.log("Using mock data due to error");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -147,6 +377,25 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
           onPress: async () => {
             try {
               setLoading(true);
+
+              if (usingMockData) {
+                // For mock data, just simulate acceptance
+                setTimeout(() => {
+                  // Move the order from available to active
+                  const updatedOrder = {
+                    ...order,
+                    status: OrderStatus.OutForDelivery,
+                    deliveryPersonId: user?.id,
+                  };
+                  setActiveOrders([...activeOrders, updatedOrder]);
+                  setAvailableOrders(
+                    availableOrders.filter((o) => o._id !== order._id)
+                  );
+                  Alert.alert("Success", "Order accepted successfully");
+                  setLoading(false);
+                }, 1000);
+                return;
+              }
 
               // Call API to accept the order
               await orderService.assignDeliveryPerson(
@@ -508,6 +757,26 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
             />
           </View>
         </View>
+
+        {/* Mock Data Indicator */}
+        {usingMockData && (
+          <View
+            style={{
+              position: "absolute",
+              top: 60,
+              right: 16,
+              backgroundColor: "rgba(255, 193, 7, 0.9)",
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 20,
+              zIndex: 999,
+            }}
+          >
+            <Text style={{ color: "#000", fontWeight: "bold", fontSize: 12 }}>
+              Using Demo Data
+            </Text>
+          </View>
+        )}
 
         {/* Active Deliveries Section */}
         <View style={styles.sectionContainer}>

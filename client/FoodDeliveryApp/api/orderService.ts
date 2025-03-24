@@ -260,26 +260,46 @@ export const orderService = {
         maxAmount,
       } = params;
 
-      const queryParams = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        sortBy,
-        sortOrder,
-        ...(query && { query }),
-        ...(status !== undefined && { status: status.toString() }),
-        ...(paymentStatus !== undefined && {
-          paymentStatus: paymentStatus.toString(),
-        }),
-        ...(startDate && { startDate }),
-        ...(endDate && { endDate }),
-        ...(restaurantId && { restaurantId }),
-        ...(userId && { userId }),
-        ...(deliveryPersonId && { deliveryPersonId }),
-        ...(minAmount !== undefined && { minAmount: String(minAmount) }),
-        ...(maxAmount !== undefined && { maxAmount: String(maxAmount) }),
-      }).toString();
+      // Create a URLSearchParams object explicitly instead of using object spread
+      const queryParams = new URLSearchParams();
 
-      const response = await apiService.get(`/orders/search?${queryParams}`);
+      // Add basic pagination and sorting params
+      queryParams.append("page", page.toString());
+      queryParams.append("limit", limit.toString());
+      queryParams.append("sortBy", sortBy);
+      queryParams.append("sortOrder", sortOrder);
+
+      // Add optional filtering params with explicit naming
+      if (query) queryParams.append("query", query);
+
+      // Use statusFilter instead of status to avoid MongoDB ObjectId validation
+      if (status !== undefined)
+        queryParams.append("statusFilter", status.toString());
+
+      if (paymentStatus !== undefined)
+        queryParams.append("paymentStatus", paymentStatus.toString());
+      if (startDate) queryParams.append("startDate", startDate);
+      if (endDate) queryParams.append("endDate", endDate);
+
+      // Be careful with ID parameters
+      if (restaurantId) queryParams.append("restaurantId", restaurantId);
+      if (userId) queryParams.append("userId", userId);
+      if (deliveryPersonId)
+        queryParams.append("deliveryPersonId", deliveryPersonId);
+
+      // Add amount filters
+      if (minAmount !== undefined)
+        queryParams.append("minAmount", minAmount.toString());
+      if (maxAmount !== undefined)
+        queryParams.append("maxAmount", maxAmount.toString());
+
+      // Debug logging
+      console.log("Search orders URL parameters:", queryParams.toString());
+
+      // Make the API request
+      const response = await apiService.get(
+        `/orders/search?${queryParams.toString()}`
+      );
       return response.result;
     } catch (error) {
       console.error("Search orders error:", error);
