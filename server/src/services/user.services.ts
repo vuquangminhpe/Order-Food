@@ -2,10 +2,11 @@ import { ObjectId } from 'mongodb'
 import { InsertOneResult, UpdateResult } from 'mongodb'
 import databaseService from './database.services'
 import { RegisterReqBody, UpdateProfileReqBody } from '../models/requests/auth.requests'
-import { uploadFileS3, deleteFileFromS3 } from '../utils/s3'
+import { uploadFileS3, deleteFileFromS3, uploadBufferToS3 } from '../utils/s3'
 import fs from 'fs'
 import path from 'path'
 import User, { UserRole, UserVerifyStatus } from '../models/schemas/Users.schema'
+import { envConfig } from '~/constants/config'
 
 class UserService {
   // Register a new user
@@ -91,28 +92,45 @@ class UserService {
     return databaseService.users.updateOne({ _id: new ObjectId(user_id) }, { $set: updateObj })
   }
 
-  // Upload avatar
-  async uploadAvatar(user_id: string, file: any): Promise<string> {
+  async uploadAvatar(user_id: string, file: Express.Multer.File): Promise<string> {
     try {
       // Get user to check if they have an existing avatar
       const user = await this.getUserById(user_id)
 
-      if (user?.avatar) {
-        // Delete old avatar from S3
-        await deleteFileFromS3(user.avatar)
+      // if (user?.avatar) {
+      //   // Delete old avatar from S3
+      //   await deleteFileFromS3(user.avatar)
+      // }
+
+      // Generate a unique filename
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
+      const ext = path.extname(file.originalname)
+      const filename = `users/${user_id}/avatar/${uniqueSuffix}${ext}`
+
+      // Handle upload based on storage type (memory in production, disk in development)
+      if (file.buffer) {
+        // Memory storage (production) - upload directly from buffer
+        await uploadBufferToS3({
+          filename,
+          buffer: file.buffer,
+          contentType: file.mimetype
+        })
+      } else if (file.path) {
+        // Disk storage (development) - upload from file path
+        await uploadFileS3({
+          filename,
+          filePath: file.path,
+          contentType: file.mimetype
+        })
+
+        // Clean up temp file
+        fs.unlinkSync(file.path)
+      } else {
+        throw new Error('Invalid file object: neither path nor buffer is available')
       }
 
-      // Upload new avatar to S3
-      const filename = `users/${user_id}/avatar/${Date.now()}-${path.basename(file.path)}`
-
-      await uploadFileS3({
-        filename,
-        filePath: file.path,
-        contentType: file.mimetype
-      })
-
       // Construct S3 URL
-      const fileUrl = `https://${process.env.Bucket_Name}.s3.${process.env.region}.amazonaws.com/${filename}`
+      const fileUrl = `https://${envConfig.Bucket_Name}.s3.${envConfig.region}.amazonaws.com/${filename}`
 
       // Update user with avatar URL
       await databaseService.users.updateOne(
@@ -125,16 +143,14 @@ class UserService {
         }
       )
 
-      // Clean up temp file
-      fs.unlinkSync(file.path)
-
       return fileUrl
     } catch (error) {
-      // Clean up temp file on error
-      if (fs.existsSync(file.path)) {
+      // Clean up temp file on error if it exists
+      if (file.path && fs.existsSync(file.path)) {
         fs.unlinkSync(file.path)
       }
 
+      console.error('Error uploading avatar:', error)
       throw error
     }
   }

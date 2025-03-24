@@ -149,14 +149,28 @@ export const authService = {
 
   async uploadAvatar(imageUri: string) {
     try {
+      // Add validation to prevent undefined
+      if (!imageUri) {
+        console.error("Image URI is undefined");
+        throw new Error("Image URI is required");
+      }
+
+      console.log("Processing image URI in service:", imageUri);
+
       const formData = new FormData();
 
       // Parse filename from URI
-      const filename = imageUri.split("/").pop();
+      const filename = imageUri.split("/").pop() || `image_${Date.now()}.jpg`;
 
       // Determine MIME type
-      const match = /\.(\w+)$/.exec(filename as string);
-      const type = match ? `image/${match[1]}` : "image/jpeg";
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1].toLowerCase()}` : "image/jpeg";
+
+      console.log("Creating form data with:", {
+        uri: imageUri,
+        name: filename,
+        type,
+      });
 
       // @ts-ignore - React Native's FormData implementation differs from standard
       formData.append("avatar", {

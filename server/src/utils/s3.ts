@@ -167,3 +167,42 @@ export const deleteS3Folder = async (folderPath: string): Promise<void> => {
     throw new Error(`Không thể xóa thư mục: ${(error as any).message}`)
   }
 }
+export const uploadBufferToS3 = async ({
+  filename,
+  buffer,
+  contentType
+}: {
+  filename: string
+  buffer: Buffer
+  contentType: string
+}) => {
+  const parallelUploads3 = await new Upload({
+    client: s3,
+    params: {
+      Bucket: envConfig.Bucket_Name as string,
+      Key: filename,
+      Body: buffer,
+      ContentType: contentType
+    },
+
+    // optional tags
+    tags: [
+      /*...*/
+    ],
+
+    // additional optional fields show default values below:
+
+    // (optional) concurrency configuration
+    queueSize: 4,
+
+    // (optional) size of each part, in bytes, at least 5MB
+    partSize: 1024 * 1024 * 5,
+
+    // (optional) when true, do not automatically call AbortMultipartUpload when
+    // a multipart upload fails to complete. You should then manually handle
+    // the leftover parts.
+    leavePartsOnError: false
+  })
+
+  return parallelUploads3.done()
+}

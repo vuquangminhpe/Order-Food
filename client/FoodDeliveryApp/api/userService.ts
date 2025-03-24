@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import apiService from "./apiService";
 
 interface UserProfile {
@@ -53,33 +54,55 @@ export const userService = {
     }
   },
 
-  // Upload avatar
+  // Updated userService.uploadAvatar method
   async uploadAvatar(imageUri: string) {
     try {
+      console.log("Starting avatar upload with URI:", imageUri);
+
+      // Create FormData correctly for React Native
       const formData = new FormData();
 
       // Parse filename from URI
       const filename = imageUri.split("/").pop();
 
-      // Determine MIME type
-      const match = /\.(\w+)$/.exec(filename as string);
-      const type = match ? `image/${match[1]}` : "image/jpeg";
+      // Determine MIME type - be more specific with extension matching
+      let type = "image/jpeg"; // Default
+      if (filename) {
+        if (filename.endsWith(".png")) type = "image/png";
+        else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg"))
+          type = "image/jpeg";
+        else if (filename.endsWith(".gif")) type = "image/gif";
+        else if (filename.endsWith(".webp")) type = "image/webp";
+      }
 
-      // @ts-ignore - React Native's FormData implementation differs from standard
+      console.log("Preparing file upload with:", { filename, type });
+
+      // Add the file to FormData with the correct structure for React Native
       formData.append("avatar", {
-        uri: imageUri,
-        name: filename,
+        uri: Platform.OS === "ios" ? imageUri.replace("file://", "") : imageUri,
+        name: filename || "photo.jpg",
         type,
-      });
+      } as any);
+
+      console.log("FormData created, sending to server...");
+
+      // Log request details for debugging
+      const requestDetails = {
+        url: "/users/avatar",
+        formDataEntries: Object.fromEntries(formData as any),
+      };
+      console.log("Request details:", JSON.stringify(requestDetails, null, 2));
 
       const response = await apiService.upload("/users/avatar", formData);
+      console.log("Upload response:", response);
+
+      // Return the full response for better debugging
       return response.result;
     } catch (error) {
       console.error("Upload avatar error:", error);
       throw error;
     }
   },
-
   // Get addresses
   async getAddresses() {
     try {

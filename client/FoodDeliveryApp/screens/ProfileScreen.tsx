@@ -13,7 +13,7 @@ import {
   GestureResponderEvent,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { launchImageLibrary } from "react-native-image-picker";
+import * as ImagePicker from "expo-image-picker";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { userService } from "../api/userService";
@@ -21,6 +21,7 @@ import { userService } from "../api/userService";
 const ProfileScreen = ({ navigation }: any) => {
   const { theme, isDark, toggleTheme } = useTheme();
   const { user, logout, updateProfile } = useAuth();
+  const [avatarKey, setAvatarKey] = useState(Date.now());
 
   const [loading, setLoading] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
@@ -113,35 +114,36 @@ const ProfileScreen = ({ navigation }: any) => {
   // Handle profile image selection
   const handleSelectProfileImage = async () => {
     try {
-      const options = {
-        mediaType: "photo",
-        includeBase64: false,
-        maxHeight: 800,
-        maxWidth: 800,
-      };
+      // Using expo-image-picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
 
-      const result = await launchImageLibrary(options as any);
+      console.log("Image picker result:", result);
 
-      if (result.didCancel) {
-        return;
-      }
-
-      if (result.errorCode) {
-        Alert.alert("Error", result.errorMessage);
-        return;
-      }
-
-      if (result.assets && result.assets.length > 0) {
+      if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedImage = result.assets[0];
-        uploadProfileImage(selectedImage.uri);
+        const imageUri = selectedImage.uri;
+
+        if (!imageUri) {
+          throw new Error("Selected image has no URI");
+        }
+
+        console.log("Selected image URI:", imageUri);
+        // Set the image in your state
+        // setAvatarLoading(imageUri);
+
+        // Then upload it
+        await uploadProfileImage(imageUri);
       }
     } catch (error) {
       console.error("Image picker error:", error);
-      Alert.alert("Error", "Failed to open image picker");
+      Alert.alert("Error", "Failed to select image");
     }
   };
-
-  // Upload profile image - Fixed implementation
   const uploadProfileImage = async (imageUri: string | undefined) => {
     if (!imageUri) {
       Alert.alert("Error", "No image selected");
@@ -150,22 +152,23 @@ const ProfileScreen = ({ navigation }: any) => {
 
     try {
       setAvatarLoading(true);
+      console.log("Starting profile image upload with URI:", imageUri);
 
-      console.log("Starting avatar upload with URI:", imageUri);
-
-      // Call the updated userService.uploadAvatar method
       const result = await userService.uploadAvatar(imageUri);
-
-      console.log("Upload result:", result);
+      console.log("Upload avatar result:", result);
 
       if (result && (result.avatar_url || result.avatar)) {
         const avatarUrl = result.avatar_url || result.avatar;
+        console.log("New avatar URL:", avatarUrl);
 
-        // Update user profile with new avatar
         await updateProfile({ avatar: avatarUrl });
+        console.log("Profile updated in context");
+
+        setAvatarKey(Date.now());
 
         Alert.alert("Success", "Profile image updated successfully");
       } else {
+        console.log("Invalid response format:", result);
         throw new Error("Invalid response format from server");
       }
     } catch (error) {
@@ -176,7 +179,6 @@ const ProfileScreen = ({ navigation }: any) => {
     }
   };
 
-  // Handle logout with improved error handling
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       { text: "Cancel", style: "cancel" },
@@ -187,8 +189,6 @@ const ProfileScreen = ({ navigation }: any) => {
           setLoading(true);
           try {
             await logout();
-            // If logout is successful, navigate to auth stack
-            // This should typically be handled by the auth context
           } catch (error) {
             console.error("Logout error:", error);
             Alert.alert(
@@ -220,7 +220,7 @@ const ProfileScreen = ({ navigation }: any) => {
             <Image
               source={
                 user?.avatar
-                  ? { uri: user.avatar }
+                  ? { uri: `${user.avatar}?cache=${avatarKey}` } // Add cache busting
                   : require("../assets/images/default-avatar.png")
               }
               style={styles.avatar}

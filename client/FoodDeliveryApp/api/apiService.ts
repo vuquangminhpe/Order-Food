@@ -77,44 +77,49 @@ export const apiService = {
     return this.request("delete", endpoint, null, config);
   },
 
-  // Upload file (multipart/form-data)
-  async upload(
-    endpoint: string,
-    formData: FormData,
-    onProgress: ((percentCompleted: number) => void) | null = null
-  ) {
+  upload: async (endpoint: string, formData: FormData) => {
     try {
-      const token = await AsyncStorage.getItem("accessToken");
+      console.log(`Uploading to ${endpoint}...`);
 
-      const response = await apiClient.post(endpoint, formData, {
+      // Get authentication token
+      const token = await getToken();
+      console.log("Auth token available:", !!token);
+
+      // Create request with proper headers
+      const request = {
+        method: "POST",
         headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: token ? `Bearer ${token}` : "",
+          // Don't set Content-Type for multipart/form-data
+          // Let fetch set it automatically with the boundary
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
         },
-        onUploadProgress: onProgress
-          ? (progressEvent) => {
-              const percentCompleted = Math.round(
-                (progressEvent.loaded * 100) / (progressEvent as any).total
-              );
-              onProgress(percentCompleted);
-            }
-          : undefined,
-      });
+        body: formData,
+      };
 
-      return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        console.error("Upload Error:", error.response.data);
-        throw error.response.data;
-      } else if (error.request) {
-        console.error("No upload response received:", error.request);
+      console.log(`Sending request to ${API_BASE_URL}${endpoint}`);
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, request);
+
+      // Get response details for debugging
+      const responseStatus = response.status;
+      const responseStatusText = response.statusText;
+      console.log(`Response status: ${responseStatus} ${responseStatusText}`);
+
+      // Parse JSON response
+      const data = await response.json();
+      console.log("Response data:", JSON.stringify(data, null, 2));
+
+      if (!response.ok) {
+        console.error("Upload failed with status:", responseStatus);
         throw new Error(
-          "No response from server. Please check your internet connection."
+          data.message || `Upload failed with status ${responseStatus}`
         );
-      } else {
-        console.error("Upload request error:", error.message);
-        throw error;
       }
+
+      return data;
+    } catch (error) {
+      console.error("API upload error:", error);
+      throw error;
     }
   },
 };

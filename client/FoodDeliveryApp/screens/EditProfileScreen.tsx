@@ -14,7 +14,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { launchImageLibrary } from "react-native-image-picker";
+import * as ImagePicker from "expo-image-picker";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { userService } from "../api/userService";
@@ -52,69 +52,85 @@ const EditProfileScreen = ({ navigation }: any) => {
   // Handle selecting image from gallery with improved error handling
   const handleSelectImage = async () => {
     try {
-      const options = {
-        mediaType: "photo" as const,
-        includeBase64: false,
-        maxHeight: 800,
-        maxWidth: 800,
+      // Request permissions first
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission needed",
+          "Please grant camera roll permissions to upload a profile picture"
+        );
+        return;
+      }
+
+      // Launch the image library
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
         quality: 0.8,
-      };
+      });
 
-      const result = await launchImageLibrary(options);
+      if (!result.canceled) {
+        const selectedAsset = result.assets[0];
+        const imageUri = selectedAsset.uri;
+        setAvatarSource(imageUri);
 
-      if (result.didCancel) {
-        console.log("User cancelled image picker");
-        return;
-      }
-
-      if (result.errorCode) {
-        console.error("ImagePicker Error: ", result.errorMessage);
-        Alert.alert("Error", `Failed to select image: ${result.errorMessage}`);
-        return;
-      }
-
-      if (result.assets && result.assets.length > 0) {
-        const source = result.assets[0].uri || null;
-        setAvatarSource(source);
-
-        // Upload avatar immediately
-        if (source) {
-          await uploadAvatar(source);
+        // Upload the selected image
+        if (imageUri) {
+          await uploadAvatar(imageUri);
         }
       }
     } catch (error) {
-      console.error("Image selection error:", error);
-      Alert.alert("Error", "Failed to select image. Please try again.");
+      console.error("Image picker error:", error);
+      Alert.alert("Error", "Failed to open image picker");
     }
   };
 
   // Upload avatar with improved implementation
-  const uploadAvatar = async (source: string) => {
+  const uploadAvatar = async (imageUri: string) => {
     try {
-      setUploadingImage(true);
-      setError(null);
+      console.log("Starting avatar upload with URI:", imageUri);
 
-      console.log("Starting avatar upload with URI:", source);
+      // Prepare the file info properly for FormData
+      const filename = imageUri.split("/").pop() || "photo.jpg";
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1].toLowerCase()}` : "image/jpeg";
 
-      const result = await userService.uploadAvatar(source);
+      console.log("Preparing form data with:", {
+        uri: imageUri,
+        name: filename,
+        type,
+      });
 
+      const formData = new FormData();
+      // This is the critical part - properly format the file object for FormData
+      formData.append("avatar", {
+        uri:
+          Platform.OS === "android"
+            ? imageUri
+            : imageUri.replace("file://", ""),
+        type: type,
+        name: filename,
+      } as any);
+
+      const result = await userService.uploadAvatar(imageUri);
       console.log("Upload result:", result);
 
       if (result && (result.avatar_url || result.avatar)) {
         const avatarUrl = result.avatar_url || result.avatar;
         setAvatarSource(avatarUrl);
-
-        // Also update the profile avatar to ensure it's in sync
+        // Update profile
         await updateProfile({ avatar: avatarUrl });
+        Alert.alert("Success", "Profile image updated successfully");
       } else {
         throw new Error("Invalid response format from server");
       }
     } catch (error) {
-      console.error("Upload avatar error:", error);
-      Alert.alert("Error", "Failed to upload avatar. Please try again.");
-      setError("Failed to upload profile image");
+      console.error("Upload avatar error:", JSON.stringify(error));
+      Alert.alert("Error", "Failed to upload profile image. Please try again.");
     } finally {
-      setUploadingImage(false);
     }
   };
 

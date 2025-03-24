@@ -249,7 +249,7 @@ const EditRestaurantProfileScreen = ({ navigation }: any) => {
         const restaurantId = user?.restaurantId || "1";
 
         // Update restaurant data
-        await restaurantService.updateRestaurant(restaurantId, restaurant);
+        await restaurantService.updateRestaurant(restaurantId, restaurant as any);
 
         // Upload logo if changed
         if (logoImage && logoImage !== restaurant.logo) {

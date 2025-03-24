@@ -16,6 +16,7 @@ import RestaurantProfileScreen from "../screens/RestaurantProfileScreen";
 import EditRestaurantProfileScreen from "../screens/EditRestaurantProfileScreen"; // Ensure this is a valid React component
 import ProfileScreen from "../screens/ProfileScreen";
 import NotificationsScreen from "../screens/NotificationsScreen";
+import EditProfileScreen from "@/screens/EditProfileScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -192,6 +193,7 @@ const ProfileStack = () => {
         component={NotificationsScreen}
         options={{ title: "Notifications" }}
       />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>
   );
 };

@@ -15,11 +15,13 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useLocation } from "../contexts/LocationContext";
-import { launchImageLibrary } from "react-native-image-picker";
+import * as ImagePicker from "expo-image-picker";
+import userService from "@/api/userService";
 
 const DeliveryProfileScreen = ({ navigation }: any) => {
   const { theme, isDark, toggleTheme } = useTheme();
   const { user, logout, updateProfile } = useAuth();
+
   const { currentLocation, stopWatchingPosition } = useLocation();
 
   // State
@@ -51,49 +53,61 @@ const DeliveryProfileScreen = ({ navigation }: any) => {
   // Handle profile image selection
   const handleSelectProfileImage = async () => {
     try {
-      const options = {
-        mediaType: "photo",
-        includeBase64: false,
-        maxHeight: 800,
-        maxWidth: 800,
-      };
+      // Using expo-image-picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
 
-      const result = await launchImageLibrary(options as any);
+      console.log("Image picker result:", result);
 
-      if (result.didCancel) {
-        return;
-      }
-
-      if (result.errorCode) {
-        Alert.alert("Error", result.errorMessage);
-        return;
-      }
-
-      if (result.assets && result.assets.length > 0) {
+      if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedImage = result.assets[0];
-        uploadProfileImage(selectedImage.uri);
+        const imageUri = selectedImage.uri;
+
+        if (!imageUri) {
+          throw new Error("Selected image has no URI");
+        }
+
+        console.log("Selected image URI:", imageUri);
+
+        await uploadProfileImage(imageUri);
       }
     } catch (error) {
       console.error("Image picker error:", error);
-      Alert.alert("Error", "Failed to open image picker");
+      Alert.alert("Error", "Failed to select image");
     }
   };
 
   // Upload profile image
-  const uploadProfileImage = async (imageUri: string | undefined) => {
+  const uploadProfileImage = async (imageUri: string) => {
     try {
       setAvatarLoading(true);
+      console.log("Starting avatar upload with URI:", imageUri);
 
-      // In a real app, you would call an API to upload the image
-      // await userService.uploadAvatar(imageUri);
+      // Create a file name from the URI
+      const fileName = imageUri.split("/").pop();
+      const fileType = (fileName?.split(".").pop() ?? "").toLowerCase();
 
-      // For demo, we'll simulate a successful upload
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Create form data for upload
+      const formData = new FormData();
+      formData.append("avatar", {
+        uri: imageUri,
+        name: fileName,
+        type: `image/${fileType}`,
+      });
 
-      // Update user profile with new avatar
-      await updateProfile({ avatar: imageUri });
+      const result = await userService.uploadAvatar(imageUri);
 
-      Alert.alert("Success", "Profile image updated successfully");
+      if (result && (result.avatar_url || result.avatar)) {
+        const avatarUrl = result.avatar_url || result.avatar;
+        await updateProfile({ avatar: avatarUrl });
+        Alert.alert("Success", "Profile image updated successfully");
+      } else {
+        throw new Error("Invalid response format from server");
+      }
     } catch (error) {
       console.error("Upload avatar error:", error);
       Alert.alert("Error", "Failed to upload profile image");
