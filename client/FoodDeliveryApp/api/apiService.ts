@@ -38,8 +38,6 @@ export const apiService = {
       return response.data;
     } catch (error: any) {
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         console.error("API Error:", error.response.data);
         throw error.response.data;
       } else if (error.request) {

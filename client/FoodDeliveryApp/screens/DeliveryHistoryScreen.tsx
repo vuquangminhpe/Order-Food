@@ -36,7 +36,7 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
-  const [filteredDeliveries, setFilteredDeliveries] = useState([]);
+  const [filteredDeliveries, setFilteredDeliveries] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -60,7 +60,7 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
       setError(null);
 
       // Set up date parameters based on active filter
-      let params = { page, limit: pagination.limit } as any;
+      let params: any = { page, limit: pagination.limit };
 
       const now = new Date();
 
@@ -86,18 +86,20 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
 
       // Update deliveries list
       if (refresh || page === 1) {
-        setDeliveries(response.deliveries);
+        setDeliveries(response.orders || []);
       } else {
-        setDeliveries((prev) => [...prev, ...response.deliveries]);
+        setDeliveries((prev) => [...prev, ...(response.orders || [])]);
       }
 
       setPagination({
-        ...response.pagination,
         page,
+        limit: pagination.limit,
+        total: response.pagination?.total || 0,
+        pages: response.pagination?.pages || 0,
       });
 
       // Apply search and filter
-      filterDeliveries(response.deliveries, searchText);
+      filterDeliveries(response.orders || [], searchText);
     } catch (err) {
       console.error("Error fetching delivery history:", err);
       setError("Failed to load delivery history. Please try again.");
@@ -109,19 +111,19 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
   };
 
   // Filter deliveries based on search text
-  const filterDeliveries = (deliveriesList: any, search: any) => {
+  const filterDeliveries = (deliveriesList: any[], search: string) => {
     if (!search.trim()) {
       setFilteredDeliveries(deliveriesList);
       return;
     }
 
-    const filtered = deliveriesList.filter((delivery: any) => {
+    const filtered = deliveriesList.filter((delivery) => {
       const searchLower = search.toLowerCase();
       return (
-        delivery.orderNumber.toLowerCase().includes(searchLower) ||
+        delivery.orderNumber?.toLowerCase().includes(searchLower) ||
         delivery.restaurant?.name?.toLowerCase().includes(searchLower) ||
-        delivery.customer?.name?.toLowerCase().includes(searchLower) ||
-        delivery.customer?.address?.toLowerCase().includes(searchLower)
+        delivery.user?.name?.toLowerCase().includes(searchLower) ||
+        delivery.deliveryAddress?.address?.toLowerCase().includes(searchLower)
       );
     });
 
@@ -146,7 +148,7 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
   }, [searchText, deliveries]);
 
   // Handle filter change
-  const handleFilterChange = (filterId: any) => {
+  const handleFilterChange = (filterId: string) => {
     setActiveFilter(filterId);
     // Fetch will be triggered by useEffect
   };
@@ -207,12 +209,44 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
 
   // Render delivery item
   const renderDeliveryItem = ({ item }: any) => {
+    // Use created_at as the date
     const deliveryDate = formatDate(item.created_at);
-    const pickupTime = item.pickup_at ? formatTime(item.pickup_at) : "--:--";
+
+    // For pickup and delivery times, check if we have specific timestamps
+    // Otherwise, use status timestamps if available
+    const pickupTime = item.pickup_at
+      ? formatTime(item.pickup_at)
+      : item.statusUpdates?.find(
+          (u: any) => u.status === OrderStatus.OutForDelivery
+        )?.timestamp
+      ? formatTime(
+          item.statusUpdates.find(
+            (u: any) => u.status === OrderStatus.OutForDelivery
+          ).timestamp
+        )
+      : "--:--";
+
     const deliveredTime = item.delivered_at
       ? formatTime(item.delivered_at)
+      : item.statusUpdates?.find((u: any) => u.status === OrderStatus.Delivered)
+          ?.timestamp
+      ? formatTime(
+          item.statusUpdates.find(
+            (u: any) => u.status === OrderStatus.Delivered
+          ).timestamp
+        )
       : "--:--";
-    const duration = calculateDuration(item.pickup_at, item.delivered_at);
+
+    // Calculate duration if we have both timestamps
+    const duration = calculateDuration(
+      item.pickup_at ||
+        item.statusUpdates?.find(
+          (u: any) => u.status === OrderStatus.OutForDelivery
+        )?.timestamp,
+      item.delivered_at ||
+        item.statusUpdates?.find((u: any) => u.status === OrderStatus.Delivered)
+          ?.timestamp
+    );
 
     return (
       <TouchableOpacity
@@ -231,7 +265,7 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
             </Text>
           </View>
           <Text style={[styles.deliveryAmount, { color: theme.colors.text }]}>
-            ${item.deliveryFee.toFixed(2)}
+            ${(item.deliveryFee || 0).toFixed(2)}
           </Text>
         </View>
 
@@ -259,7 +293,7 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
               color={theme.colors.secondary}
             />
             <Text style={[styles.locationText, { color: theme.colors.text }]}>
-              {item.customer?.address || "Customer Address"}
+              {item.deliveryAddress?.address || "Customer Address"}
             </Text>
           </View>
         </View>
@@ -444,7 +478,7 @@ const DeliveryHistoryScreen = ({ navigation }: any) => {
         <FlatList
           data={filteredDeliveries}
           renderItem={renderDeliveryItem}
-          keyExtractor={(item: any) => item._id}
+          keyExtractor={(item) => item._id}
           contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl

@@ -17,6 +17,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useLocation } from "../contexts/LocationContext";
 import { orderService, OrderStatus } from "../api/orderService";
 import { useFocusEffect } from "@react-navigation/native";
+import userService from "@/api/userService";
 
 const DeliveryHomeScreen = ({ navigation }: any) => {
   const { theme } = useTheme();
@@ -27,22 +28,8 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
   // State
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  interface Order {
-    _id: string;
-    orderNumber: string;
-    restaurantName: string;
-    restaurantAddress: string;
-    customerAddress: string;
-    amount: number;
-    distance: string;
-    estimatedTime: number;
-    items: number;
-    status?: typeof OrderStatus;
-    accepted_at?: string;
-  }
-
-  const [availableOrders, setAvailableOrders] = useState<Order[]>([]);
-  const [activeOrders, setActiveOrders] = useState<Order[]>([]);
+  const [availableOrders, setAvailableOrders] = useState<any[]>([]);
+  const [activeOrders, setActiveOrders] = useState<any[]>([]);
   const [isOnline, setIsOnline] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +37,8 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
   useEffect(() => {
     if (isOnline) {
       startWatchingPosition();
+      // Update delivery person status on server
+      updateDeliveryStatus(true);
     }
 
     // Cleanup when component unmounts
@@ -58,10 +47,48 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
     };
   }, [isOnline]);
 
+  // Update delivery person status on server
+  const updateDeliveryStatus = async (isAvailable: boolean) => {
+    try {
+      await userService.updateDeliveryStatus(isAvailable);
+    } catch (err) {
+      console.error("Error updating delivery status:", err);
+    }
+  };
+
+  // Update location on server
+  const updateLocationOnServer = async () => {
+    if (!currentLocation || !isOnline) return;
+
+    try {
+      await userService.updateLocation(
+        currentLocation.lat,
+        currentLocation.lng
+      );
+    } catch (err) {
+      console.error("Error updating location:", err);
+    }
+  };
+
+  // Update location periodically
+  useEffect(() => {
+    if (!isOnline || !currentLocation) return;
+
+    updateLocationOnServer();
+
+    const interval = setInterval(() => {
+      updateLocationOnServer();
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, [currentLocation, isOnline]);
+
   // Fetch orders when screen is focused
   useFocusEffect(
     useCallback(() => {
-      fetchOrders();
+      if (isOnline) {
+        fetchOrders();
+      }
     }, [isOnline])
   );
 
@@ -76,32 +103,28 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
       }
 
       // Fetch active deliveries assigned to this delivery person
-      const activeDeliveries = await orderService.getActiveDeliveryOrders();
-      setActiveOrders(activeDeliveries || []);
+      const activeDeliveriesResponse =
+        await orderService.getActiveDeliveryOrders();
+      setActiveOrders(activeDeliveriesResponse || []);
 
-      // In a real app, you would fetch available orders from your backend
-      // Here we'll use mock data for demonstration
+      // Fetch orders ready for pickup (available orders)
+      // Note: This endpoint might need to be implemented on the server
+      // For now, we'll use a search with the ReadyForPickup status
+      try {
+        const availableOrdersResponse = await orderService.searchOrders({
+          status: OrderStatus.ReadyForPickup,
+          limit: 10,
+        });
 
-      // Mock available orders
-      const mockAvailableOrders = Array(5).map((_, i) => ({
-        _id: `order-${i + 100}`,
-        orderNumber: `ORD-${Math.floor(Math.random() * 10000)}`,
-        restaurantName: [
-          "Burger King",
-          "Pizza Hut",
-          "Subway",
-          "KFC",
-          "Taco Bell",
-        ][i % 5],
-        restaurantAddress: "123 Main St, Anytown, USA",
-        customerAddress: `${i + 1}00 Elm St, Anytown, USA`,
-        amount: Math.floor(Math.random() * 200) + 50,
-        distance: (Math.random() * 5 + 0.5).toFixed(1),
-        estimatedTime: Math.floor(Math.random() * 20) + 10,
-        items: Math.floor(Math.random() * 5) + 1,
-      }));
+        const availableOrdersFiltered = availableOrdersResponse.orders.filter(
+          (order: any) => !order.deliveryPersonId
+        );
 
-      setAvailableOrders(mockAvailableOrders as any);
+        setAvailableOrders(availableOrdersFiltered || []);
+      } catch (err) {
+        console.error("Error fetching available orders:", err);
+        setAvailableOrders([]);
+      }
     } catch (err) {
       console.error("Error fetching orders:", err);
       setError("Failed to load orders. Please try again.");
@@ -125,31 +148,20 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
             try {
               setLoading(true);
 
-              // In a real app, you would call an API to accept the order
-              // await orderService.acceptDelivery(order._id);
-
-              // For demo, we'll simulate a successful acceptance
-              await new Promise((resolve) => setTimeout(resolve, 1000));
-
-              // Move from available to active orders
-              setAvailableOrders((prev) =>
-                prev.filter((o: any) => o._id !== order._id)
+              // Call API to accept the order
+              await orderService.assignDeliveryPerson(
+                order._id,
+                user?.id as string
               );
-              setActiveOrders((prev: any) => [
-                ...prev,
-                {
-                  ...order,
-                  restaurantName: order.restaurantName,
-                  restaurantAddress: order.restaurantAddress,
-                  customerAddress: order.customerAddress,
-                  amount: order.amount,
-                  distance: order.distance,
-                  estimatedTime: order.estimatedTime,
-                  items: order.items,
-                  status: OrderStatus.OutForDelivery,
-                  accepted_at: new Date().toISOString(),
-                },
-              ]);
+
+              // Update order status to out for delivery
+              await orderService.updateOrderStatus(
+                order._id,
+                OrderStatus.OutForDelivery
+              );
+
+              // Refresh orders
+              await fetchOrders();
 
               Alert.alert("Success", "Order accepted successfully");
             } catch (error) {
@@ -184,6 +196,7 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
             onPress: () => {
               setIsOnline(false);
               stopWatchingPosition();
+              updateDeliveryStatus(false);
             },
           },
         ]
@@ -192,6 +205,7 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
       // Going online
       setIsOnline(true);
       startWatchingPosition();
+      updateDeliveryStatus(true);
       fetchOrders();
     }
   };
@@ -225,7 +239,7 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
           </View>
         </View>
         <Text style={[styles.orderAmount, { color: theme.colors.text }]}>
-          ${item.amount?.toFixed(2) || "0.00"}
+          ${item.total?.toFixed(2) || "0.00"}
         </Text>
       </View>
 
@@ -240,8 +254,8 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
             style={[styles.locationText, { color: theme.colors.text }]}
             numberOfLines={1}
           >
-            {item.restaurantName || "Restaurant"}:{" "}
-            {item.restaurantAddress || "Address"}
+            {item.restaurant?.name || "Restaurant"}:{" "}
+            {item.restaurant?.address || "Address"}
           </Text>
         </View>
 
@@ -263,7 +277,7 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
             style={[styles.locationText, { color: theme.colors.text }]}
             numberOfLines={1}
           >
-            Customer: {item.customerAddress || "Address"}
+            Customer: {item.deliveryAddress?.address || "Address"}
           </Text>
         </View>
       </View>
@@ -312,18 +326,25 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
           </Text>
           <View style={styles.orderDetails}>
             <Text style={[styles.orderItems, { color: theme.colors.darkGray }]}>
-              {item.items} {item.items === 1 ? "item" : "items"}
+              {item.items?.length || 0}{" "}
+              {item.items?.length === 1 ? "item" : "items"}
             </Text>
             <View style={styles.dot} />
             <Text
               style={[styles.orderDistance, { color: theme.colors.darkGray }]}
             >
-              {item.distance} km
+              {calculateDistance(
+                currentLocation?.lat,
+                currentLocation?.lng,
+                item.restaurant?.location?.lat,
+                item.restaurant?.location?.lng
+              ).toFixed(1)}{" "}
+              km
             </Text>
           </View>
         </View>
         <Text style={[styles.orderAmount, { color: theme.colors.text }]}>
-          ${item.amount.toFixed(2)}
+          ${item.total?.toFixed(2) || "0.00"}
         </Text>
       </View>
 
@@ -338,7 +359,8 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
             style={[styles.locationText, { color: theme.colors.text }]}
             numberOfLines={1}
           >
-            {item.restaurantName}: {item.restaurantAddress}
+            {item.restaurant?.name || "Restaurant"}:{" "}
+            {item.restaurant?.address || "Address"}
           </Text>
         </View>
 
@@ -360,7 +382,7 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
             style={[styles.locationText, { color: theme.colors.text }]}
             numberOfLines={1}
           >
-            {item.customerAddress}
+            {item.deliveryAddress?.address || "Address"}
           </Text>
         </View>
       </View>
@@ -372,7 +394,7 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
           color={theme.colors.darkGray}
         />
         <Text style={[styles.estimateText, { color: theme.colors.darkGray }]}>
-          Estimated delivery time: {item.estimatedTime} min
+          Estimated delivery time: {item.estimatedDeliveryTime || 30} min
         </Text>
       </View>
 
@@ -386,6 +408,29 @@ const DeliveryHomeScreen = ({ navigation }: any) => {
       </TouchableOpacity>
     </View>
   );
+
+  // Calculate distance between two points
+  const calculateDistance = (
+    lat1?: number,
+    lng1?: number,
+    lat2?: number,
+    lng2?: number
+  ) => {
+    if (!lat1 || !lng1 || !lat2 || !lng2) return 0;
+
+    const R = 6371; // Earth's radius in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lng2 - lng1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c;
+    return d;
+  };
 
   // Render empty state
   const renderEmptyState = (isActive: boolean) => (

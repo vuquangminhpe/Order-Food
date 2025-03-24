@@ -13,84 +13,8 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
-import { orderService } from "../api/orderService";
+import { orderService, OrderStatus } from "../api/orderService";
 
-// Mock data for earnings statistics
-const mockEarningsData = {
-  today: 45.5,
-  week: 320.75,
-  month: 1250.3,
-  pendingPayment: 165.8,
-  earnings: [
-    {
-      id: "1",
-      date: "2023-07-15",
-      amount: 42.5,
-      orders: 5,
-      status: "Paid",
-      paymentDate: "2023-07-16",
-    },
-    {
-      id: "2",
-      date: "2023-07-14",
-      amount: 38.25,
-      orders: 4,
-      status: "Paid",
-      paymentDate: "2023-07-15",
-    },
-    {
-      id: "3",
-      date: "2023-07-13",
-      amount: 51.75,
-      orders: 6,
-      status: "Paid",
-      paymentDate: "2023-07-14",
-    },
-    {
-      id: "4",
-      date: "2023-07-12",
-      amount: 29.8,
-      orders: 3,
-      status: "Paid",
-      paymentDate: "2023-07-13",
-    },
-    {
-      id: "5",
-      date: "2023-07-11",
-      amount: 45.2,
-      orders: 5,
-      status: "Paid",
-      paymentDate: "2023-07-12",
-    },
-    {
-      id: "6",
-      date: "2023-07-10",
-      amount: 33.4,
-      orders: 4,
-      status: "Paid",
-      paymentDate: "2023-07-11",
-    },
-    {
-      id: "7",
-      date: "2023-07-09",
-      amount: 47.6,
-      orders: 5,
-      status: "Paid",
-      paymentDate: "2023-07-10",
-    },
-  ],
-  weeklyChart: [
-    { day: "Mon", amount: 45.2 },
-    { day: "Tue", amount: 33.4 },
-    { day: "Wed", amount: 47.6 },
-    { day: "Thu", amount: 29.8 },
-    { day: "Fri", amount: 51.75 },
-    { day: "Sat", amount: 38.25 },
-    { day: "Sun", amount: 42.5 },
-  ],
-};
-
-// Periods for filtering earnings
 const PERIODS = [
   { id: "today", label: "Today" },
   { id: "week", label: "This Week" },
@@ -102,30 +26,55 @@ const DeliveryEarningsScreen = ({ navigation }: any) => {
   const { theme } = useTheme();
   const { user } = useAuth();
 
-  // State
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [earningsData, setEarningsData] = useState<
-    typeof mockEarningsData | null
-  >(null);
+  const [earningsData, setEarningsData] = useState<any | null>(null);
   const [activePeriod, setActivePeriod] = useState<
     "today" | "week" | "month" | "year"
   >("week");
 
-  // Fetch earnings data
   const fetchEarningsData = async () => {
     try {
       setError(null);
       if (!refreshing) {
         setLoading(true);
       }
+      const now = new Date();
+      let startDate = new Date();
 
-      // In a real app, you would call an API to get earnings data
-      // For demonstration, we'll use mock data
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (activePeriod === "today") {
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      } else if (activePeriod === "week") {
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 7);
+      } else if (activePeriod === "month") {
+        startDate = new Date(now);
+        startDate.setMonth(now.getMonth() - 1);
+      } else if (activePeriod === "year") {
+        startDate = new Date(now);
+        startDate.setFullYear(now.getFullYear() - 1);
+      }
 
-      setEarningsData(mockEarningsData as any);
+      const historyParams = {
+        startDate: startDate.toISOString(),
+        limit: 100,
+        page: 1,
+      };
+
+      const deliveryHistoryResponse = await orderService.getDeliveryHistory(
+        historyParams
+      );
+      const deliveries = deliveryHistoryResponse.orders || [];
+
+      // Calculate earnings from the delivery history
+      const calculatedEarnings = calculateEarningsFromHistory(
+        deliveries,
+        activePeriod,
+        startDate
+      );
+
+      setEarningsData(calculatedEarnings);
     } catch (err) {
       console.error("Error fetching earnings data:", err);
       setError("Failed to load earnings data. Please try again.");
@@ -133,6 +82,105 @@ const DeliveryEarningsScreen = ({ navigation }: any) => {
       setLoading(false);
       setRefreshing(false);
     }
+  };
+
+  // Calculate earnings from delivery history
+  const calculateEarningsFromHistory = (
+    deliveries: any[],
+    period: string,
+    startDate: Date
+  ) => {
+    // Filter completed deliveries
+    const completedDeliveries = deliveries.filter(
+      (delivery) => delivery.orderStatus === OrderStatus.Delivered
+    );
+
+    // Calculate total earnings for the period
+    const totalEarnings = completedDeliveries.reduce(
+      (total, delivery) => total + (delivery.deliveryFee || 0),
+      0
+    );
+
+    // Calculate pending payments (orders that are out for delivery but not yet delivered)
+    const pendingDeliveries = deliveries.filter(
+      (delivery) => delivery.orderStatus === OrderStatus.OutForDelivery
+    );
+    const pendingPayment = pendingDeliveries.reduce(
+      (total, delivery) => total + (delivery.deliveryFee || 0),
+      0
+    );
+
+    // Calculate earnings for different periods
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+
+    const todayEarnings = completedDeliveries
+      .filter((delivery) => new Date(delivery.created_at) >= todayStart)
+      .reduce((total, delivery) => total + (delivery.deliveryFee || 0), 0);
+
+    const weekEarnings = completedDeliveries
+      .filter((delivery) => new Date(delivery.created_at) >= weekStart)
+      .reduce((total, delivery) => total + (delivery.deliveryFee || 0), 0);
+
+    const monthEarnings = completedDeliveries
+      .filter((delivery) => new Date(delivery.created_at) >= monthStart)
+      .reduce((total, delivery) => total + (delivery.deliveryFee || 0), 0);
+
+    // Create daily data for the chart
+    // For week view, show last 7 days
+    const weeklyChartData = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+
+      const nextDay = new Date(date);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      const dayEarnings = completedDeliveries
+        .filter(
+          (delivery) =>
+            new Date(delivery.created_at) >= date &&
+            new Date(delivery.created_at) < nextDay
+        )
+        .reduce((total, delivery) => total + (delivery.deliveryFee || 0), 0);
+
+      const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
+        date.getDay()
+      ];
+
+      weeklyChartData.push({
+        day: dayName,
+        amount: dayEarnings,
+      });
+    }
+
+    // Format the delivery history for display
+    const earningsHistory = completedDeliveries.map((delivery) => ({
+      id: delivery._id,
+      date: delivery.created_at,
+      amount: delivery.deliveryFee || 0,
+      orders: 1,
+      status: "Paid",
+      paymentDate: delivery.updated_at,
+    }));
+
+    return {
+      today: todayEarnings,
+      week: weekEarnings,
+      month: monthEarnings,
+      pendingPayment,
+      earnings: earningsHistory,
+      weeklyChart: weeklyChartData,
+    };
   };
 
   // Initial fetch
@@ -163,7 +211,9 @@ const DeliveryEarningsScreen = ({ navigation }: any) => {
 
   // Get max value in chart data for scaling
   const getMaxValue = (data: any[]) => {
-    return Math.max(...data.map((item: { amount: any }) => item.amount)) * 1.2; // Add 20% buffer
+    return (
+      Math.max(...data.map((item: { amount: any }) => item.amount)) * 1.2 || 10
+    ); // Add 20% buffer, default to 10 if all values are 0
   };
 
   // Render chart
@@ -199,7 +249,7 @@ const DeliveryEarningsScreen = ({ navigation }: any) => {
                   style={[
                     styles.bar,
                     {
-                      height: `${(item.amount / maxValue) * 100}%`,
+                      height: `${Math.max((item.amount / maxValue) * 100, 1)}%`,
                       backgroundColor: theme.colors.primary,
                     },
                   ]}

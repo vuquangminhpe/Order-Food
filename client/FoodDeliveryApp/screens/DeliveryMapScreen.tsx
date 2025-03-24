@@ -15,6 +15,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLocation } from "../contexts/LocationContext";
 import { orderService, OrderStatus } from "../api/orderService";
+import { userService } from "../api/userService";
 
 const { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
@@ -28,8 +29,8 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
 
   // State
   const [loading, setLoading] = useState(true);
-  const [activeDeliveries, setActiveDeliveries] = useState([]);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [activeDeliveries, setActiveDeliveries] = useState<any>([]);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [region, setRegion] = useState<{
     latitude: number;
     longitude: number;
@@ -38,6 +39,8 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
   } | null>(null);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [error, setError] = useState<string | null>(null);
+  const [locationUpdateInterval, setLocationUpdateInterval] =
+    useState<any>(null);
 
   // Fetch active deliveries
   const fetchActiveDeliveries = async () => {
@@ -45,60 +48,16 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
       setLoading(true);
       setError(null);
 
-      // In a real app, fetch from API
-      const deliveries = await orderService.getActiveDeliveryOrders();
-      setActiveDeliveries(deliveries || []);
-
-      // Mock data for demonstration if no real data
-      if (!deliveries || deliveries.length === 0) {
-        const mockDeliveries = [
-          {
-            _id: "order-1",
-            orderNumber: `ORD-${Math.floor(Math.random() * 10000)}`,
-            restaurantName: "Pizza Palace",
-            customerName: "John Smith",
-            status: OrderStatus.OutForDelivery,
-            amount: 45.5,
-            restaurant: {
-              location: {
-                lat: ((currentLocation as any)?.lat || 37.7749) - 0.01,
-                lng: ((currentLocation as any)?.lng || -122.4194) + 0.01,
-              },
-            },
-            deliveryAddress: {
-              lat: ((currentLocation as any)?.lat || 37.7749) + 0.01,
-              lng: ((currentLocation as any)?.lng || -122.4194) - 0.01,
-              address: "123 Main St, San Francisco, CA",
-            },
-          },
-          {
-            _id: "order-2",
-            orderNumber: `ORD-${Math.floor(Math.random() * 10000)}`,
-            restaurantName: "Burger Joint",
-            customerName: "Sarah Johnson",
-            status: OrderStatus.ReadyForPickup,
-            amount: 32.75,
-            restaurant: {
-              location: {
-                lat: ((currentLocation as any)?.lat || 37.7749) + 0.015,
-                lng: ((currentLocation as any)?.lng || -122.4194) + 0.01,
-              },
-            },
-            deliveryAddress: {
-              lat: ((currentLocation as any)?.lat || 37.7749) + 0.02,
-              lng: ((currentLocation as any)?.lng || -122.4194) + 0.02,
-              address: "456 Oak Ave, San Francisco, CA",
-            },
-          },
-        ];
-        setActiveDeliveries(mockDeliveries as any);
-      }
+      // Fetch active deliveries from API
+      const activeDeliveriesResponse =
+        await orderService.getActiveDeliveryOrders();
+      setActiveDeliveries(activeDeliveriesResponse || []);
 
       // Set initial region to current location
       if (currentLocation) {
         setRegion({
-          latitude: (currentLocation as any).lat,
-          longitude: (currentLocation as any).lng,
+          latitude: currentLocation.lat,
+          longitude: currentLocation.lng,
           latitudeDelta: LATITUDE_DELTA,
           longitudeDelta: LONGITUDE_DELTA,
         });
@@ -114,14 +73,68 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
   // Initialize
   useEffect(() => {
     fetchActiveDeliveries();
+
+    // Start periodic location updates
+    startLocationUpdates();
+
+    return () => {
+      // Clean up
+      if (locationUpdateInterval) {
+        clearInterval(locationUpdateInterval);
+      }
+    };
   }, []);
+
+  // Start sending location updates to server
+  const startLocationUpdates = () => {
+    // Clear any existing interval
+    if (locationUpdateInterval) {
+      clearInterval(locationUpdateInterval);
+    }
+
+    // Set up a new interval
+    const interval = setInterval(() => {
+      updateLocationIfNeeded();
+    }, 30000); // Update every 30 seconds
+
+    setLocationUpdateInterval(interval);
+
+    // Immediate update
+    updateLocationIfNeeded();
+  };
+
+  // Update location on server if we have an active delivery and valid location
+  const updateLocationIfNeeded = async () => {
+    if (!currentLocation || activeDeliveries.length === 0) return;
+
+    try {
+      // Update user location
+      await userService.updateLocation(
+        currentLocation.lat,
+        currentLocation.lng
+      );
+
+      // Update delivery location for each active order
+      for (const order of activeDeliveries) {
+        if (order.orderStatus === OrderStatus.OutForDelivery) {
+          await orderService.updateDeliveryLocation(
+            order._id,
+            currentLocation.lat,
+            currentLocation.lng
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Error updating location:", err);
+    }
+  };
 
   // Update region when current location changes
   useEffect(() => {
     if (currentLocation && !selectedOrder) {
       setRegion({
-        latitude: (currentLocation as any).lat,
-        longitude: (currentLocation as any).lng,
+        latitude: currentLocation.lat,
+        longitude: currentLocation.lng,
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
       });
@@ -134,30 +147,30 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
       const coordinates = [];
 
       // If order status is ready for pickup, route is from current location to restaurant
-      if ((selectedOrder as any).status === OrderStatus.ReadyForPickup) {
+      if (selectedOrder.orderStatus === OrderStatus.ReadyForPickup) {
         coordinates.push({
-          latitude: (currentLocation as any).lat,
-          longitude: (currentLocation as any).lng,
+          latitude: currentLocation.lat,
+          longitude: currentLocation.lng,
         });
 
-        if ((selectedOrder as any).restaurant?.location) {
+        if (selectedOrder.restaurant?.location) {
           coordinates.push({
-            latitude: (selectedOrder as any).restaurant.location.lat,
-            longitude: (selectedOrder as any).restaurant.location.lng,
+            latitude: selectedOrder.restaurant.location.lat,
+            longitude: selectedOrder.restaurant.location.lng,
           });
         }
       }
       // If order status is out for delivery, route is from current location to customer
-      else if ((selectedOrder as any).status === OrderStatus.OutForDelivery) {
+      else if (selectedOrder.orderStatus === OrderStatus.OutForDelivery) {
         coordinates.push({
-          latitude: (currentLocation as any).lat,
-          longitude: (currentLocation as any).lng,
+          latitude: currentLocation.lat,
+          longitude: currentLocation.lng,
         });
 
-        if ((selectedOrder as any).deliveryAddress) {
+        if (selectedOrder.deliveryAddress) {
           coordinates.push({
-            latitude: (selectedOrder as any).deliveryAddress.lat,
-            longitude: (selectedOrder as any).deliveryAddress.lng,
+            latitude: selectedOrder.deliveryAddress.lat,
+            longitude: selectedOrder.deliveryAddress.lng,
           });
         }
       }
@@ -180,7 +193,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
 
     // Center map on appropriate locations
     if (
-      order.status === OrderStatus.ReadyForPickup &&
+      order.orderStatus === OrderStatus.ReadyForPickup &&
       order.restaurant?.location
     ) {
       setRegion({
@@ -190,7 +203,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
         longitudeDelta: LONGITUDE_DELTA,
       });
     } else if (
-      order.status === OrderStatus.OutForDelivery &&
+      order.orderStatus === OrderStatus.OutForDelivery &&
       order.deliveryAddress
     ) {
       setRegion({
@@ -218,16 +231,16 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
             try {
               setLoading(true);
 
-              // In a real app, you would call an API to mark the order as delivered
-              // await orderService.updateOrderStatus((selectedOrder as any)._id, OrderStatus.Delivered);
-
-              // For demo, we'll simulate a successful delivery
-              await new Promise((resolve) => setTimeout(resolve, 1000));
-
-              // Remove from active deliveries
-              setActiveDeliveries((prev) =>
-                prev.filter((o: any) => o._id !== (selectedOrder as any)._id)
+              // Call API to update order status
+              await orderService.updateOrderStatus(
+                selectedOrder._id,
+                OrderStatus.Delivered
               );
+
+              // Refresh active deliveries
+              await fetchActiveDeliveries();
+
+              // Clear selected order
               setSelectedOrder(null);
 
               Alert.alert("Success", "Delivery completed successfully");
@@ -259,25 +272,18 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
             try {
               setLoading(true);
 
-              // In a real app, you would call an API to mark the order as out for delivery
-              // await orderService.updateOrderStatus((selectedOrder as any)._id, OrderStatus.OutForDelivery);
-
-              // For demo, we'll simulate a successful pickup
-              await new Promise((resolve) => setTimeout(resolve, 1000));
-
-              // Update order status
-              setActiveDeliveries((prev: any) =>
-                prev.map((o: any) =>
-                  o._id === (selectedOrder as any)._id
-                    ? { ...o, status: OrderStatus.OutForDelivery }
-                    : o
-                )
+              // Call API to update order status
+              await orderService.updateOrderStatus(
+                selectedOrder._id,
+                OrderStatus.OutForDelivery
               );
 
-              setSelectedOrder((prev: any) => ({
-                ...prev,
-                status: OrderStatus.OutForDelivery,
-              }));
+              // Refresh the selected order and active deliveries
+              const updatedOrder = await orderService.getOrderById(
+                selectedOrder._id
+              );
+              setSelectedOrder(updatedOrder);
+              await fetchActiveDeliveries();
 
               Alert.alert("Success", "Order picked up successfully");
             } catch (error) {
@@ -297,16 +303,16 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
     if (!currentLocation) return;
 
     setRegion({
-      latitude: (currentLocation as any).lat,
-      longitude: (currentLocation as any).lng,
+      latitude: currentLocation.lat,
+      longitude: currentLocation.lng,
       latitudeDelta: LATITUDE_DELTA,
       longitudeDelta: LONGITUDE_DELTA,
     });
 
     if (mapRef.current) {
       mapRef.current.animateToRegion({
-        latitude: (currentLocation as any).lat,
-        longitude: (currentLocation as any).lng,
+        latitude: currentLocation.lat,
+        longitude: currentLocation.lng,
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
       });
@@ -322,8 +328,8 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
     // Add current location
     if (currentLocation) {
       coordinates.push({
-        latitude: (currentLocation as any).lat,
-        longitude: (currentLocation as any).lng,
+        latitude: currentLocation.lat,
+        longitude: currentLocation.lng,
       });
     }
 
@@ -400,7 +406,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                         latitude: delivery.restaurant.location.lat,
                         longitude: delivery.restaurant.location.lng,
                       }}
-                      title={delivery.restaurantName || "Restaurant"}
+                      title={delivery.restaurant.name || "Restaurant"}
                       description={`Order #${delivery.orderNumber}`}
                       onPress={() => handleOrderPress(delivery)}
                     >
@@ -430,7 +436,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                         latitude: delivery.deliveryAddress.lat,
                         longitude: delivery.deliveryAddress.lng,
                       }}
-                      title={delivery.customerName || "Customer"}
+                      title={delivery.user?.name || "Customer"}
                       description={delivery.deliveryAddress.address}
                       onPress={() => handleOrderPress(delivery)}
                     >
@@ -516,7 +522,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                   <Text
                     style={[styles.orderNumber, { color: theme.colors.text }]}
                   >
-                    Order #{(selectedOrder as any).orderNumber}
+                    Order #{selectedOrder.orderNumber}
                   </Text>
                   <Text
                     style={[
@@ -524,8 +530,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                       { color: theme.colors.primary },
                     ]}
                   >
-                    {(selectedOrder as any).status ===
-                    OrderStatus.ReadyForPickup
+                    {selectedOrder.orderStatus === OrderStatus.ReadyForPickup
                       ? "Ready for Pickup"
                       : "Out for Delivery"}
                   </Text>
@@ -533,13 +538,12 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                 <Text
                   style={[styles.orderAmount, { color: theme.colors.text }]}
                 >
-                  ${(selectedOrder as any).amount?.toFixed(2) || "0.00"}
+                  ${selectedOrder.total?.toFixed(2) || "0.00"}
                 </Text>
               </View>
 
               <View style={styles.locationDetails}>
-                {(selectedOrder as any).status ===
-                OrderStatus.ReadyForPickup ? (
+                {selectedOrder.orderStatus === OrderStatus.ReadyForPickup ? (
                   // Show restaurant details for pickup
                   <View style={styles.locationItem}>
                     <MaterialCommunityIcons
@@ -562,7 +566,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                           { color: theme.colors.text },
                         ]}
                       >
-                        {(selectedOrder as any).restaurantName}
+                        {selectedOrder.restaurant?.name || "Restaurant"}
                       </Text>
                     </View>
                   </View>
@@ -589,7 +593,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                           { color: theme.colors.text },
                         ]}
                       >
-                        {(selectedOrder as any).customerName || "Customer"}
+                        {selectedOrder.user?.name || "Customer"}
                       </Text>
                       <Text
                         style={[
@@ -597,8 +601,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                           { color: theme.colors.darkGray },
                         ]}
                       >
-                        {(selectedOrder as any).deliveryAddress?.address ||
-                          "Address"}
+                        {selectedOrder.deliveryAddress?.address || "Address"}
                       </Text>
                     </View>
                   </View>
@@ -613,7 +616,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                   ]}
                   onPress={() =>
                     navigation.navigate("DeliveryOrderDetails", {
-                      orderId: (selectedOrder as any)._id,
+                      orderId: selectedOrder._id,
                       order: selectedOrder,
                     })
                   }
@@ -634,7 +637,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                     { backgroundColor: theme.colors.primary },
                   ]}
                   onPress={
-                    (selectedOrder as any).status === OrderStatus.ReadyForPickup
+                    selectedOrder.orderStatus === OrderStatus.ReadyForPickup
                       ? handlePickupOrder
                       : handleCompleteDelivery
                   }
@@ -645,8 +648,7 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                       { color: theme.colors.white },
                     ]}
                   >
-                    {(selectedOrder as any).status ===
-                    OrderStatus.ReadyForPickup
+                    {selectedOrder.orderStatus === OrderStatus.ReadyForPickup
                       ? "Confirm Pickup"
                       : "Complete Delivery"}
                   </Text>
@@ -685,10 +687,12 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                             { color: theme.colors.darkGray },
                           ]}
                         >
-                          {delivery.status === OrderStatus.ReadyForPickup
-                            ? `Pickup: ${delivery.restaurantName}`
+                          {delivery.orderStatus === OrderStatus.ReadyForPickup
+                            ? `Pickup: ${
+                                delivery.restaurant?.name || "Restaurant"
+                              }`
                             : `Deliver to: ${
-                                delivery.customerName || "Customer"
+                                delivery.user?.name || "Customer"
                               }`}
                         </Text>
                       </View>
@@ -697,7 +701,8 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                           styles.orderItemStatus,
                           {
                             backgroundColor:
-                              delivery.status === OrderStatus.ReadyForPickup
+                              delivery.orderStatus ===
+                              OrderStatus.ReadyForPickup
                                 ? theme.colors.secondary + "20"
                                 : theme.colors.primary + "20",
                           },
@@ -708,13 +713,14 @@ const DeliveryMapScreen = ({ route, navigation }: any) => {
                             styles.orderItemStatusText,
                             {
                               color:
-                                delivery.status === OrderStatus.ReadyForPickup
+                                delivery.orderStatus ===
+                                OrderStatus.ReadyForPickup
                                   ? theme.colors.secondary
                                   : theme.colors.primary,
                             },
                           ]}
                         >
-                          {delivery.status === OrderStatus.ReadyForPickup
+                          {delivery.orderStatus === OrderStatus.ReadyForPickup
                             ? "Pickup"
                             : "Deliver"}
                         </Text>

@@ -34,6 +34,8 @@ interface LocationContextType {
   addAddress: (address: Omit<Address, "id">) => Address;
   updateAddress: (addressId: string, updatedData: Partial<Address>) => void;
   deleteAddress: (addressId: string) => void;
+  startWatchingPosition: () => void;
+  stopWatchingPosition: () => void;
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(
@@ -53,6 +55,8 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [locationWatcher, setLocationWatcher] =
+    useState<Location.LocationSubscription | null>(null);
 
   // Function to get the current location
   const getCurrentLocation = async (): Promise<void> => {
@@ -108,6 +112,52 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({
     }
   };
 
+  // Function to start watching position
+  const startWatchingPosition = async (): Promise<void> => {
+    try {
+      // Request permission if not already granted
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+
+      // Stop any existing watcher
+      if (locationWatcher) {
+        stopWatchingPosition();
+      }
+
+      // Start watching position
+      const watcher = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 5000, // Update every 5 seconds
+          distanceInterval: 10, // Update if moved by 10 meters
+        },
+        (location) => {
+          const { latitude, longitude } = location.coords;
+          setCurrentLocation({
+            lat: latitude,
+            lng: longitude,
+          });
+        }
+      );
+
+      setLocationWatcher(watcher);
+    } catch (error) {
+      console.error("Error watching position:", error);
+      setErrorMsg("Failed to watch your location");
+    }
+  };
+
+  // Function to stop watching position
+  const stopWatchingPosition = (): void => {
+    if (locationWatcher) {
+      locationWatcher.remove();
+      setLocationWatcher(null);
+    }
+  };
+
   const selectAddress = (address: Address): void => {
     setSelectedAddress(address);
   };
@@ -141,6 +191,10 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({
   // Initial location fetch
   useEffect(() => {
     getCurrentLocation();
+    return () => {
+      // Clean up location watcher on component unmount
+      stopWatchingPosition();
+    };
   }, []);
 
   return (
@@ -156,6 +210,8 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({
         addAddress,
         updateAddress,
         deleteAddress,
+        startWatchingPosition,
+        stopWatchingPosition,
       }}
     >
       {children}
